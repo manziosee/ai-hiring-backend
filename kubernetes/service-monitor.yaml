@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ai-hiring-monitor
+  namespace: ai-hiring
+  labels:
+    app: ai-hiring
+spec:
+  selector:
+    matchLabels:
+      app: main-api
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
