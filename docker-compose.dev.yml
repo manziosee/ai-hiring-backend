@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: ai-hiring-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  ml-service:
+    build: ./microservices/ml-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./microservices/ml-service:/app
+    develop:
+      watch:
+        - path: ./microservices/ml-service
+          action: sync
+          target: /app
+
+  email-service:
+    build: ./microservices/email-service
+    ports:
+      - "3002:3002"
+    environment:
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - NODE_ENV=development
+    volumes:
+      - ./microservices/email-service:/app
+      - /app/node_modules
+
+  main-api:
+    build:
+      context: .
+      target: development
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Debug port
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/ai-hiring-db
+      - JWT_SECRET=dev-jwt-secret
+      - ML_SERVICE_HOST=ml-service
+      - ML_SERVICE_PORT=8000
+      - EMAIL_SERVICE_HOST=email-service
+      - EMAIL_SERVICE_PORT=3002
+      - APP_URL=http://localhost:3000
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
+
+volumes:
+  postgres_data:

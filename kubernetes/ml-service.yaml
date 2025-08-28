@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-service
+  namespace: ai-hiring
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ml-service
+  template:
+    metadata:
+      labels:
+        app: ml-service
+    spec:
+      containers:
+      - name: ml-service
+        image: ai-hiring-ml:latest
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        env:
+        - name: PYTHONPATH
+          value: "/app"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-service
+  namespace: ai-hiring
+spec:
+  selector:
+    app: ml-service
+  ports:
+  - port: 8000
+    targetPort: 8000
