@@ -1,0 +1,68 @@
+name: Branch Protection Setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-branch-protection:
+    name: Setup Branch Protection Rules
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Setup Branch Protection for main
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          try {
+            await github.rest.repos.updateBranchProtection({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              branch: 'main',
+              required_status_checks: {
+                strict: true,
+                contexts: ['Test Suite', 'Lint Code', 'Security Audit', 'Build']
+              },
+              enforce_admins: false,
+              required_pull_request_reviews: {
+                required_approving_review_count: 1,
+                dismiss_stale_reviews: true,
+                require_code_owner_reviews: false
+              },
+              restrictions: null,
+              allow_force_pushes: false,
+              allow_deletions: false
+            });
+            console.log('Branch protection rules set for main branch');
+          } catch (error) {
+            console.error('Error setting branch protection for main:', error);
+          }
+
+    - name: Setup Branch Protection for dev
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          try {
+            await github.rest.repos.updateBranchProtection({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              branch: 'dev',
+              required_status_checks: {
+                strict: true,
+                contexts: ['Test Suite', 'Lint Code', 'Security Audit']
+              },
+              enforce_admins: false,
+              required_pull_request_reviews: {
+                required_approving_review_count: 1,
+                dismiss_stale_reviews: true,
+                require_code_owner_reviews: false
+              },
+              restrictions: null,
+              allow_force_pushes: false,
+              allow_deletions: false
+            });
+            console.log('Branch protection rules set for dev branch');
+          } catch (error) {
+            console.error('Error setting branch protection for dev:', error);
+          }

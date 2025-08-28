@@ -1,0 +1,20 @@
+# Global code owners
+* @manziosee
+
+# Backend API code
+/src/ @manziosee
+/prisma/ @manziosee
+
+# Infrastructure and deployment
+/kubernetes/ @manziosee
+/docker-compose.yml @manziosee
+/Dockerfile @manziosee
+/.github/workflows/ @manziosee
+/deploy.sh @manziosee
+
+# Microservices
+/microservices/ @manziosee
+
+# Documentation
+/README.md @manziosee
+/docs/ @manziosee
