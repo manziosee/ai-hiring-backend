@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  Inject,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { ApplicationStatus } from '@prisma/client';
@@ -11,7 +16,10 @@ export class ApplicationsService {
     @Inject(EmailService) private emailService: EmailService,
   ) {}
 
-  async create(createApplicationDto: CreateApplicationDto, candidateId: string) {
+  async create(
+    createApplicationDto: CreateApplicationDto,
+    candidateId: string,
+  ) {
     // Get candidate to find userId
     const candidate = await this.prisma.candidate.findUnique({
       where: { id: candidateId },
@@ -56,19 +64,21 @@ export class ApplicationsService {
         },
       },
     });
-    
+
     // Send email notification
     const job = await this.prisma.job.findUnique({
       where: { id: createApplicationDto.jobId },
     });
 
     if (candidate && job) {
-      this.emailService.sendApplicationSubmitted(
-        candidate.user.email,
-        candidate.name,
-        job.title,
-        'Company Name' // Placeholder for company name
-      ).catch(console.error);
+      this.emailService
+        .sendApplicationSubmitted(
+          candidate.user.email,
+          candidate.name,
+          job.title,
+          'Company Name', // Placeholder for company name
+        )
+        .catch(console.error);
     }
 
     return application;
@@ -84,7 +94,9 @@ export class ApplicationsService {
     }
 
     if (job.createdBy !== userId) {
-      throw new ForbiddenException('You can only view applications for your own jobs');
+      throw new ForbiddenException(
+        'You can only view applications for your own jobs',
+      );
     }
 
     return this.prisma.application.findMany({
@@ -166,7 +178,9 @@ export class ApplicationsService {
     }
 
     if (application.job.createdBy !== userId) {
-      throw new ForbiddenException('You can only update applications for your own jobs');
+      throw new ForbiddenException(
+        'You can only update applications for your own jobs',
+      );
     }
 
     const updatedApplication = await this.prisma.application.update({
@@ -187,7 +201,7 @@ export class ApplicationsService {
         job: true,
       },
     });
-    
+
     // Send status update email
     const candidate = await this.prisma.candidate.findUnique({
       where: { id: application.candidateId },
@@ -195,12 +209,14 @@ export class ApplicationsService {
     });
 
     if (candidate) {
-      this.emailService.sendStatusUpdate(
-        candidate.user.email,
-        candidate.name,
-        updatedApplication.job.title,
-        status
-      ).catch(console.error);
+      this.emailService
+        .sendStatusUpdate(
+          candidate.user.email,
+          candidate.name,
+          updatedApplication.job.title,
+          status,
+        )
+        .catch(console.error);
     }
 
     return updatedApplication;

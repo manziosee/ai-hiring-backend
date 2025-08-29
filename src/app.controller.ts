@@ -9,7 +9,10 @@ export class AppController {
 
   @Get()
   @ApiOperation({ summary: 'Get API welcome message' })
-  @ApiResponse({ status: 200, description: 'Welcome message retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Welcome message retrieved successfully',
+  })
   getHello(): string {
     return this.appService.getHello();
   }

@@ -1,11 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { ApplicationStatus } from '@prisma/client';
 import { CreateApplicationDto } from './dto/create-application.dto';
-import { createMockPrismaService, MockPrismaService } from '../test/prisma-mock';
+import {
+  createMockPrismaService,
+  MockPrismaService,
+} from '../test/prisma-mock';
 
 describe('ApplicationsService', () => {
   let service: ApplicationsService;
@@ -79,7 +86,9 @@ describe('ApplicationsService', () => {
     }).compile();
 
     service = module.get<ApplicationsService>(ApplicationsService);
-    emailService = module.get<EmailService>(EmailService) as jest.Mocked<EmailService>;
+    emailService = module.get<EmailService>(
+      EmailService,
+    ) as jest.Mocked<EmailService>;
   });
 
   afterEach(() => {
@@ -98,8 +107,12 @@ describe('ApplicationsService', () => {
       prismaService.candidate.findUnique.mockResolvedValue(mockCandidate);
       prismaService.application.create.mockResolvedValue(mockApplication);
       // Mock email service methods (these don't exist in the actual service)
-      (emailService as any).sendApplicationConfirmation = jest.fn().mockResolvedValue(undefined);
-      (emailService as any).sendApplicationNotification = jest.fn().mockResolvedValue(undefined);
+      emailService.sendApplicationConfirmation = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      emailService.sendApplicationNotification = jest
+        .fn()
+        .mockResolvedValue(undefined);
 
       const result = await service.create(createApplicationDto, '1');
 
@@ -194,9 +207,15 @@ describe('ApplicationsService', () => {
 
       prismaService.application.findUnique.mockResolvedValue(mockApplication);
       prismaService.application.update.mockResolvedValue(updatedApplication);
-      (emailService as any).sendApplicationStatusUpdate = jest.fn().mockResolvedValue(undefined);
+      emailService.sendApplicationStatusUpdate = jest
+        .fn()
+        .mockResolvedValue(undefined);
 
-      const result = await service.updateStatus('1', ApplicationStatus.OFFER, 'user1');
+      const result = await service.updateStatus(
+        '1',
+        ApplicationStatus.OFFER,
+        'user1',
+      );
 
       expect(prismaService.application.findUnique).toHaveBeenCalledWith({
         where: { id: '1' },
@@ -230,7 +249,9 @@ describe('ApplicationsService', () => {
         ...mockApplication,
         status: ApplicationStatus.REJECTED,
       };
-      prismaService.application.findUnique.mockResolvedValue(rejectedApplication);
+      prismaService.application.findUnique.mockResolvedValue(
+        rejectedApplication,
+      );
 
       await expect(
         service.updateStatus('1', ApplicationStatus.OFFER, 'user1'),

@@ -1,6 +1,21 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Req, UseGuards, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  Req,
+  UseGuards,
+  BadRequestException,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { FileUploadService } from './file-upload.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -33,23 +48,25 @@ export class FileUploadController {
     },
   })
   @ApiResponse({ status: 201, description: 'Resume uploaded successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid file format or candidate profile not found' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid file format or candidate profile not found',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Candidates only' })
-  async uploadResume(
-    @UploadedFile() file: Express.Multer.File,
-    @Req() req,
-  ) {
+  async uploadResume(@UploadedFile() file: Express.Multer.File, @Req() req) {
     await this.fileUploadService.validateFile(file);
-    
+
     // Get candidate profile for the user
     const candidate = await this.getCandidateProfile(req.user.id);
-    
+
     return this.fileUploadService.saveResume(file, candidate.id);
   }
 
   private async getCandidateProfile(userId: string) {
-    const candidate = await this.fileUploadService['prisma'].candidate.findUnique({
+    const candidate = await this.fileUploadService[
+      'prisma'
+    ].candidate.findUnique({
       where: { userId },
     });
 

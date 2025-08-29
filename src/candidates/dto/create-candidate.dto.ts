@@ -1,4 +1,10 @@
-import { IsString, IsArray, IsNumber, IsOptional, IsUrl } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsUrl,
+} from 'class-validator';
 
 export class CreateCandidateDto {
   @IsString()
