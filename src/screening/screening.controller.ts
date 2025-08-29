@@ -1,5 +1,11 @@
 import { Controller, Post, Get, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { ScreeningService } from './screening.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -29,7 +35,10 @@ export class ScreeningController {
   @Roles(UserRole.ADMIN, UserRole.RECRUITER)
   @ApiOperation({ summary: 'Get screening results for application' })
   @ApiParam({ name: 'applicationId', description: 'Application ID' })
-  @ApiResponse({ status: 200, description: 'Screening results retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Screening results retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
   getScreeningResults(@Param('applicationId') applicationId: string) {

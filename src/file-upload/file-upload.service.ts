@@ -10,7 +10,8 @@ export class FileUploadService {
   ) {}
 
   async saveResume(file: Express.Multer.File, candidateId: string) {
-    const baseUrl = this.configService.get('APP_URL') || 'http://localhost:3000';
+    const baseUrl =
+      this.configService.get('APP_URL') || 'http://localhost:3000';
     const resumeUrl = `${baseUrl}/uploads/resumes/${file.filename}`;
 
     await this.prisma.candidate.update({
@@ -33,7 +34,9 @@ export class FileUploadService {
     ];
 
     if (!allowedMimeTypes.includes(file.mimetype)) {
-      throw new BadRequestException('Invalid file type. Only PDF, DOC, and DOCX are allowed.');
+      throw new BadRequestException(
+        'Invalid file type. Only PDF, DOC, and DOCX are allowed.',
+      );
     }
 
     return true;

@@ -1,5 +1,19 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { InterviewsService } from './interviews.service';
 import { CreateInterviewDto } from './dto/create-interview.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -28,11 +42,20 @@ export class InterviewsController {
   @Get(':applicationId')
   @ApiOperation({ summary: 'Get interviews for an application' })
   @ApiParam({ name: 'applicationId', description: 'Application ID' })
-  @ApiResponse({ status: 200, description: 'Interviews retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Interviews retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Access denied' })
   @ApiResponse({ status: 404, description: 'Application not found' })
-  findByApplicationId(@Param('applicationId') applicationId: string, @Req() req) {
-    return this.interviewsService.findByApplicationId(applicationId, req.user.id);
+  findByApplicationId(
+    @Param('applicationId') applicationId: string,
+    @Req() req,
+  ) {
+    return this.interviewsService.findByApplicationId(
+      applicationId,
+      req.user.id,
+    );
   }
 }

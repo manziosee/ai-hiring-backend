@@ -120,7 +120,9 @@ describe('ScreeningService', () => {
         .mockResolvedValueOnce(mockApplication)
         .mockResolvedValueOnce(mockApplication);
       mlClient.send.mockReturnValue(of(mockMLResult));
-      prismaService.screeningResult.create.mockResolvedValue(mockScreeningResult);
+      prismaService.screeningResult.create.mockResolvedValue(
+        mockScreeningResult,
+      );
       emailService.sendScreeningResults.mockResolvedValue(undefined);
 
       const result = await service.runScreening('1');
@@ -164,7 +166,9 @@ describe('ScreeningService', () => {
     it('should throw NotFoundException if application not found', async () => {
       prismaService.application.findUnique.mockResolvedValue(null);
 
-      await expect(service.runScreening('1')).rejects.toThrow(NotFoundException);
+      await expect(service.runScreening('1')).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mlClient.send).not.toHaveBeenCalled();
     });
 
@@ -183,8 +187,12 @@ describe('ScreeningService', () => {
       };
 
       prismaService.application.findUnique.mockResolvedValue(mockApplication);
-      mlClient.send.mockReturnValue(throwError(() => new Error('ML service down')));
-      prismaService.screeningResult.create.mockResolvedValue(basicScreeningResult);
+      mlClient.send.mockReturnValue(
+        throwError(() => new Error('ML service down')),
+      );
+      prismaService.screeningResult.create.mockResolvedValue(
+        basicScreeningResult,
+      );
 
       const result = await service.runScreening('1');
 
@@ -209,7 +217,9 @@ describe('ScreeningService', () => {
   describe('getScreeningResults', () => {
     it('should return screening results for an application', async () => {
       const screeningResults = [mockScreeningResult];
-      prismaService.screeningResult.findMany.mockResolvedValue(screeningResults);
+      prismaService.screeningResult.findMany.mockResolvedValue(
+        screeningResults,
+      );
 
       const result = await service.getScreeningResults('1');
 

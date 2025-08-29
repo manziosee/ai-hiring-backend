@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Express, Response } from 'express';
 import * as fs from 'fs';
@@ -46,7 +50,7 @@ export class UploadsService {
 
     try {
       await writeFile(filepath, file.buffer);
-      
+
       return {
         success: true,
         filename,
@@ -72,7 +76,7 @@ export class UploadsService {
 
     try {
       await writeFile(filepath, file.buffer);
-      
+
       return {
         success: true,
         filename,
@@ -92,11 +96,14 @@ export class UploadsService {
     try {
       await access(filepath);
       const fileBuffer = await readFile(filepath);
-      
+
       // Set appropriate headers
       res.setHeader('Content-Type', this.getMimeTypeFromFilename(filename));
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${filename}"`,
+      );
+
       return res.send(fileBuffer);
     } catch (error) {
       throw new NotFoundException('File not found');
@@ -106,23 +113,25 @@ export class UploadsService {
   private validateFile(file: Express.Multer.File) {
     // Check file size
     if (file.size > this.maxFileSize) {
-      throw new BadRequestException(`File size exceeds maximum limit of ${this.maxFileSize / 1024 / 1024}MB`);
+      throw new BadRequestException(
+        `File size exceeds maximum limit of ${this.maxFileSize / 1024 / 1024}MB`,
+      );
     }
 
     // Check MIME type
     if (!this.allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException(
-        'Invalid file type. Allowed types: PDF, DOC, DOCX, TXT'
+        'Invalid file type. Allowed types: PDF, DOC, DOCX, TXT',
       );
     }
 
     // Check file extension
     const allowedExtensions = ['.pdf', '.doc', '.docx', '.txt'];
     const fileExtension = path.extname(file.originalname).toLowerCase();
-    
+
     if (!allowedExtensions.includes(fileExtension)) {
       throw new BadRequestException(
-        'Invalid file extension. Allowed extensions: .pdf, .doc, .docx, .txt'
+        'Invalid file extension. Allowed extensions: .pdf, .doc, .docx, .txt',
       );
     }
   }
@@ -132,16 +141,16 @@ export class UploadsService {
     const randomString = Math.random().toString(36).substring(2, 8);
     const extension = path.extname(originalName);
     const baseName = path.basename(originalName, extension);
-    
+
     // Sanitize filename
     const sanitizedBaseName = baseName.replace(/[^a-zA-Z0-9-_]/g, '_');
-    
+
     return `${prefix}_${timestamp}_${randomString}_${sanitizedBaseName}${extension}`;
   }
 
   private getMimeTypeFromFilename(filename: string): string {
     const extension = path.extname(filename).toLowerCase();
-    
+
     switch (extension) {
       case '.pdf':
         return 'application/pdf';
