@@ -1,6 +1,22 @@
-import { Controller, Post, UseInterceptors, UploadedFile, UseGuards, Get, Param, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  UseGuards,
+  Get,
+  Param,
+  Res,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { Express, Response } from 'express';
 import { UploadsService } from './uploads.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -47,7 +63,10 @@ export class UploadsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
   @ApiResponse({ status: 404, description: 'File not found' })
-  async downloadResume(@Param('filename') filename: string, @Res() res: Response) {
+  async downloadResume(
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
     return this.uploadsService.downloadResume(filename, res);
   }
 
@@ -69,7 +88,10 @@ export class UploadsController {
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'Job description uploaded successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Job description uploaded successfully',
+  })
   @ApiResponse({ status: 400, description: 'Invalid file format or size' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })

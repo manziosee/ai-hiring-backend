@@ -10,44 +10,116 @@ export class EmailService {
     this.resend = new Resend(this.configService.get('RESEND_API_KEY'));
   }
 
-  async sendApplicationSubmitted(candidateEmail: string, candidateName: string, jobTitle: string, company: string = 'Our Company') {
-    const emailContent = this.getApplicationSubmittedTemplate(candidateName, jobTitle, company);
-    return this.sendEmail(candidateEmail, emailContent.subject, emailContent.html);
+  async sendApplicationSubmitted(
+    candidateEmail: string,
+    candidateName: string,
+    jobTitle: string,
+    company: string = 'Our Company',
+  ) {
+    const emailContent = this.getApplicationSubmittedTemplate(
+      candidateName,
+      jobTitle,
+      company,
+    );
+    return this.sendEmail(
+      candidateEmail,
+      emailContent.subject,
+      emailContent.html,
+    );
   }
 
-  async sendStatusUpdate(candidateEmail: string, candidateName: string, jobTitle: string, status: string, notes?: string) {
-    const emailContent = this.getStatusUpdateTemplate(candidateName, jobTitle, status, notes);
-    return this.sendEmail(candidateEmail, emailContent.subject, emailContent.html);
+  async sendStatusUpdate(
+    candidateEmail: string,
+    candidateName: string,
+    jobTitle: string,
+    status: string,
+    notes?: string,
+  ) {
+    const emailContent = this.getStatusUpdateTemplate(
+      candidateName,
+      jobTitle,
+      status,
+      notes,
+    );
+    return this.sendEmail(
+      candidateEmail,
+      emailContent.subject,
+      emailContent.html,
+    );
   }
 
-  async sendInterviewScheduled(candidateEmail: string, candidateName: string, jobTitle: string, scheduledAt: Date, mode: string, notes?: string) {
-    const emailContent = this.getInterviewScheduledTemplate(candidateName, jobTitle, scheduledAt, mode, notes);
-    return this.sendEmail(candidateEmail, emailContent.subject, emailContent.html);
+  async sendInterviewScheduled(
+    candidateEmail: string,
+    candidateName: string,
+    jobTitle: string,
+    scheduledAt: Date,
+    mode: string,
+    notes?: string,
+  ) {
+    const emailContent = this.getInterviewScheduledTemplate(
+      candidateName,
+      jobTitle,
+      scheduledAt,
+      mode,
+      notes,
+    );
+    return this.sendEmail(
+      candidateEmail,
+      emailContent.subject,
+      emailContent.html,
+    );
   }
 
-  async sendScreeningResults(recruiterEmail: string, recruiterName: string, candidateName: string, jobTitle: string, fitScore: number, skillMatch: number, experienceMatch: boolean) {
-    const emailContent = this.getScreeningResultsTemplate(recruiterName, candidateName, jobTitle, fitScore, skillMatch, experienceMatch);
-    return this.sendEmail(recruiterEmail, emailContent.subject, emailContent.html);
+  async sendScreeningResults(
+    recruiterEmail: string,
+    recruiterName: string,
+    candidateName: string,
+    jobTitle: string,
+    fitScore: number,
+    skillMatch: number,
+    experienceMatch: boolean,
+  ) {
+    const emailContent = this.getScreeningResultsTemplate(
+      recruiterName,
+      candidateName,
+      jobTitle,
+      fitScore,
+      skillMatch,
+      experienceMatch,
+    );
+    return this.sendEmail(
+      recruiterEmail,
+      emailContent.subject,
+      emailContent.html,
+    );
   }
 
   private async sendEmail(to: string, subject: string, html: string) {
     try {
       const result = await this.resend.emails.send({
-        from: this.configService.get('EMAIL_FROM') || 'AI Hiring Platform <noreply@yourdomain.com>',
+        from:
+          this.configService.get('EMAIL_FROM') ||
+          'AI Hiring Platform <noreply@yourdomain.com>',
         to: [to],
         subject,
         html,
       });
-      
+
       console.log('Email sent successfully:', result.data?.id);
       return { success: true, messageId: result.data?.id };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to send email:', error);
-      return { success: false, error: error.message };
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, error: errorMessage };
     }
   }
 
-  private getApplicationSubmittedTemplate(candidateName: string, jobTitle: string, company: string) {
+  private getApplicationSubmittedTemplate(
+    candidateName: string,
+    jobTitle: string,
+    company: string,
+  ) {
     return {
       subject: `Application Submitted: ${jobTitle}`,
       html: `
@@ -68,7 +140,12 @@ export class EmailService {
     };
   }
 
-  private getStatusUpdateTemplate(candidateName: string, jobTitle: string, status: string, notes?: string) {
+  private getStatusUpdateTemplate(
+    candidateName: string,
+    jobTitle: string,
+    status: string,
+    notes?: string,
+  ) {
     return {
       subject: `Application Update: ${jobTitle} - ${status}`,
       html: `
@@ -87,7 +164,13 @@ export class EmailService {
     };
   }
 
-  private getInterviewScheduledTemplate(candidateName: string, jobTitle: string, scheduledAt: Date, mode: string, notes?: string) {
+  private getInterviewScheduledTemplate(
+    candidateName: string,
+    jobTitle: string,
+    scheduledAt: Date,
+    mode: string,
+    notes?: string,
+  ) {
     return {
       subject: `Interview Scheduled: ${jobTitle}`,
       html: `
@@ -109,7 +192,14 @@ export class EmailService {
     };
   }
 
-  private getScreeningResultsTemplate(recruiterName: string, candidateName: string, jobTitle: string, fitScore: number, skillMatch: number, experienceMatch: boolean) {
+  private getScreeningResultsTemplate(
+    recruiterName: string,
+    candidateName: string,
+    jobTitle: string,
+    fitScore: number,
+    skillMatch: number,
+    experienceMatch: boolean,
+  ) {
     return {
       subject: `Screening Results: ${jobTitle}`,
       html: `
@@ -137,6 +227,6 @@ export class EmailService {
       OFFER: '#10b981',
       REJECTED: '#ef4444',
     };
-    return colors[status] || '#6b7280';
+    return colors[status as keyof typeof colors] || '#6b7280';
   }
 }

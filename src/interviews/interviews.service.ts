@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  Inject,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInterviewDto } from './dto/create-interview.dto';
 import { EmailService } from '../email/email.service';
@@ -23,7 +28,9 @@ export class InterviewsService {
     }
 
     if (application.job.createdBy !== scheduledById) {
-      throw new ForbiddenException('You can only schedule interviews for your own jobs');
+      throw new ForbiddenException(
+        'You can only schedule interviews for your own jobs',
+      );
     }
 
     const interview = await this.prisma.interview.create({
@@ -60,14 +67,16 @@ export class InterviewsService {
 
     // Send interview invitation email
     if (interview.application.candidate.user) {
-      this.emailService.sendInterviewScheduled(
-        interview.application.candidate.user.email,
-        interview.application.candidate.name,
-        interview.application.job.title,
-        new Date(createInterviewDto.scheduledAt),
-        createInterviewDto.mode,
-        createInterviewDto.notes
-      ).catch(console.error);
+      this.emailService
+        .sendInterviewScheduled(
+          interview.application.candidate.user.email,
+          interview.application.candidate.name,
+          interview.application.job.title,
+          new Date(createInterviewDto.scheduledAt),
+          createInterviewDto.mode,
+          createInterviewDto.notes,
+        )
+        .catch(console.error);
     }
 
     return interview;

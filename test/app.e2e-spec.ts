@@ -22,9 +22,9 @@ describe('AI Hiring Platform (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
-    
+
     prismaService = app.get<PrismaService>(PrismaService);
-    
+
     await app.init();
   });
 
@@ -113,7 +113,11 @@ describe('AI Hiring Platform (e2e)', () => {
         .expect(201)
         .expect((res) => {
           expect(res.body.name).toBe('John Doe');
-          expect(res.body.skills).toEqual(['JavaScript', 'TypeScript', 'React']);
+          expect(res.body.skills).toEqual([
+            'JavaScript',
+            'TypeScript',
+            'React',
+          ]);
           expect(res.body.yearsExp).toBe(3);
           candidateId = res.body.id;
         });
@@ -145,7 +149,11 @@ describe('AI Hiring Platform (e2e)', () => {
         .expect(201)
         .expect((res) => {
           expect(res.body.title).toBe('Senior Frontend Developer');
-          expect(res.body.skills).toEqual(['JavaScript', 'React', 'TypeScript']);
+          expect(res.body.skills).toEqual([
+            'JavaScript',
+            'React',
+            'TypeScript',
+          ]);
           jobId = res.body.id;
         });
     });
@@ -273,9 +281,7 @@ describe('AI Hiring Platform (e2e)', () => {
 
   describe('Protected Routes', () => {
     it('should reject requests without authentication', () => {
-      return request(app.getHttpServer())
-        .get('/users/profile')
-        .expect(401);
+      return request(app.getHttpServer()).get('/users/profile').expect(401);
     });
 
     it('should reject requests with invalid token', () => {

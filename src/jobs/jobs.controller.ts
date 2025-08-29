@@ -1,5 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
@@ -20,7 +36,10 @@ export class JobsController {
   @ApiOperation({ summary: 'Create a new job posting' })
   @ApiResponse({ status: 201, description: 'Job created successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only recruiters and admins can create jobs' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only recruiters and admins can create jobs',
+  })
   create(@Body() createJobDto: CreateJobDto, @Req() req) {
     return this.jobsService.create(createJobDto, req.user.id);
   }
@@ -35,7 +54,10 @@ export class JobsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get job details by ID' })
   @ApiParam({ name: 'id', description: 'Job ID' })
-  @ApiResponse({ status: 200, description: 'Job details retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Job details retrieved successfully',
+  })
   @ApiResponse({ status: 404, description: 'Job not found' })
   findOne(@Param('id') id: string) {
     return this.jobsService.findOne(id);
@@ -49,9 +71,16 @@ export class JobsController {
   @ApiParam({ name: 'id', description: 'Job ID' })
   @ApiResponse({ status: 200, description: 'Job updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Can only update own jobs' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Can only update own jobs',
+  })
   @ApiResponse({ status: 404, description: 'Job not found' })
-  update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto, @Req() req) {
+  update(
+    @Param('id') id: string,
+    @Body() updateJobDto: UpdateJobDto,
+    @Req() req,
+  ) {
     return this.jobsService.update(id, updateJobDto, req.user.id);
   }
 
@@ -63,7 +92,10 @@ export class JobsController {
   @ApiParam({ name: 'id', description: 'Job ID' })
   @ApiResponse({ status: 200, description: 'Job deleted successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Can only delete own jobs' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Can only delete own jobs',
+  })
   @ApiResponse({ status: 404, description: 'Job not found' })
   remove(@Param('id') id: string, @Req() req) {
     return this.jobsService.remove(id, req.user.id);

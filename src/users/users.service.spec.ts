@@ -3,7 +3,10 @@ import { NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserRole } from '@prisma/client';
-import { createMockPrismaService, MockPrismaService } from '../test/prisma-mock';
+import {
+  createMockPrismaService,
+  MockPrismaService,
+} from '../test/prisma-mock';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -35,7 +38,7 @@ describe('UsersService', () => {
 
   beforeEach(async () => {
     prismaService = createMockPrismaService();
-    
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
