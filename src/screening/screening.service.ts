@@ -71,15 +71,17 @@ export class ScreeningService {
       });
 
       if (application && application.job.creator) {
-        this.emailService.sendScreeningResults(
-          application.job.creator.email,
-          application.job.creator.fullName,
-          application.candidate.name,
-          application.job.title,
-          mlResult.fitScore,
-          mlResult.details.skillSimilarity,
-          mlResult.details.experienceMatch
-        ).catch(console.error);
+        this.emailService
+          .sendScreeningResults(
+            application.job.creator.email,
+            application.job.creator.fullName,
+            application.candidate.name,
+            application.job.title,
+            mlResult.fitScore,
+            mlResult.details.skillSimilarity,
+            mlResult.details.experienceMatch,
+          )
+          .catch(console.error);
       }
 
       return screeningResult;
@@ -90,7 +92,10 @@ export class ScreeningService {
   }
 
   private async runBasicScreening(application: any) {
-    const fitScore = this.calculateFitScore(application.job, application.candidate);
+    const fitScore = this.calculateFitScore(
+      application.job,
+      application.candidate,
+    );
 
     return this.prisma.screeningResult.create({
       data: {
@@ -100,8 +105,12 @@ export class ScreeningService {
         details: {
           jobSkills: application.job.skills,
           candidateSkills: application.candidate.skills,
-          experienceMatch: application.candidate.yearsExp >= application.job.experience,
-          skillMatch: this.calculateSkillMatch(application.job.skills, application.candidate.skills),
+          experienceMatch:
+            application.candidate.yearsExp >= application.job.experience,
+          skillMatch: this.calculateSkillMatch(
+            application.job.skills,
+            application.candidate.skills,
+          ),
           note: 'ML service unavailable, using basic screening',
         },
       },
@@ -116,12 +125,16 @@ export class ScreeningService {
     return Math.min(score, 1.0);
   }
 
-  private calculateSkillMatch(jobSkills: string[], candidateSkills: string[]): number {
-    const matchedSkills = jobSkills.filter(skill =>
-      candidateSkills.some(candidateSkill =>
-        candidateSkill.toLowerCase().includes(skill.toLowerCase()) ||
-        skill.toLowerCase().includes(candidateSkill.toLowerCase())
-      )
+  private calculateSkillMatch(
+    jobSkills: string[],
+    candidateSkills: string[],
+  ): number {
+    const matchedSkills = jobSkills.filter((skill) =>
+      candidateSkills.some(
+        (candidateSkill) =>
+          candidateSkill.toLowerCase().includes(skill.toLowerCase()) ||
+          skill.toLowerCase().includes(candidateSkill.toLowerCase()),
+      ),
     );
     return matchedSkills.length / jobSkills.length;
   }

@@ -22,7 +22,10 @@ import { PrismaModule } from '../prisma/prisma.module';
       }),
       fileFilter: (req, file, callback) => {
         if (!file.originalname.match(/\.(pdf|doc|docx)$/)) {
-          return callback(new Error('Only PDF, DOC, and DOCX files are allowed'), false);
+          return callback(
+            new Error('Only PDF, DOC, and DOCX files are allowed'),
+            false,
+          );
         }
         callback(null, true);
       },

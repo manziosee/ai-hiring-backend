@@ -1,5 +1,19 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { CandidatesService } from './candidates.service';
 import { CreateCandidateDto } from './dto/create-candidate.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -17,9 +31,15 @@ export class CandidatesController {
   @Post()
   @Roles(UserRole.CANDIDATE)
   @ApiOperation({ summary: 'Create candidate profile with resume' })
-  @ApiResponse({ status: 201, description: 'Candidate profile created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Candidate profile created successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Only candidates can create profiles' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Only candidates can create profiles',
+  })
   create(@Body() createCandidateDto: CreateCandidateDto, @Req() req) {
     return this.candidatesService.create(createCandidateDto, req.user.id);
   }
@@ -27,9 +47,15 @@ export class CandidatesController {
   @Get()
   @Roles(UserRole.ADMIN, UserRole.RECRUITER)
   @ApiOperation({ summary: 'Get all candidates (Admin/Recruiter only)' })
-  @ApiResponse({ status: 200, description: 'Candidates retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Candidates retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter access only' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin/Recruiter access only',
+  })
   findAll() {
     return this.candidatesService.findAll();
   }
@@ -38,7 +64,10 @@ export class CandidatesController {
   @Roles(UserRole.ADMIN, UserRole.RECRUITER, UserRole.CANDIDATE)
   @ApiOperation({ summary: 'Get candidate details by ID' })
   @ApiParam({ name: 'id', description: 'Candidate ID' })
-  @ApiResponse({ status: 200, description: 'Candidate details retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Candidate details retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Candidate not found' })
   findOne(@Param('id') id: string) {

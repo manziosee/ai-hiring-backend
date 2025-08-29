@@ -22,8 +22,20 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
   @ApiBody({ type: LoginDto })
-  @ApiResponse({ status: 200, description: 'Login successful', schema: { example: { access_token: 'jwt_token_here', user: { id: 'user_id', email: 'user@example.com', role: 'CANDIDATE' } } } })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid credentials' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    schema: {
+      example: {
+        access_token: 'jwt_token_here',
+        user: { id: 'user_id', email: 'user@example.com', role: 'CANDIDATE' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid credentials',
+  })
   @ApiResponse({ status: 400, description: 'Bad request - Invalid input data' })
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
