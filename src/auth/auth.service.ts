@@ -77,4 +77,17 @@ export class AuthService {
       where: { id: payload.sub },
     });
   }
+
+  async refreshToken(user: any) {
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async logout(userId: string) {
+    // In a production app, you might want to blacklist the token
+    // For now, we'll just return a success message
+    return { message: 'Successfully logged out' };
+  }
 }
