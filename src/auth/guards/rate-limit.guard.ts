@@ -1,4 +1,10 @@
-import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 
@@ -17,12 +23,15 @@ export class RateLimitGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
-    const limit = this.reflector.get<number>('rateLimit', context.getHandler()) || 100;
-    const windowMs = this.reflector.get<number>('rateLimitWindow', context.getHandler()) || 15 * 60 * 1000; // 15 minutes
+    const limit =
+      this.reflector.get<number>('rateLimit', context.getHandler()) || 100;
+    const windowMs =
+      this.reflector.get<number>('rateLimitWindow', context.getHandler()) ||
+      15 * 60 * 1000; // 15 minutes
 
     const key = this.getKey(request);
     const now = Date.now();
-    
+
     if (!this.store[key] || now > this.store[key].resetTime) {
       this.store[key] = {
         count: 1,

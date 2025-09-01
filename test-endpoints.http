@@ -1,0 +1,304 @@
+### AI Hiring Backend API Test Endpoints
+### Base URL: http://localhost:3000
+
+### Variables
+@baseUrl = http://localhost:3000
+@adminToken = 
+@recruiterToken = 
+@candidateToken = 
+@jobId = 
+@applicationId = 
+@candidateId = 
+
+### Health Endpoints
+GET {{baseUrl}}/health
+
+###
+GET {{baseUrl}}/health/metrics
+
+### Authentication - Register Users
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin@aihiring.com",
+  "password": "AdminPass123!",
+  "fullName": "System Administrator",
+  "role": "ADMIN"
+}
+
+###
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "recruiter@aihiring.com",
+  "password": "RecruiterPass123!",
+  "fullName": "Jane Smith",
+  "role": "RECRUITER"
+}
+
+###
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "candidate@example.com",
+  "password": "CandidatePass123!",
+  "fullName": "John Doe",
+  "role": "CANDIDATE",
+  "candidateData": {
+    "phone": "+1-555-0123",
+    "location": "San Francisco, CA",
+    "skills": ["JavaScript", "TypeScript", "React", "Node.js", "Python"],
+    "yearsExp": 3
+  }
+}
+
+### Authentication - Login (Copy tokens from responses)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@aihiring.com",
+  "password": "AdminPass123!"
+}
+
+###
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "recruiter@aihiring.com",
+  "password": "RecruiterPass123!"
+}
+
+###
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "candidate@example.com",
+  "password": "CandidatePass123!"
+}
+
+### User Profile
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{candidateToken}}
+
+###
+PATCH {{baseUrl}}/users/me
+Authorization: Bearer {{candidateToken}}
+Content-Type: application/json
+
+{
+  "fullName": "John Doe Updated",
+  "email": "john.doe.updated@example.com"
+}
+
+### Job Management
+POST {{baseUrl}}/jobs
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "title": "Senior Full Stack Developer",
+  "description": "We are looking for an experienced full stack developer to join our team. You will work on building scalable web applications using modern technologies.",
+  "skills": ["JavaScript", "TypeScript", "React", "Node.js", "PostgreSQL", "Docker"],
+  "experience": 5
+}
+
+###
+POST {{baseUrl}}/jobs
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "title": "Frontend Developer",
+  "description": "Join our frontend team to create amazing user experiences. You'll work with React, TypeScript, and modern CSS frameworks.",
+  "skills": ["React", "TypeScript", "CSS", "HTML", "Redux", "Webpack"],
+  "experience": 3
+}
+
+###
+GET {{baseUrl}}/jobs
+
+###
+GET {{baseUrl}}/jobs/{{jobId}}
+
+###
+PATCH {{baseUrl}}/jobs/{{jobId}}
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "title": "Senior Full Stack Developer (Updated)",
+  "description": "Updated job description with additional requirements for cloud experience.",
+  "skills": ["JavaScript", "TypeScript", "React", "Node.js", "PostgreSQL", "Docker", "AWS"],
+  "experience": 6
+}
+
+###
+DELETE {{baseUrl}}/jobs/{{jobId}}
+Authorization: Bearer {{recruiterToken}}
+
+### Candidate Management
+POST {{baseUrl}}/candidates
+Authorization: Bearer {{candidateToken}}
+Content-Type: application/json
+
+{
+  "name": "Alice Johnson",
+  "email": "alice.johnson@example.com",
+  "phone": "+1-555-0124",
+  "location": "New York, NY",
+  "resumeUrl": "https://example.com/resumes/alice-johnson.pdf",
+  "skills": ["React", "TypeScript", "Node.js", "GraphQL", "MongoDB"],
+  "yearsExp": 4
+}
+
+###
+GET {{baseUrl}}/candidates
+Authorization: Bearer {{recruiterToken}}
+
+###
+GET {{baseUrl}}/candidates/{{candidateId}}
+Authorization: Bearer {{recruiterToken}}
+
+### Applications
+POST {{baseUrl}}/applications
+Authorization: Bearer {{candidateToken}}
+Content-Type: application/json
+
+{
+  "jobId": "{{jobId}}",
+  "coverLetter": "I am excited to apply for the Senior Full Stack Developer position. With 4 years of experience in React and Node.js, I believe I would be a great fit for your team."
+}
+
+###
+GET {{baseUrl}}/applications/job/{{jobId}}
+Authorization: Bearer {{recruiterToken}}
+
+###
+GET {{baseUrl}}/applications/candidate/{{candidateId}}
+Authorization: Bearer {{candidateToken}}
+
+###
+PATCH {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "UNDER_REVIEW"
+}
+
+###
+PATCH {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "INTERVIEW_SCHEDULED"
+}
+
+###
+PATCH {{baseUrl}}/applications/{{applicationId}}/status
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "status": "OFFER"
+}
+
+### Interviews
+POST {{baseUrl}}/interviews
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "applicationId": "{{applicationId}}",
+  "scheduledAt": "2024-09-15T10:00:00Z",
+  "mode": "VIDEO",
+  "notes": "Technical interview focusing on React and Node.js skills"
+}
+
+###
+GET {{baseUrl}}/interviews
+Authorization: Bearer {{recruiterToken}}
+
+###
+GET {{baseUrl}}/interviews/{{applicationId}}
+Authorization: Bearer {{recruiterToken}}
+
+### AI Screening
+POST {{baseUrl}}/screening/run/{{applicationId}}
+Authorization: Bearer {{recruiterToken}}
+
+###
+GET {{baseUrl}}/screening/results/{{applicationId}}
+Authorization: Bearer {{recruiterToken}}
+
+### AI Services
+POST {{baseUrl}}/ai/generate-job-description
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Senior Software Engineer",
+  "skills": ["JavaScript", "TypeScript", "React", "Node.js"],
+  "experience": 5
+}
+
+###
+POST {{baseUrl}}/ai/generate-interview-questions
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Frontend Developer",
+  "jobDescription": "Build user interfaces with React",
+  "candidateSkills": ["React", "TypeScript", "CSS"]
+}
+
+###
+POST {{baseUrl}}/ai/analyze-interview-response
+Authorization: Bearer {{recruiterToken}}
+Content-Type: application/json
+
+{
+  "question": "Explain the difference between React hooks and class components",
+  "response": "React hooks allow functional components to have state and lifecycle methods. They were introduced in React 16.8 and provide a more functional approach to component logic.",
+  "jobTitle": "Frontend Developer"
+}
+
+### File Upload - Resume (multipart/form-data)
+POST {{baseUrl}}/file-upload/resume
+Authorization: Bearer {{candidateToken}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="resume.pdf"
+Content-Type: application/pdf
+
+< ./test-files/sample-resume.pdf
+--boundary--
+
+### File Upload - Job Description
+POST {{baseUrl}}/uploads/job-description
+Authorization: Bearer {{recruiterToken}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="job-desc.pdf"
+Content-Type: application/pdf
+
+< ./test-files/sample-job-description.pdf
+--boundary--
+
+### Download Resume
+GET {{baseUrl}}/uploads/resume/{{candidateId}}
+Authorization: Bearer {{recruiterToken}}
+
+### WebSocket Connection Test
+### Connect to: ws://localhost:3000
+### Send: {"event": "join", "data": {"userId": "user-id"}}
