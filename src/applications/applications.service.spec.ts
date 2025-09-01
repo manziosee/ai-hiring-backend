@@ -1,14 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  NotFoundException,
-  ForbiddenException,
-  BadRequestException,
-} from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { ApplicationStatus } from '@prisma/client';
-import { CreateApplicationDto } from './dto/create-application.dto';
 import {
   createMockPrismaService,
   MockPrismaService,

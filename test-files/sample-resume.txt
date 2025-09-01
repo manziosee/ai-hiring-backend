@@ -1,0 +1,47 @@
+JOHN DOE
+Software Developer
+Email: john.doe@example.com | Phone: +1-555-0123
+Location: San Francisco, CA
+
+SUMMARY
+Experienced full-stack developer with 3+ years of experience building scalable web applications using modern JavaScript technologies. Passionate about clean code, user experience, and continuous learning.
+
+TECHNICAL SKILLS
+• Frontend: React, TypeScript, JavaScript, HTML5, CSS3, Redux, Next.js
+• Backend: Node.js, Express, NestJS, RESTful APIs, GraphQL
+• Databases: PostgreSQL, MongoDB, Redis
+• Tools: Git, Docker, AWS, Jest, Webpack, npm/yarn
+• Languages: JavaScript, TypeScript, Python (basic)
+
+EXPERIENCE
+
+Senior Frontend Developer | TechCorp Inc. | 2022 - Present
+• Developed and maintained React applications serving 100k+ users
+• Implemented responsive designs and improved page load times by 40%
+• Collaborated with backend teams to design and consume RESTful APIs
+• Mentored junior developers and conducted code reviews
+
+Full Stack Developer | StartupXYZ | 2021 - 2022
+• Built complete web applications using React and Node.js
+• Designed and implemented PostgreSQL database schemas
+• Integrated third-party APIs and payment processing systems
+• Participated in agile development processes and sprint planning
+
+Junior Developer | WebSolutions LLC | 2020 - 2021
+• Assisted in frontend development using HTML, CSS, and JavaScript
+• Fixed bugs and implemented small features in existing applications
+• Learned React and modern development practices
+• Contributed to team documentation and knowledge sharing
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of California, Berkeley | 2016 - 2020
+
+PROJECTS
+• Personal Portfolio Website - React, TypeScript, deployed on Vercel
+• Task Management App - Full-stack application with React and Node.js
+• Open Source Contributions - Contributed to several React libraries
+
+CERTIFICATIONS
+• AWS Certified Developer Associate (2023)
+• MongoDB Certified Developer (2022)
