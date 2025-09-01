@@ -1,0 +1,204 @@
+{
+  "authentication": {
+    "register": {
+      "admin": {
+        "email": "admin@aihiring.com",
+        "password": "AdminPass123!",
+        "fullName": "System Administrator",
+        "role": "ADMIN"
+      },
+      "recruiter": {
+        "email": "recruiter@aihiring.com",
+        "password": "RecruiterPass123!",
+        "fullName": "Jane Smith",
+        "role": "RECRUITER"
+      },
+      "candidate": {
+        "email": "candidate@example.com",
+        "password": "CandidatePass123!",
+        "fullName": "John Doe",
+        "role": "CANDIDATE",
+        "candidateData": {
+          "phone": "+1-555-0123",
+          "location": "San Francisco, CA",
+          "skills": ["JavaScript", "TypeScript", "React", "Node.js", "Python"],
+          "yearsExp": 3
+        }
+      }
+    },
+    "login": {
+      "admin": {
+        "email": "admin@aihiring.com",
+        "password": "AdminPass123!"
+      },
+      "recruiter": {
+        "email": "recruiter@aihiring.com",
+        "password": "RecruiterPass123!"
+      },
+      "candidate": {
+        "email": "candidate@example.com",
+        "password": "CandidatePass123!"
+      }
+    }
+  },
+  "jobs": {
+    "create": [
+      {
+        "title": "Senior Full Stack Developer",
+        "description": "We are looking for an experienced full stack developer to join our team. You will work on building scalable web applications using modern technologies.",
+        "skills": ["JavaScript", "TypeScript", "React", "Node.js", "PostgreSQL", "Docker"],
+        "experience": 5
+      },
+      {
+        "title": "Frontend Developer",
+        "description": "Join our frontend team to create amazing user experiences. You'll work with React, TypeScript, and modern CSS frameworks.",
+        "skills": ["React", "TypeScript", "CSS", "HTML", "Redux", "Webpack"],
+        "experience": 3
+      },
+      {
+        "title": "Backend Engineer",
+        "description": "Build robust APIs and microservices. Experience with NestJS, databases, and cloud platforms required.",
+        "skills": ["Node.js", "NestJS", "PostgreSQL", "Redis", "AWS", "Docker"],
+        "experience": 4
+      },
+      {
+        "title": "DevOps Engineer",
+        "description": "Manage our infrastructure and CI/CD pipelines. Experience with Kubernetes, Docker, and cloud platforms essential.",
+        "skills": ["Kubernetes", "Docker", "AWS", "Terraform", "Jenkins", "Monitoring"],
+        "experience": 6
+      }
+    ],
+    "update": {
+      "title": "Senior Full Stack Developer (Updated)",
+      "description": "Updated job description with additional requirements for cloud experience.",
+      "skills": ["JavaScript", "TypeScript", "React", "Node.js", "PostgreSQL", "Docker", "AWS"],
+      "experience": 6
+    }
+  },
+  "candidates": {
+    "create": [
+      {
+        "name": "Alice Johnson",
+        "email": "alice.johnson@example.com",
+        "phone": "+1-555-0124",
+        "location": "New York, NY",
+        "resumeUrl": "https://example.com/resumes/alice-johnson.pdf",
+        "skills": ["React", "TypeScript", "Node.js", "GraphQL", "MongoDB"],
+        "yearsExp": 4
+      },
+      {
+        "name": "Bob Wilson",
+        "email": "bob.wilson@example.com",
+        "phone": "+1-555-0125",
+        "location": "Austin, TX",
+        "resumeUrl": "https://example.com/resumes/bob-wilson.pdf",
+        "skills": ["Python", "Django", "PostgreSQL", "Redis", "Docker"],
+        "yearsExp": 6
+      },
+      {
+        "name": "Carol Martinez",
+        "email": "carol.martinez@example.com",
+        "phone": "+1-555-0126",
+        "location": "Seattle, WA",
+        "skills": ["JavaScript", "Vue.js", "CSS", "HTML", "Figma"],
+        "yearsExp": 2
+      }
+    ]
+  },
+  "applications": {
+    "create": [
+      {
+        "jobId": "job-id-placeholder",
+        "coverLetter": "I am excited to apply for the Senior Full Stack Developer position. With 4 years of experience in React and Node.js, I believe I would be a great fit for your team."
+      },
+      {
+        "jobId": "job-id-placeholder",
+        "coverLetter": "I would love to contribute to your frontend team. My experience with React and TypeScript aligns perfectly with your requirements."
+      },
+      {
+        "jobId": "job-id-placeholder"
+      }
+    ],
+    "updateStatus": [
+      {
+        "status": "UNDER_REVIEW"
+      },
+      {
+        "status": "INTERVIEW_SCHEDULED"
+      },
+      {
+        "status": "OFFER"
+      },
+      {
+        "status": "REJECTED"
+      }
+    ]
+  },
+  "interviews": {
+    "create": [
+      {
+        "applicationId": "application-id-placeholder",
+        "scheduledAt": "2024-09-15T10:00:00Z",
+        "mode": "VIDEO",
+        "notes": "Technical interview focusing on React and Node.js skills"
+      },
+      {
+        "applicationId": "application-id-placeholder",
+        "scheduledAt": "2024-09-16T14:30:00Z",
+        "mode": "PHONE",
+        "notes": "Initial screening call with HR"
+      },
+      {
+        "applicationId": "application-id-placeholder",
+        "scheduledAt": "2024-09-17T09:00:00Z",
+        "mode": "IN_PERSON",
+        "notes": "Final interview with team lead"
+      }
+    ]
+  },
+  "users": {
+    "update": {
+      "fullName": "John Doe Updated",
+      "email": "john.doe.updated@example.com"
+    }
+  },
+  "fileUpload": {
+    "resume": {
+      "note": "Use multipart/form-data with 'file' field",
+      "supportedFormats": ["pdf", "doc", "docx"],
+      "maxSize": "5MB",
+      "testFiles": [
+        "sample-resume-1.pdf",
+        "sample-resume-2.docx"
+      ]
+    },
+    "jobDescription": {
+      "note": "Use multipart/form-data with 'file' field",
+      "supportedFormats": ["pdf", "doc", "docx", "txt"],
+      "maxSize": "10MB"
+    }
+  },
+  "screening": {
+    "run": {
+      "applicationId": "application-id-placeholder",
+      "note": "This endpoint triggers AI screening analysis"
+    }
+  },
+  "ai": {
+    "generateJobDescription": {
+      "jobTitle": "Senior Software Engineer",
+      "skills": ["JavaScript", "TypeScript", "React", "Node.js"],
+      "experience": 5
+    },
+    "generateInterviewQuestions": {
+      "jobTitle": "Frontend Developer",
+      "jobDescription": "Build user interfaces with React",
+      "candidateSkills": ["React", "TypeScript", "CSS"]
+    },
+    "analyzeInterviewResponse": {
+      "question": "Explain the difference between React hooks and class components",
+      "response": "React hooks allow functional components to have state and lifecycle methods...",
+      "jobTitle": "Frontend Developer"
+    }
+  }
+}

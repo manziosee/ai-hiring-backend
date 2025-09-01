@@ -16,7 +16,9 @@ export class HealthService {
       this.checkEmailService(),
     ]);
 
-    const status = checks.every(check => check.status === 'fulfilled' && check.value.healthy);
+    const status = checks.every(
+      (check) => check.status === 'fulfilled' && check.value.healthy,
+    );
 
     return {
       status: status ? 'healthy' : 'unhealthy',
@@ -24,16 +26,25 @@ export class HealthService {
       uptime: process.uptime(),
       version: process.env.npm_package_version || '1.0.0',
       checks: {
-        database: checks[0].status === 'fulfilled' ? checks[0].value : { healthy: false, error: 'Connection failed' },
-        mlService: checks[1].status === 'fulfilled' ? checks[1].value : { healthy: false, error: 'Connection failed' },
-        emailService: checks[2].status === 'fulfilled' ? checks[2].value : { healthy: false, error: 'Connection failed' },
+        database:
+          checks[0].status === 'fulfilled'
+            ? checks[0].value
+            : { healthy: false, error: 'Connection failed' },
+        mlService:
+          checks[1].status === 'fulfilled'
+            ? checks[1].value
+            : { healthy: false, error: 'Connection failed' },
+        emailService:
+          checks[2].status === 'fulfilled'
+            ? checks[2].value
+            : { healthy: false, error: 'Connection failed' },
       },
     };
   }
 
   async getMetrics() {
     const memoryUsage = process.memoryUsage();
-    
+
     return {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
@@ -63,21 +74,21 @@ export class HealthService {
     try {
       const mlHost = this.configService.get('ML_SERVICE_HOST', 'localhost');
       const mlPort = this.configService.get('ML_SERVICE_PORT', '8000');
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
+
       const response = await fetch(`http://${mlHost}:${mlPort}/health`, {
         method: 'GET',
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
-      
-      return { 
-        healthy: response.ok, 
+
+      return {
+        healthy: response.ok,
         responseTime: Date.now(),
-        status: response.status 
+        status: response.status,
       };
     } catch (error: any) {
       return { healthy: false, error: error.message };
@@ -86,23 +97,26 @@ export class HealthService {
 
   private async checkEmailService() {
     try {
-      const emailHost = this.configService.get('EMAIL_SERVICE_HOST', 'localhost');
+      const emailHost = this.configService.get(
+        'EMAIL_SERVICE_HOST',
+        'localhost',
+      );
       const emailPort = this.configService.get('EMAIL_SERVICE_PORT', '3002');
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
+
       const response = await fetch(`http://${emailHost}:${emailPort}/health`, {
         method: 'GET',
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
-      
-      return { 
-        healthy: response.ok, 
+
+      return {
+        healthy: response.ok,
         responseTime: Date.now(),
-        status: response.status 
+        status: response.status,
       };
     } catch (error: any) {
       return { healthy: false, error: error.message };
