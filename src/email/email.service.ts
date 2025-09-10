@@ -149,7 +149,7 @@ export class EmailService {
           <p>We will review your application and contact you within 3-5 business days.</p>
           <p>Best regards,<br><strong>AI Hiring Team</strong></p>
         </div>
-      `),
+      `
     };
   }
 

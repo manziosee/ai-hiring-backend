@@ -2,6 +2,8 @@ import {
   Controller,
   Get,
   Post,
+  Put,
+  Delete,
   Body,
   Param,
   UseGuards,
@@ -57,5 +59,29 @@ export class InterviewsController {
       applicationId,
       req.user.id,
     );
+  }
+
+  @Put(':id')
+  @Roles(UserRole.ADMIN, UserRole.RECRUITER)
+  @ApiOperation({ summary: 'Update interview' })
+  @ApiParam({ name: 'id', description: 'Interview ID' })
+  @ApiResponse({ status: 200, description: 'Interview updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
+  @ApiResponse({ status: 404, description: 'Interview not found' })
+  update(@Param('id') id: string, @Body() updateData: any, @Req() req) {
+    return this.interviewsService.update(id, updateData, req.user.id);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMIN, UserRole.RECRUITER)
+  @ApiOperation({ summary: 'Cancel interview' })
+  @ApiParam({ name: 'id', description: 'Interview ID' })
+  @ApiResponse({ status: 200, description: 'Interview cancelled successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
+  @ApiResponse({ status: 404, description: 'Interview not found' })
+  remove(@Param('id') id: string, @Req() req) {
+    return this.interviewsService.remove(id, req.user.id);
   }
 }

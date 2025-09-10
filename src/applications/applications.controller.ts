@@ -66,6 +66,30 @@ export class ApplicationsController {
     return this.applicationsService.findByJobId(jobId, req.user.id);
   }
 
+  @Get()
+  @ApiOperation({ summary: 'Get user applications' })
+  @ApiResponse({
+    status: 200,
+    description: 'User applications retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  findUserApplications(@Req() req) {
+    return this.applicationsService.findUserApplications(req.user.id);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get application details' })
+  @ApiParam({ name: 'id', description: 'Application ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Application details retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Application not found' })
+  findOne(@Param('id') id: string, @Req() req) {
+    return this.applicationsService.findOne(id, req.user.id);
+  }
+
   @Patch(':id/status')
   @Roles(UserRole.ADMIN, UserRole.RECRUITER)
   @ApiOperation({ summary: 'Update application status' })

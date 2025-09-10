@@ -117,4 +117,70 @@ export class InterviewsService {
       orderBy: { scheduledAt: 'desc' },
     });
   }
+
+  async update(id: string, updateData: any, userId: string) {
+    const interview = await this.prisma.interview.findUnique({
+      where: { id },
+      include: {
+        application: {
+          include: {
+            job: true,
+          },
+        },
+      },
+    });
+
+    if (!interview) {
+      throw new NotFoundException('Interview not found');
+    }
+
+    if (interview.application.job.createdBy !== userId) {
+      throw new ForbiddenException('You can only update interviews for your own jobs');
+    }
+
+    return this.prisma.interview.update({
+      where: { id },
+      data: updateData,
+      include: {
+        application: {
+          include: {
+            candidate: true,
+            job: true,
+          },
+        },
+        scheduledBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
+
+  async remove(id: string, userId: string) {
+    const interview = await this.prisma.interview.findUnique({
+      where: { id },
+      include: {
+        application: {
+          include: {
+            job: true,
+          },
+        },
+      },
+    });
+
+    if (!interview) {
+      throw new NotFoundException('Interview not found');
+    }
+
+    if (interview.application.job.createdBy !== userId) {
+      throw new ForbiddenException('You can only cancel interviews for your own jobs');
+    }
+
+    return this.prisma.interview.delete({
+      where: { id },
+    });
+  }
 }
