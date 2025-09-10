@@ -16,6 +16,13 @@ import { EmailModule } from './email/email.module';
 import { AiModule } from './ai/ai.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AuditModule } from './audit/audit.module';
+import { LoggerService } from './common/services/logger.service';
+import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
+import { SanitizationPipe } from './common/pipes/sanitization.pipe';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -70,6 +77,20 @@ import { NotificationsModule } from './notifications/notifications.module';
     InterviewsModule,
     UploadsModule,
     NotificationsModule,
+    AuditModule,
+    AnalyticsModule,
+    HealthModule,
+  ],
+  providers: [
+    LoggerService,
+    {
+      provide: APP_PIPE,
+      useClass: SanitizationPipe,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
   ],
 })
 export class AppModule {}

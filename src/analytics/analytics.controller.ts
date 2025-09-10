@@ -1,0 +1,34 @@
+import { Controller, Get, UseGuards, Query } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
+import { AnalyticsService } from './analytics.service';
+
+@ApiTags('Analytics')
+@ApiBearerAuth('JWT-auth')
+@Controller('analytics')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class AnalyticsController {
+  constructor(private readonly analyticsService: AnalyticsService) {}
+  @Get('dashboard')
+  @Roles(UserRole.ADMIN, UserRole.RECRUITER)
+  @ApiOperation({ summary: 'Get dashboard analytics metrics' })
+  @ApiResponse({ status: 200, description: 'Dashboard metrics retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
+  getDashboardMetrics(@Query('period') period: string = '30d') {
+    return this.analyticsService.getDashboardMetrics(period);
+  }
+
+  @Get('reports/hiring-funnel')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Get hiring funnel analytics report' })
+  @ApiResponse({ status: 200, description: 'Hiring funnel report retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
+  getHiringFunnelReport() {
+    return this.analyticsService.getHiringFunnelReport();
+  }
+}

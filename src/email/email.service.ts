@@ -1,13 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
+import { HtmlSanitizerUtil } from '../common/utils/html-sanitizer.util';
+import { LoggerService } from '../common/services/logger.service';
 
 @Injectable()
 export class EmailService {
   private resend: Resend;
 
-  constructor(private configService: ConfigService) {
-    this.resend = new Resend(this.configService.get('RESEND_API_KEY'));
+  constructor(
+    private configService: ConfigService,
+    private logger: LoggerService,
+  ) {
+    const apiKey = this.configService.get('RESEND_API_KEY');
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is required but not configured');
+    }
+    this.resend = new Resend(apiKey);
   }
 
   async sendApplicationSubmitted(
@@ -105,10 +114,10 @@ export class EmailService {
         html,
       });
 
-      console.log('Email sent successfully:', result.data?.id);
+      this.logger.log(`Email sent successfully: ${result.data?.id}`, 'EmailService');
       return { success: true, messageId: result.data?.id };
     } catch (error: unknown) {
-      console.error('Failed to send email:', error);
+      this.logger.error('Failed to send email', error instanceof Error ? error.stack : String(error), 'EmailService');
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       return { success: false, error: errorMessage };
@@ -120,23 +129,27 @@ export class EmailService {
     jobTitle: string,
     company: string,
   ) {
+    const safeName = HtmlSanitizerUtil.escapeHtml(candidateName?.substring(0, 100) || '');
+    const safeTitle = HtmlSanitizerUtil.escapeHtml(jobTitle?.substring(0, 200) || '');
+    const safeCompany = HtmlSanitizerUtil.escapeHtml(company?.substring(0, 100) || '');
+    
     return {
-      subject: `Application Submitted: ${jobTitle}`,
+      subject: `Application Submitted: ${safeTitle}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2563eb;">Application Submitted Successfully! 🎉</h2>
-          <p>Dear <strong>${candidateName}</strong>,</p>
-          <p>Your application for <strong style="color: #2563eb;">${jobTitle}</strong> has been received successfully.</p>
+          <p>Dear <strong>${safeName}</strong>,</p>
+          <p>Your application for <strong style="color: #2563eb;">${safeTitle}</strong> has been received successfully.</p>
           <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p><strong>Application Details:</strong></p>
-            <p>Job Title: ${jobTitle}</p>
-            <p>Company: ${company}</p>
+            <p>Job Title: ${safeTitle}</p>
+            <p>Company: ${safeCompany}</p>
             <p>Applied On: ${new Date().toLocaleDateString()}</p>
           </div>
           <p>We will review your application and contact you within 3-5 business days.</p>
           <p>Best regards,<br><strong>AI Hiring Team</strong></p>
         </div>
-      `,
+      `),
     };
   }
 
@@ -147,16 +160,16 @@ export class EmailService {
     notes?: string,
   ) {
     return {
-      subject: `Application Update: ${jobTitle} - ${status}`,
+      subject: `Application Update: ${HtmlSanitizerUtil.escapeHtml(jobTitle)} - ${HtmlSanitizerUtil.escapeHtml(status)}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: ${this.getStatusColor(status)};">Application Status Updated</h2>
-          <p>Dear <strong>${candidateName}</strong>,</p>
-          <p>Your application for <strong style="color: #2563eb;">${jobTitle}</strong> has been updated.</p>
+          <p>Dear <strong>${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>,</p>
+          <p>Your application for <strong style="color: #2563eb;">${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong> has been updated.</p>
           <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p><strong>New Status:</strong> <span style="color: ${this.getStatusColor(status)}; font-weight: bold;">${status}</span></p>
+            <p><strong>New Status:</strong> <span style="color: ${this.getStatusColor(status)}; font-weight: bold;">${HtmlSanitizerUtil.escapeHtml(status)}</span></p>
             <p><strong>Updated On:</strong> ${new Date().toLocaleDateString()}</p>
-            ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}
+            ${notes ? `<p><strong>Notes:</strong> ${HtmlSanitizerUtil.escapeHtml(notes)}</p>` : ''}
           </div>
           <p>Best regards,<br><strong>AI Hiring Team</strong></p>
         </div>
@@ -172,18 +185,18 @@ export class EmailService {
     notes?: string,
   ) {
     return {
-      subject: `Interview Scheduled: ${jobTitle}`,
+      subject: `Interview Scheduled: ${HtmlSanitizerUtil.escapeHtml(jobTitle)}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #059669;">Interview Scheduled 📅</h2>
-          <p>Dear <strong>${candidateName}</strong>,</p>
-          <p>We're pleased to invite you for an interview for the position of <strong style="color: #2563eb;">${jobTitle}</strong>.</p>
+          <p>Dear <strong>${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>,</p>
+          <p>We're pleased to invite you for an interview for the position of <strong style="color: #2563eb;">${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong>.</p>
           <div style="background-color: #ecfdf5; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p><strong>Interview Details:</strong></p>
             <p>Date & Time: <strong>${scheduledAt.toLocaleString()}</strong></p>
-            <p>Mode: <strong>${mode}</strong></p>
+            <p>Mode: <strong>${HtmlSanitizerUtil.escapeHtml(mode)}</strong></p>
             <p>Duration: Approximately 45-60 minutes</p>
-            ${notes ? `<p><strong>Additional Notes:</strong> ${notes}</p>` : ''}
+            ${notes ? `<p><strong>Additional Notes:</strong> ${HtmlSanitizerUtil.escapeHtml(notes)}</p>` : ''}
           </div>
           <p>Please ensure you have a stable internet connection if it's a virtual interview.</p>
           <p>Best regards,<br><strong>AI Hiring Team</strong></p>
@@ -201,12 +214,12 @@ export class EmailService {
     experienceMatch: boolean,
   ) {
     return {
-      subject: `Screening Results: ${jobTitle}`,
+      subject: `Screening Results: ${HtmlSanitizerUtil.escapeHtml(jobTitle)}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #7c3aed;">Screening Results Available</h2>
-          <p>Dear <strong>${recruiterName}</strong>,</p>
-          <p>The AI screening results for <strong>${candidateName}</strong>'s application to <strong>${jobTitle}</strong> are ready.</p>
+          <p>Dear <strong>${HtmlSanitizerUtil.escapeHtml(recruiterName)}</strong>,</p>
+          <p>The AI screening results for <strong>${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>'s application to <strong>${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong> are ready.</p>
           <div style="background-color: #faf5ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p><strong>Fit Score:</strong> ${(fitScore * 100).toFixed(1)}%</p>
             <p><strong>Skills Match:</strong> ${(skillMatch * 100).toFixed(1)}%</p>

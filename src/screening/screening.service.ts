@@ -4,6 +4,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from '../email/email.service';
+import { LoggerService } from '../common/services/logger.service';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class ScreeningService {
@@ -11,14 +13,21 @@ export class ScreeningService {
     private prisma: PrismaService,
     private configService: ConfigService,
     @Inject('ML_SERVICE') private mlClient: ClientProxy,
-    @Inject(EmailService) private emailService: EmailService,
+    private emailService: EmailService,
+    private logger: LoggerService,
+    private auditService: AuditService,
   ) {}
 
-  async runScreening(applicationId: string) {
+  async runScreening(applicationId: string, userId?: string) {
+    // Optimized query - get all needed data in one call
     const application = await this.prisma.application.findUnique({
       where: { id: applicationId },
       include: {
-        job: true,
+        job: {
+          include: {
+            creator: true, // Include creator for email notification
+          },
+        },
         candidate: {
           include: {
             user: true,
@@ -61,16 +70,19 @@ export class ScreeningService {
         },
       });
 
-      // Send email to recruiter
-      const application = await this.prisma.application.findUnique({
-        where: { id: applicationId },
-        include: {
-          job: { include: { creator: true } },
-          candidate: true,
-        },
-      });
+      // Log audit trail
+      if (userId) {
+        await this.auditService.log({
+          userId,
+          action: 'RUN_SCREENING',
+          resource: 'application',
+          resourceId: applicationId,
+          metadata: { fitScore: mlResult.fitScore },
+        });
+      }
 
-      if (application && application.job.creator) {
+      // Send email to recruiter (non-blocking)
+      if (application.job.creator) {
         this.emailService
           .sendScreeningResults(
             application.job.creator.email,
@@ -81,12 +93,14 @@ export class ScreeningService {
             mlResult.details.skillSimilarity,
             mlResult.details.experienceMatch,
           )
-          .catch(console.error);
+          .catch((error) => {
+            this.logger.error('Failed to send screening results email', error.stack, 'ScreeningService');
+          });
       }
 
       return screeningResult;
     } catch (error) {
-      // Fallback to basic screening if ML service is down
+      this.logger.error('ML service screening failed, falling back to basic screening', error.stack, 'ScreeningService');
       return this.runBasicScreening(application);
     }
   }
@@ -129,13 +143,18 @@ export class ScreeningService {
     jobSkills: string[],
     candidateSkills: string[],
   ): number {
-    const matchedSkills = jobSkills.filter((skill) =>
-      candidateSkills.some(
-        (candidateSkill) =>
-          candidateSkill.toLowerCase().includes(skill.toLowerCase()) ||
-          skill.toLowerCase().includes(candidateSkill.toLowerCase()),
+    if (!jobSkills.length) return 1; // No requirements = perfect match
+    
+    // Pre-process skills to lowercase for efficient comparison
+    const jobSkillsLower = jobSkills.map(skill => skill.toLowerCase());
+    const candidateSkillsLower = candidateSkills.map(skill => skill.toLowerCase());
+    
+    const matchedSkills = jobSkillsLower.filter((skill) =>
+      candidateSkillsLower.some((candidateSkill) =>
+        candidateSkill.includes(skill) || skill.includes(candidateSkill)
       ),
     );
+    
     return matchedSkills.length / jobSkills.length;
   }
 

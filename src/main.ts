@@ -3,9 +3,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
+import { LoggerService } from './common/services/logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const logger = new LoggerService();
+  
+  try {
+    const app = await NestFactory.create(AppModule, {
+      logger: logger,
+    });
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -67,33 +73,47 @@ async function bootstrap() {
       await prismaService.$queryRaw`SELECT 1`;
       dbStatus = 'connected';
     } catch (error) {
-      console.error('Database health check failed:', error);
+      logger.error('Database health check failed', error instanceof Error ? error.stack : String(error), 'HealthCheck');
     }
 
     // Check ML service connection
     let mlServiceStatus = 'disconnected';
     try {
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const mlHealth = await fetch(
-        `http://${process.env.ML_SERVICE_HOST || 'localhost'}:${process.env.ML_SERVICE_PORT || '8000'}/health`,
+        `${protocol}://${process.env.ML_SERVICE_HOST || 'localhost'}:${process.env.ML_SERVICE_PORT || '8000'}/health`,
+        { signal: controller.signal }
       );
+      
+      clearTimeout(timeoutId);
       if (mlHealth.ok) {
         mlServiceStatus = 'connected';
       }
     } catch (error) {
-      console.error('ML service health check failed:', error);
+      logger.error('ML service health check failed', error instanceof Error ? error.stack : String(error), 'HealthCheck');
     }
 
     // Check email service connection (microservice)
     let emailServiceStatus = 'disconnected';
     try {
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const emailHealth = await fetch(
-        `http://${process.env.EMAIL_SERVICE_HOST || 'localhost'}:${process.env.EMAIL_SERVICE_PORT || '3002'}/health`,
+        `${protocol}://${process.env.EMAIL_SERVICE_HOST || 'localhost'}:${process.env.EMAIL_SERVICE_PORT || '3002'}/health`,
+        { signal: controller.signal }
       );
+      
+      clearTimeout(timeoutId);
       if (emailHealth.ok) {
         emailServiceStatus = 'connected';
       }
     } catch (error) {
-      console.error('Email service health check failed:', error);
+      logger.error('Email service health check failed', error instanceof Error ? error.stack : String(error), 'HealthCheck');
     }
 
     // Check Resend API status
@@ -132,10 +152,16 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port);
 
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
-  console.log(
-    `📚 API Documentation available at: http://localhost:${port}/api`,
-  );
+    logger.log(`🚀 Application is running on: http://localhost:${port}`, 'Bootstrap');
+    logger.log(`📚 API Documentation available at: http://localhost:${port}/api`, 'Bootstrap');
+  } catch (error) {
+    logger.error('Failed to start application', error instanceof Error ? error.stack : String(error), 'Bootstrap');
+    process.exit(1);
+  }
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  const logger = new LoggerService();
+  logger.error('Bootstrap failed', error instanceof Error ? error.stack : String(error), 'Bootstrap');
+  process.exit(1);
+});

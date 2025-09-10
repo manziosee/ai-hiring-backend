@@ -1,14 +1,24 @@
 import { Injectable } from '@nestjs/common';
+import { LoggerService } from '../common/services/logger.service';
 
 @Injectable()
 export class NotificationsService {
+  constructor(private readonly logger: LoggerService) {}
+
   async sendNotification(
     userId: string,
     message: string,
     type: string = 'info',
   ) {
-    // Placeholder for notification logic
-    console.log(`Notification to ${userId}: ${message} (${type})`);
+    // Sanitize inputs to prevent log injection
+    const sanitizedUserId = userId.replace(/[\r\n\t]/g, '_');
+    const sanitizedMessage = message.replace(/[\r\n\t]/g, '_');
+    const sanitizedType = type.replace(/[\r\n\t]/g, '_');
+    
+    this.logger.log(
+      `Notification sent - User: ${sanitizedUserId}, Type: ${sanitizedType}, Message: ${sanitizedMessage}`,
+      'NotificationsService'
+    );
   }
 
   async sendApplicationUpdate(
