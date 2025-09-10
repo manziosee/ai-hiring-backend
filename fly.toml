@@ -1,25 +1,12 @@
 app = "ai-hiring-api"
 primary_region = "iad"
-kill_signal = "SIGINT"
-kill_timeout = "5s"
-
-[experimental]
-  auto_rollback = true
 
 [build]
   dockerfile = "Dockerfile"
-  target = "production"
-
-[deploy]
-  release_command = "npm run prisma:migrate"
 
 [env]
-  PORT = "3000"
   NODE_ENV = "production"
-  ML_SERVICE_HOST = "ai-hiring-ml.fly.dev"
-  ML_SERVICE_PORT = "8000"
-  EMAIL_SERVICE_HOST = "ai-hiring-email.fly.dev"
-  EMAIL_SERVICE_PORT = "3002"
+  PORT = "3000"
 
 [http_service]
   internal_port = 3000
@@ -27,34 +14,45 @@ kill_timeout = "5s"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 1
-  max_machines_running = 10
+  processes = ["app"]
 
   [http_service.concurrency]
     type = "connections"
-    hard_limit = 1000
-    soft_limit = 800
+    hard_limit = 25
+    soft_limit = 20
 
 [[http_service.checks]]
-  interval = "15s"
-  timeout = "10s"
-  grace_period = "5s"
+  grace_period = "10s"
+  interval = "30s"
   method = "GET"
+  timeout = "5s"
   path = "/health"
-  protocol = "http"
-  tls_skip_verify = false
 
-  [http_service.checks.headers]
-    Content-Type = "application/json"
+[machine]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
 
-[metrics]
-  port = 9091
-  path = "/metrics"
+[[services]]
+  protocol = "tcp"
+  internal_port = 3000
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
 
 [[vm]]
   memory = "1gb"
   cpu_kind = "shared"
   cpus = 1
-
-[[mounts]]
-  source = "uploads_volume"
-  destination = "/app/uploads"

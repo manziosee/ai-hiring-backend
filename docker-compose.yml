@@ -1,26 +1,25 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: ai-hiring-postgres
     environment:
-      POSTGRES_DB: ai_hiring_db
+      POSTGRES_DB: ai_hiring
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_hiring_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - ai-hiring-network
 
+  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: ai-hiring-redis
@@ -31,106 +30,83 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
-      timeout: 5s
-      retries: 3
-    networks:
-      - ai-hiring-network
+      timeout: 3s
+      retries: 5
 
-  ml-service:
-    build: 
-      context: ./microservices/ml-service
-      dockerfile: Dockerfile
-    container_name: ai-hiring-ml
-    ports:
-      - "8000:8000"
-    environment:
-      - PYTHONPATH=/app
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/ai_hiring_db
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - ai-hiring-network
-
-  email-service:
-    build: 
-      context: ./microservices/email-service
-      dockerfile: Dockerfile
-    container_name: ai-hiring-email
-    ports:
-      - "3002:3002"
-    environment:
-      - EMAIL_USER=${EMAIL_USER}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - RESEND_API_KEY=${RESEND_API_KEY}
-      - NODE_ENV=production
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - ai-hiring-network
-
+  # Main API Service
   main-api:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
-      target: production
-    container_name: ai-hiring-api
+    container_name: ai-hiring-main-api
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/ai_hiring_db
-      - JWT_SECRET=${JWT_SECRET}
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_hiring
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-jwt-secret-here
+      - JWT_REFRESH_SECRET=your-refresh-secret-here
       - ML_SERVICE_HOST=ml-service
       - ML_SERVICE_PORT=8000
       - EMAIL_SERVICE_HOST=email-service
       - EMAIL_SERVICE_PORT=3002
-      - REDIS_URL=redis://redis:6379
-      - APP_URL=${APP_URL:-http://localhost:3000}
-      - NODE_ENV=production
-      - THROTTLE_TTL=${THROTTLE_TTL:-60000}
-      - THROTTLE_LIMIT=${THROTTLE_LIMIT:-10}
-      - FILE_UPLOAD_MAX_SIZE=${FILE_UPLOAD_MAX_SIZE:-10485760}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      ml-service:
-        condition: service_healthy
-      email-service:
-        condition: service_healthy
-    restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    volumes:
-      - uploads_data:/app/uploads
-    networks:
-      - ai-hiring-network
 
+  # ML Service
+  ml-service:
+    build:
+      context: ./microservices/ml-service
+      dockerfile: Dockerfile
+    container_name: ai-hiring-ml-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+    volumes:
+      - ./microservices/ml-service/models:/app/models
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Email Service
+  email-service:
+    build:
+      context: ./microservices/email-service
+      dockerfile: Dockerfile
+    container_name: ai-hiring-email-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     container_name: ai-hiring-nginx
@@ -138,22 +114,22 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
     depends_on:
       - main-api
-    restart: unless-stopped
-    networks:
-      - ai-hiring-network
+      - ml-service
+      - email-service
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   postgres_data:
-    driver: local
   redis_data:
-    driver: local
-  uploads_data:
-    driver: local
 
 networks:
-  ai-hiring-network:
-    driver: bridge
+  default:
+    name: ai-hiring-network

@@ -5,11 +5,13 @@ import { ScreeningService } from './screening.service';
 import { ScreeningController } from './screening.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { EmailModule } from '../email/email.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
     PrismaModule,
     EmailModule,
+    AuditModule,
     ClientsModule.registerAsync([
       {
         name: 'ML_SERVICE',

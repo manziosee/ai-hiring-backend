@@ -17,12 +17,13 @@ import { AiModule } from './ai/ai.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
-import { LoggerService } from './common/services/logger.service';
+import { CommonModule } from './common/common.module';
 import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
 import { SanitizationPipe } from './common/pipes/sanitization.pipe';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { HealthModule } from './health/health.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { HealthModule } from './health/health.module';
         inject: [ConfigService],
       },
     ]),
+    CommonModule,
     PrismaModule,
     EmailModule,
     AiModule,
@@ -80,9 +82,9 @@ import { HealthModule } from './health/health.module';
     AuditModule,
     AnalyticsModule,
     HealthModule,
+    DashboardModule,
   ],
   providers: [
-    LoggerService,
     {
       provide: APP_PIPE,
       useClass: SanitizationPipe,
