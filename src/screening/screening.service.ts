@@ -164,4 +164,28 @@ export class ScreeningService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  async getJobScreeningResults(jobId: string) {
+    return this.prisma.screeningResult.findMany({
+      where: {
+        application: {
+          jobId
+        }
+      },
+      include: {
+        application: {
+          include: {
+            candidate: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 }

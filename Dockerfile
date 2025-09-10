@@ -1,49 +1,53 @@
-# Multi-stage build for production
+# Multi-stage build for production optimization
 FROM node:18-alpine AS base
 
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies
-COPY package*.json ./
+# Install dependencies based on the preferred package manager
+COPY package.json package-lock.json* ./
 RUN npm ci --only=production && npm cache clean --force
 
-# Development stage
-FROM node:18-alpine AS development
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build the application
+RUN npm run build
+
+# Production image, copy all the files and run the app
+FROM base AS runner
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+ENV NODE_ENV production
 
-COPY . .
-RUN npm run build
-RUN npm run prisma:generate
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nestjs
+
+# Copy built application
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
+
+# Create uploads directory
+RUN mkdir -p uploads && chown nestjs:nodejs uploads
+
+USER nestjs
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:dev"]
-
-# Production stage
-FROM base AS production
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nestjs -u 1001
-
-# Copy built application
-COPY --from=development --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=development --chown=nestjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=development --chown=nestjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-COPY --chown=nestjs:nodejs prisma ./prisma
-COPY --chown=nestjs:nodejs .env.example ./.env
-
-# Switch to non-root user
-USER nestjs
+ENV PORT 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
-
-EXPOSE 3000
+  CMD node healthcheck.js
 
 CMD ["node", "dist/main"]

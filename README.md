@@ -31,6 +31,12 @@
 - **🔔 Notifications** — Email + WebSocket real-time updates  
 - **📱 RESTful API** — Fully documented with Swagger/OpenAPI  
 - **🔐 JWT Authentication** — Secure token-based authentication
+- **📊 Role-Based Dashboards** — Customized dashboards for each user role
+- **📅 Interview Scheduling** — Automated interview management system
+- **📁 File Management** — Resume & document upload/download
+- **🔍 Advanced Search** — Job and candidate search with filters
+- **📈 Performance Metrics** — Real-time system monitoring
+- **🛡️ Security Features** — Input sanitization, rate limiting, audit logs
 - **🧪 Comprehensive Testing** — Unit, integration & e2e tests
 - **🐳 Containerized** — Docker & Kubernetes ready  
 - **☁️ Cloud Native** — Deployable on Fly.io, AWS, GCP, Azure
@@ -239,9 +245,9 @@ primary_region = "iad"
 | Method | Endpoint           | Description          | Auth        | Status |
 |--------|--------------------|----------------------|-------------|--------|
 | GET    | `/users/me`        | Get current user     | ✅           | ✅     |
-| PUT    | `/users/me`        | Update profile       | ✅           | ✅     |
 | GET    | `/users`           | List all users       | ✅ Admin     | ✅     |
 | GET    | `/users/{id}`      | Get user by ID       | ✅ Admin     | ✅     |
+| PATCH  | `/users/{id}`      | Update user profile  | ✅           | ✅     |
 | DELETE | `/users/{id}`      | Delete user          | ✅ Admin     | ✅     |
 
 #### 💼 Jobs Management
@@ -259,7 +265,8 @@ primary_region = "iad"
 | POST   | `/applications`            | Apply for job            | ✅ Candidate | ✅     |
 | GET    | `/applications`            | Get user applications    | ✅           | ✅     |
 | GET    | `/applications/{id}`       | Get application details  | ✅           | ✅     |
-| PUT    | `/applications/{id}/status`| Update application status| ✅ Recruiter | ✅     |
+| GET    | `/applications/job/{jobId}`| Get applications for job | ✅ Recruiter | ✅     |
+| PATCH  | `/applications/{id}/status`| Update application status| ✅ Recruiter | ✅     |
 
 #### 🤖 AI Screening
 | Method | Endpoint                | Description           | Auth        | Status |
@@ -269,18 +276,26 @@ primary_region = "iad"
 | GET    | `/screening/job/{id}`   | Get job screenings    | ✅ Recruiter | ✅     |
 
 #### 📅 Interviews
-| Method | Endpoint              | Description         | Auth        | Status |
-|--------|-----------------------|---------------------|-------------|--------|
-| GET    | `/interviews/{id}`    | Get interviews      | ✅           | ✅     |
-| POST   | `/interviews`         | Schedule interview  | ✅ Recruiter | ✅     |
-| PUT    | `/interviews/{id}`    | Update interview    | ✅           | ✅     |
-| DELETE | `/interviews/{id}`    | Cancel interview    | ✅           | ✅     |
+| Method | Endpoint                     | Description                  | Auth        | Status |
+|--------|------------------------------|------------------------------|-------------|--------|
+| POST   | `/interviews`                | Schedule interview           | ✅ Recruiter | ✅     |
+| GET    | `/interviews/{applicationId}`| Get interviews for application| ✅           | ✅     |
+| PUT    | `/interviews/{id}`           | Update interview             | ✅ Recruiter | ✅     |
+| DELETE | `/interviews/{id}`           | Cancel interview             | ✅ Recruiter | ✅     |
 
 #### 📁 File Upload
-| Method | Endpoint           | Description       | Auth        | Status |
-|--------|--------------------|-------------------|-------------|--------|
-| POST   | `/uploads/resume`  | Upload resume     | ✅ Candidate | ✅     |
-| GET    | `/uploads/{id}`    | Download file     | ✅           | ✅     |
+| Method | Endpoint                    | Description              | Auth        | Status |
+|--------|-----------------------------|--------------------------| ------------|--------|
+| POST   | `/uploads/resume`           | Upload resume            | ✅ Candidate | ✅     |
+| GET    | `/uploads/resume/{filename}`| Download resume          | ✅ Recruiter | ✅     |
+| POST   | `/uploads/job-description`  | Upload job description   | ✅ Recruiter | ✅     |
+
+#### 📊 Dashboard
+| Method | Endpoint              | Description           | Auth        | Status |
+|--------|-----------------------|-----------------------|-------------|--------|
+| GET    | `/dashboard/admin`    | Admin dashboard data  | ✅ Admin     | ✅     |
+| GET    | `/dashboard/recruiter`| Recruiter dashboard   | ✅ Recruiter | ✅     |
+| GET    | `/dashboard/candidate`| Candidate dashboard   | ✅ Candidate | ✅     |
 
 #### 🏥 Health & Monitoring
 | Method | Endpoint    | Description    | Auth | Status |
@@ -318,13 +333,25 @@ The `test-integrations.js` script provides comprehensive end-to-end testing of a
 - **AI Integrations**: Tests OpenAI and HuggingFace integrations
 - **ML Service**: Validates resume screening and skill extraction
 - **Application Workflow**: End-to-end application processing
+- **Dashboard Testing**: Validates role-based dashboard data
+- **File Upload/Download**: Tests resume and document handling
+- **Interview Scheduling**: Validates interview management system
 - **Rate Limiting**: Ensures security measures are active
+- **Security Testing**: Input sanitization and XSS prevention
+
+### Test Coverage
+- **Unit Tests**: Individual component testing
+- **Integration Tests**: API endpoint testing
+- **E2E Tests**: Complete user workflow testing
+- **Security Tests**: Vulnerability scanning
+- **Performance Tests**: Load and stress testing
 
 Before running integration tests:
 1. Start the main API: `npm run start:dev`
 2. Start the ML service: `cd microservices/ml-service && python main.py`
 3. Ensure database is running and migrated
 4. Set up environment variables (`.env` file)
+5. Run: `node test-integrations.js`
 
 ---
 
@@ -332,26 +359,48 @@ Before running integration tests:
 
 ### Environment Variables
 
-| Variable          | Description                  | Default                                        |
-| ----------------- | ---------------------------- | ---------------------------------------------- |
-| `DATABASE_URL`    | PostgreSQL connection string | -                                              |
-| `JWT_SECRET`      | JWT signing secret           | -                                              |
-| `EMAIL_USER`      | SMTP email user              | -                                              |
-| `EMAIL_PASSWORD`  | SMTP app password            | -                                              |
-| `ML_SERVICE_HOST` | ML service host              | localhost                                      |
-| `ML_SERVICE_PORT` | ML service port              | 8000                                           |
-| `APP_URL`         | Application base URL         | [http://localhost:3000](http://localhost:3000) |
+| Variable              | Description                  | Default                                        |
+| --------------------- | ---------------------------- | ---------------------------------------------- |
+| `DATABASE_URL`        | PostgreSQL connection string | -                                              |
+| `JWT_SECRET`          | JWT signing secret           | -                                              |
+| `JWT_REFRESH_SECRET`  | JWT refresh token secret     | -                                              |
+| `EMAIL_USER`          | SMTP email user              | -                                              |
+| `EMAIL_PASSWORD`      | SMTP app password            | -                                              |
+| `ML_SERVICE_HOST`     | ML service host              | localhost                                      |
+| `ML_SERVICE_PORT`     | ML service port              | 8000                                           |
+| `EMAIL_SERVICE_HOST`  | Email service host           | localhost                                      |
+| `EMAIL_SERVICE_PORT`  | Email service port           | 3002                                           |
+| `APP_URL`             | Application base URL         | http://localhost:3000                          |
+| `OPENAI_API_KEY`      | OpenAI API key for AI features| -                                              |
+| `HUGGINGFACE_API_KEY` | HuggingFace API key          | -                                              |
+| `THROTTLE_TTL`        | Rate limiting time window    | 60000                                          |
+| `THROTTLE_LIMIT`      | Rate limiting max requests   | 10                                             |
+| `UPLOAD_MAX_SIZE`     | Max file upload size (MB)    | 10                                             |
 
 ---
 
 ## 🗄️ Database Schema
 
-* **Users** — Admin, Recruiter, Candidate roles
-* **Jobs** — Job postings with requirements
-* **Candidates** — Profiles with resumes & skills
-* **Applications** — Candidate job applications
-* **ScreeningResults** — AI fit scores & analysis
-* **Interviews** — Scheduled interview sessions
+### Core Entities
+* **Users** — Admin, Recruiter, Candidate roles with authentication
+* **Jobs** — Job postings with requirements, salary, location
+* **Candidates** — Extended profiles with skills, experience, contact info
+* **Applications** — Job applications with status tracking
+* **ScreeningResults** — AI-generated fit scores and analysis
+* **Interviews** — Scheduled interview sessions with types and notes
+
+### Supporting Tables
+* **AuditLogs** — System activity tracking for security
+* **Notifications** — Email and system notifications
+* **FileUploads** — Resume and document metadata
+* **UserSessions** — JWT token management and refresh
+
+### Key Features
+- **Role-Based Access Control** — Different permissions for each user type
+- **Audit Trail** — Complete activity logging for compliance
+- **File Management** — Secure document storage and retrieval
+- **Real-time Notifications** — Email and WebSocket updates
+- **AI Integration** — ML-powered resume analysis and matching
 
 ---
 
