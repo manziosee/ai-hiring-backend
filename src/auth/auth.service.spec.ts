@@ -20,7 +20,7 @@ describe('AuthService', () => {
     email: 'test@example.com',
     fullName: 'Test User',
     role: UserRole.CANDIDATE,
-    password: 'hashedPassword',
+    password: 'mock-hashed-password',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -66,13 +66,13 @@ describe('AuthService', () => {
   describe('register', () => {
     const registerDto = {
       email: 'test@example.com',
-      password: 'password123',
+      password: 'mock-test-password',
       fullName: 'Test User',
       role: UserRole.CANDIDATE,
     };
 
     it('should successfully register a new user', async () => {
-      const hashedPassword = 'hashedPassword';
+      const hashedPassword = 'mock-hashed-password';
       const accessToken = 'jwt-token';
 
       prismaService.user.findUnique.mockResolvedValue(null);
@@ -120,7 +120,7 @@ describe('AuthService', () => {
   describe('login', () => {
     const loginDto = {
       email: 'test@example.com',
-      password: 'password123',
+      password: 'mock-test-password',
     };
 
     it('should successfully login with valid credentials', async () => {

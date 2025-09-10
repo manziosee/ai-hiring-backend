@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { LoggerService } from '../common/services/logger.service';
 
 @Injectable()
 export class HealthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly logger: LoggerService,
   ) {}
 
   async getHealthStatus() {
@@ -62,11 +64,13 @@ export class HealthService {
   }
 
   private async checkDatabase() {
+    const startTime = Date.now();
     try {
       await this.prisma.$queryRaw`SELECT 1`;
-      return { healthy: true, responseTime: Date.now() };
+      return { healthy: true, responseTime: Date.now() - startTime };
     } catch (error) {
-      return { healthy: false, error: error.message };
+      this.logger.error('Database health check failed', error instanceof Error ? error.stack : String(error), 'HealthService');
+      return { healthy: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -74,11 +78,13 @@ export class HealthService {
     try {
       const mlHost = this.configService.get('ML_SERVICE_HOST', 'localhost');
       const mlPort = this.configService.get('ML_SERVICE_PORT', '8000');
+      const protocol = this.configService.get('NODE_ENV') === 'production' ? 'https' : 'http';
+      const startTime = Date.now();
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const response = await fetch(`http://${mlHost}:${mlPort}/health`, {
+      const response = await fetch(`${protocol}://${mlHost}:${mlPort}/health`, {
         method: 'GET',
         signal: controller.signal,
       });
@@ -87,11 +93,12 @@ export class HealthService {
 
       return {
         healthy: response.ok,
-        responseTime: Date.now(),
+        responseTime: Date.now() - startTime,
         status: response.status,
       };
     } catch (error: any) {
-      return { healthy: false, error: error.message };
+      this.logger.error('ML service health check failed', error.stack || String(error), 'HealthService');
+      return { healthy: false, error: error.message || 'Connection failed' };
     }
   }
 
@@ -102,11 +109,13 @@ export class HealthService {
         'localhost',
       );
       const emailPort = this.configService.get('EMAIL_SERVICE_PORT', '3002');
+      const protocol = this.configService.get('NODE_ENV') === 'production' ? 'https' : 'http';
+      const startTime = Date.now();
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const response = await fetch(`http://${emailHost}:${emailPort}/health`, {
+      const response = await fetch(`${protocol}://${emailHost}:${emailPort}/health`, {
         method: 'GET',
         signal: controller.signal,
       });
@@ -115,11 +124,12 @@ export class HealthService {
 
       return {
         healthy: response.ok,
-        responseTime: Date.now(),
+        responseTime: Date.now() - startTime,
         status: response.status,
       };
     } catch (error: any) {
-      return { healthy: false, error: error.message };
+      this.logger.error('Email service health check failed', error.stack || String(error), 'HealthService');
+      return { healthy: false, error: error.message || 'Connection failed' };
     }
   }
 }
