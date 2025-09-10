@@ -135,10 +135,10 @@ jobs:
       run: npm audit --audit-level moderate
 
     - name: Run Snyk security scan
-      if: secrets.SNYK_TOKEN
+      if: ${{ vars.SNYK_TOKEN != '' }}
       uses: snyk/actions/node@master
       env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        SNYK_TOKEN: ${{ vars.SNYK_TOKEN }}
       with:
         args: --severity-threshold=high
 
@@ -199,10 +199,10 @@ jobs:
       uses: superfly/flyctl-actions/setup-flyctl@master
 
     - name: Deploy to Fly.io Staging
-      if: secrets.FLY_API_TOKEN
+      if: ${{ vars.FLY_API_TOKEN != '' }}
       run: flyctl deploy --remote-only --app ai-hiring-api-staging
       env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        FLY_API_TOKEN: ${{ vars.FLY_API_TOKEN }}
 
     - name: Setup kubectl
       uses: azure/setup-kubectl@v3
@@ -210,14 +210,14 @@ jobs:
         version: 'latest'
 
     - name: Set up kubeconfig
-      if: secrets.KUBE_CONFIG_STAGING
+      if: ${{ vars.KUBE_CONFIG_STAGING != '' }}
       run: |
         mkdir -p ~/.kube
-        echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > ~/.kube/config
+        echo "${{ vars.KUBE_CONFIG_STAGING }}" | base64 -d > ~/.kube/config
         chmod 600 ~/.kube/config
 
     - name: Deploy to Kubernetes Staging
-      if: secrets.KUBE_CONFIG_STAGING
+      if: ${{ vars.KUBE_CONFIG_STAGING != '' }}
       run: |
         kubectl apply -f kubernetes/namespace.yaml
         kubectl apply -f kubernetes/main-api.yaml -n ai-hiring-staging
@@ -252,10 +252,10 @@ jobs:
       uses: superfly/flyctl-actions/setup-flyctl@master
 
     - name: Deploy to Fly.io Production
-      if: secrets.FLY_API_TOKEN
+      if: ${{ vars.FLY_API_TOKEN != '' }}
       run: flyctl deploy --remote-only --app ai-hiring-api
       env:
-        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        FLY_API_TOKEN: ${{ vars.FLY_API_TOKEN }}
 
     - name: Setup kubectl
       uses: azure/setup-kubectl@v3
@@ -263,14 +263,14 @@ jobs:
         version: 'latest'
 
     - name: Set up kubeconfig
-      if: secrets.KUBE_CONFIG
+      if: ${{ vars.KUBE_CONFIG != '' }}
       run: |
         mkdir -p ~/.kube
-        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+        echo "${{ vars.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
         chmod 600 ~/.kube/config
 
     - name: Deploy to Kubernetes Production
-      if: secrets.KUBE_CONFIG
+      if: ${{ vars.KUBE_CONFIG != '' }}
       run: |
         kubectl apply -f kubernetes/namespace.yaml
         kubectl apply -f kubernetes/main-api.yaml -n ai-hiring
@@ -291,10 +291,10 @@ jobs:
     
     steps:
     - name: Notify Slack
-      if: secrets.SLACK_WEBHOOK_URL
+      if: ${{ vars.SLACK_WEBHOOK_URL != '' }}
       uses: 8398a7/action-slack@v3
       with:
         status: ${{ job.status }}
         channel: '#deployments'
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_URL: ${{ vars.SLACK_WEBHOOK_URL }}

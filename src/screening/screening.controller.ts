@@ -92,6 +92,25 @@ export class ScreeningController {
     }
   }
 
+  @Get('job/:jobId')
+  @Roles(UserRole.ADMIN, UserRole.RECRUITER)
+  @ApiOperation({ summary: 'Get screening results for job' })
+  @ApiParam({ name: 'jobId', description: 'Job ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Job screening results retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
+  async getJobScreeningResults(@Param('jobId') jobId: string) {
+    try {
+      return await this.screeningService.getJobScreeningResults(jobId);
+    } catch (error) {
+      this.logger.error(`Failed to get screening results for job ${jobId}:`, (error as Error).message, 'ScreeningController');
+      throw new HttpException('Failed to retrieve job screening results', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get(':applicationId')
   @Roles(UserRole.ADMIN, UserRole.RECRUITER)
   @SetMetadata('resource', 'application')

@@ -123,7 +123,7 @@ export class ApplicationsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId: string) {
     const application = await this.prisma.application.findUnique({
       where: { id },
       include: {
@@ -147,7 +147,30 @@ export class ApplicationsService {
       throw new NotFoundException('Application not found');
     }
 
+    // Check if user has access to this application
+    if (application.userId !== userId && application.job.createdBy !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+
     return application;
+  }
+
+  async findUserApplications(userId: string) {
+    return this.prisma.application.findMany({
+      where: { userId },
+      include: {
+        job: true,
+        screeningResults: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   async findByCandidate(candidateId: string) {
