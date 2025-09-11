@@ -44,3 +44,7 @@ Thumbs.db
 *.bak
 
 /generated/prisma
+# Angular cache and build files
+frontend/.angular/
+frontend/dist/
+frontend/.nx/
