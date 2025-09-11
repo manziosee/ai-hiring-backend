@@ -11,22 +11,37 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="dashboard-container">
-      <div class="dashboard-header">
-        <div class="welcome-section">
-          <h1>Welcome back, {{ currentUser?.fullName }}!</h1>
-          <p>Here's what's happening with your {{ getRoleDisplay() }} dashboard</p>
-        </div>
-        <div class="quick-actions">
-          <button class="btn btn-primary" *ngIf="authService.isRecruiter() || authService.isAdmin()" routerLink="/jobs/create">
-            <i class="fas fa-plus"></i>
-            Post New Job
-          </button>
-          <button class="btn btn-outline" *ngIf="authService.isCandidate()" routerLink="/jobs">
-            <i class="fas fa-search"></i>
-            Browse Jobs
-          </button>
+      <!-- Animated Background -->
+      <div class="background-animation">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="floating-particles">
+          <div class="particle" *ngFor="let p of particles; let i = index" [style.animation-delay.s]="i * 0.5"></div>
         </div>
       </div>
+
+      <div class="dashboard-content">
+        <div class="dashboard-header">
+          <div class="welcome-section">
+            <div class="welcome-badge">
+              <i class="fas fa-sparkles"></i>
+              <span>{{ getRoleDisplay() | titlecase }} Dashboard</span>
+            </div>
+            <h1>Welcome back, <span class="gradient-text">{{ currentUser?.fullName }}</span>!</h1>
+            <p>Here's your personalized overview and latest updates</p>
+          </div>
+          <div class="quick-actions">
+            <button class="btn btn-primary" *ngIf="authService.isRecruiter() || authService.isAdmin()" routerLink="/jobs/create">
+              <i class="fas fa-plus"></i>
+              Post New Job
+            </button>
+            <button class="btn btn-secondary" *ngIf="authService.isCandidate()" routerLink="/jobs">
+              <i class="fas fa-search"></i>
+              Browse Jobs
+            </button>
+          </div>
+        </div>
 
       <!-- Stats Cards -->
       <div class="stats-grid" *ngIf="stats">
@@ -84,7 +99,7 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
           </div>
           <div class="card-body">
             <div class="applications-list" *ngIf="stats?.recentApplications?.length; else noApplications">
-              <div class="application-item" *ngFor="let app of stats.recentApplications.slice(0, 5)">
+              <div class="application-item" *ngFor="let app of stats?.recentApplications?.slice(0, 5)">
                 <div class="application-info">
                   <h4>{{ app.job?.title }}</h4>
                   <p *ngIf="authService.isCandidate()">Applied {{ getTimeAgo(app.createdAt) }}</p>
@@ -117,7 +132,7 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
           </div>
           <div class="card-body">
             <div class="jobs-list" *ngIf="stats?.topJobs?.length; else noJobs">
-              <div class="job-item" *ngFor="let job of stats.topJobs.slice(0, 5)">
+              <div class="job-item" *ngFor="let job of stats?.topJobs?.slice(0, 5)">
                 <div class="job-info">
                   <h4>{{ job.title }}</h4>
                   <p>{{ job.experience }} years experience • {{ job.skills.slice(0, 3).join(', ') }}</p>
@@ -155,7 +170,7 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
           </div>
           <div class="card-body">
             <div class="screening-list" *ngIf="stats?.screeningResults?.length; else noScreening">
-              <div class="screening-item" *ngFor="let result of stats.screeningResults.slice(0, 5)">
+              <div class="screening-item" *ngFor="let result of stats?.screeningResults?.slice(0, 5)">
                 <div class="screening-info">
                   <h4>{{ result.application?.candidate?.name }}</h4>
                   <p>{{ result.application?.job?.title }}</p>
@@ -194,11 +209,105 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
           </div>
         </div>
       </div>
+      </div>
     </div>
   `,
   styles: [`
     .dashboard-container {
-      padding: var(--spacing-xl);
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+    }
+
+    .background-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.4;
+      animation: float 12s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #ff9a9e, #fecfef);
+      top: -200px;
+      left: -200px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #a8edea, #fed6e3);
+      bottom: -250px;
+      right: -250px;
+      animation-delay: 6s;
+    }
+
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, #d299c2, #fef9d7);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: 3s;
+    }
+
+    .floating-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      animation: particle-float 8s linear infinite;
+    }
+
+    .particle:nth-child(1) { left: 10%; }
+    .particle:nth-child(2) { left: 20%; }
+    .particle:nth-child(3) { left: 30%; }
+    .particle:nth-child(4) { left: 40%; }
+    .particle:nth-child(5) { left: 50%; }
+    .particle:nth-child(6) { left: 60%; }
+    .particle:nth-child(7) { left: 70%; }
+    .particle:nth-child(8) { left: 80%; }
+    .particle:nth-child(9) { left: 90%; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(180deg); }
+    }
+
+    @keyframes particle-float {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    .dashboard-content {
+      position: relative;
+      z-index: 1;
+      padding: 2rem;
       max-width: 1400px;
       margin: 0 auto;
     }
@@ -230,25 +339,27 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-2xl);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
     }
 
     .stat-card {
-      background: white;
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-xl);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--neutral-200);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
       display: flex;
       align-items: center;
-      gap: var(--spacing-lg);
-      transition: all var(--transition-fast);
+      gap: 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.15);
       }
     }
 
@@ -269,16 +380,20 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
     }
 
     .stat-content h3 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--neutral-800);
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: white;
       margin: 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .stat-content p {
-      color: var(--neutral-600);
+      color: rgba(255, 255, 255, 0.9);
       margin: 0;
-      font-weight: 500;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .dashboard-grid {
@@ -288,48 +403,60 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
     }
 
     .dashboard-card {
-      background: white;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--neutral-200);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
       overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     }
 
     .card-header {
-      padding: var(--spacing-xl);
-      border-bottom: 1px solid var(--neutral-200);
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--neutral-50);
+      background: rgba(255, 255, 255, 0.05);
 
       h2 {
         display: flex;
         align-items: center;
-        gap: var(--spacing-sm);
+        gap: 0.75rem;
         margin: 0;
         font-size: 1.25rem;
-        color: var(--neutral-800);
+        color: white;
+        font-weight: 700;
 
         i {
-          color: var(--primary-600);
+          color: #ffd89b;
         }
       }
 
       .view-all {
-        color: var(--primary-600);
+        color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
         font-weight: 500;
         font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
 
         &:hover {
-          text-decoration: underline;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
         }
       }
     }
 
     .card-body {
-      padding: var(--spacing-xl);
+      padding: 1.5rem;
     }
 
     .applications-list, .jobs-list, .screening-list {
@@ -460,6 +587,7 @@ export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   stats: DashboardStats | null = null;
   isLoading = true;
+  particles = Array(9).fill(0);
 
   constructor(
     public authService: AuthService,

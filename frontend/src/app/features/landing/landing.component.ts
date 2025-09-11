@@ -1,42 +1,152 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatCardModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <div class="landing-container">
+      <!-- Animated Background -->
+      <div class="background-animation">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="gradient-orb orb-4"></div>
+        <div class="floating-particles">
+          <div class="particle" *ngFor="let p of particles; let i = index" [style.animation-delay.s]="i * 0.3"></div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="navbar">
+        <div class="nav-content">
+          <div class="nav-brand">
+            <div class="brand-logo">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span>AI Hiring</span>
+          </div>
+          <div class="nav-links">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#how-it-works" class="nav-link">How It Works</a>
+            <a href="#pricing" class="nav-link">Pricing</a>
+            <a href="#contact" class="nav-link">Contact</a>
+          </div>
+          <div class="nav-actions">
+            <a routerLink="/auth/login" class="btn btn-outline">Sign In</a>
+            <a routerLink="/auth/register" class="btn btn-primary">Get Started</a>
+          </div>
+        </div>
+      </nav>
+
       <!-- Hero Section -->
       <section class="hero-section">
         <div class="hero-content">
           <div class="hero-text">
-            <h1 class="fade-in">
-              Revolutionize Your Hiring with
-              <span class="gradient-text">AI-Powered</span> Intelligence
+            <div class="hero-badge">
+              <i class="fas fa-sparkles"></i>
+              <span>AI-Powered Recruitment Platform</span>
+            </div>
+            <h1 class="hero-title">
+              Find Your Perfect
+              <span class="gradient-text">Career Match</span>
+              with AI Intelligence
             </h1>
-            <p class="fade-in">
-              Transform your recruitment process with cutting-edge AI technology. 
-              Screen resumes instantly, match candidates perfectly, and hire the best talent faster than ever.
+            <p class="hero-description">
+              Revolutionary recruitment platform that uses artificial intelligence to match candidates 
+              with their dream jobs and help recruiters find the perfect talent faster than ever.
             </p>
-            <div class="hero-actions fade-in">
-              <button mat-raised-button color="primary" routerLink="/auth/register" class="cta-button">
-                Get Started Free
-                <mat-icon>arrow_forward</mat-icon>
+            <div class="hero-actions">
+              <a routerLink="/auth/register" class="btn btn-primary btn-lg">
+                <i class="fas fa-rocket"></i>
+                Start Your Journey
+              </a>
+              <button class="btn btn-secondary btn-lg" (click)="playDemo()">
+                <i class="fas fa-play"></i>
+                Watch Demo
               </button>
-              <button mat-stroked-button routerLink="/auth/login" class="secondary-button">
-                Sign In
-              </button>
+            </div>
+            <div class="hero-stats">
+              <div class="stat-item">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Jobs Posted</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">5K+</div>
+                <div class="stat-label">Candidates Hired</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Success Rate</div>
+              </div>
             </div>
           </div>
           <div class="hero-visual">
-            <div class="ai-visualization">
-              <div class="ai-circle pulse">
-                <mat-icon>psychology</mat-icon>
+            <div class="dashboard-preview">
+              <div class="preview-header">
+                <div class="preview-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="preview-title">AI Hiring Dashboard</div>
+              </div>
+              <div class="preview-content">
+                <div class="preview-sidebar">
+                  <div class="sidebar-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                  </div>
+                  <div class="sidebar-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Jobs</span>
+                  </div>
+                  <div class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    <span>Candidates</span>
+                  </div>
+                  <div class="sidebar-item">
+                    <i class="fas fa-brain"></i>
+                    <span>AI Screening</span>
+                  </div>
+                </div>
+                <div class="preview-main">
+                  <div class="preview-cards">
+                    <div class="preview-card">
+                      <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                      </div>
+                      <div class="card-content">
+                        <div class="card-number">2,847</div>
+                        <div class="card-label">Applications</div>
+                      </div>
+                    </div>
+                    <div class="preview-card">
+                      <div class="card-icon">
+                        <i class="fas fa-user-check"></i>
+                      </div>
+                      <div class="card-content">
+                        <div class="card-number">1,234</div>
+                        <div class="card-label">Matches</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="preview-chart">
+                    <div class="chart-bars">
+                      <div class="chart-bar" style="height: 60%"></div>
+                      <div class="chart-bar" style="height: 80%"></div>
+                      <div class="chart-bar" style="height: 45%"></div>
+                      <div class="chart-bar" style="height: 90%"></div>
+                      <div class="chart-bar" style="height: 70%"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -44,29 +154,81 @@ import { MatCardModule } from '@angular/material/card';
       </section>
 
       <!-- Features Section -->
-      <section class="features-section">
-        <div class="section-header">
-          <h2>Powerful Features for Modern Hiring</h2>
-          <p>Everything you need to streamline your recruitment process</p>
-        </div>
-        
-        <div class="features-grid">
-          <div class="feature-card card fade-in" *ngFor="let feature of features">
-            <div class="feature-icon" [class]="feature.iconClass">
-              <mat-icon>{{ feature.icon }}</mat-icon>
+      <section id="features" class="features-section">
+        <div class="section-content">
+          <div class="section-header">
+            <h2>Powerful Features for Modern Recruitment</h2>
+            <p>Everything you need to revolutionize your hiring process</p>
+          </div>
+          <div class="features-grid">
+            <div class="feature-card" *ngFor="let feature of features; let i = index" [style.animation-delay.ms]="i * 200">
+              <div class="feature-icon" [ngClass]="feature.iconClass">
+                <i [class]="feature.icon"></i>
+              </div>
+              <h3>{{ feature.title }}</h3>
+              <p>{{ feature.description }}</p>
+              <div class="feature-benefits">
+                <div class="benefit" *ngFor="let benefit of feature.benefits">
+                  <i class="fas fa-check"></i>
+                  <span>{{ benefit }}</span>
+                </div>
+              </div>
             </div>
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
           </div>
         </div>
       </section>
 
-      <!-- Stats Section -->
-      <section class="stats-section">
-        <div class="stats-grid">
-          <div class="stat-item" *ngFor="let stat of stats">
-            <h3>{{ stat.value }}</h3>
-            <p>{{ stat.label }}</p>
+      <!-- How It Works Section -->
+      <section id="how-it-works" class="how-it-works-section">
+        <div class="section-content">
+          <div class="section-header">
+            <h2>How AI Hiring Works</h2>
+            <p>Simple steps to transform your recruitment process</p>
+          </div>
+          <div class="steps-container">
+            <div class="step-item" *ngFor="let step of steps; let i = index">
+              <div class="step-number">{{ i + 1 }}</div>
+              <div class="step-content">
+                <div class="step-icon">
+                  <i [class]="step.icon"></i>
+                </div>
+                <h3>{{ step.title }}</h3>
+                <p>{{ step.description }}</p>
+              </div>
+              <div class="step-connector" *ngIf="i < steps.length - 1"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials Section -->
+      <section class="testimonials-section">
+        <div class="section-content">
+          <div class="section-header">
+            <h2>What Our Users Say</h2>
+            <p>Join thousands of satisfied recruiters and candidates</p>
+          </div>
+          <div class="testimonials-grid">
+            <div class="testimonial-card" *ngFor="let testimonial of testimonials">
+              <div class="testimonial-content">
+                <div class="quote-icon">
+                  <i class="fas fa-quote-left"></i>
+                </div>
+                <p>{{ testimonial.content }}</p>
+                <div class="rating">
+                  <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]"></i>
+                </div>
+              </div>
+              <div class="testimonial-author">
+                <div class="author-avatar">
+                  <img [src]="testimonial.avatar" [alt]="testimonial.name">
+                </div>
+                <div class="author-info">
+                  <div class="author-name">{{ testimonial.name }}</div>
+                  <div class="author-role">{{ testimonial.role }}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -74,64 +236,299 @@ import { MatCardModule } from '@angular/material/card';
       <!-- CTA Section -->
       <section class="cta-section">
         <div class="cta-content">
-          <h2>Ready to Transform Your Hiring?</h2>
-          <p>Join thousands of companies already using AI Hire to find the best talent.</p>
-          <button mat-raised-button color="primary" routerLink="/auth/register" class="cta-button">
-            Start Your Free Trial
-            <mat-icon>rocket_launch</mat-icon>
-          </button>
+          <div class="cta-text">
+            <h2>Ready to Transform Your Hiring?</h2>
+            <p>Join thousands of companies already using AI Hiring to find the perfect candidates</p>
+          </div>
+          <div class="cta-actions">
+            <a routerLink="/auth/register" class="btn btn-primary btn-lg">
+              <i class="fas fa-rocket"></i>
+              Get Started Free
+            </a>
+            <a href="#contact" class="btn btn-outline btn-lg">
+              <i class="fas fa-phone"></i>
+              Contact Sales
+            </a>
+          </div>
         </div>
       </section>
 
       <!-- Footer -->
-      <footer class="landing-footer">
+      <footer class="footer">
         <div class="footer-content">
           <div class="footer-brand">
-            <div class="logo">
-              <mat-icon>psychology</mat-icon>
-              <span>AI Hire</span>
+            <div class="brand-logo">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
             </div>
-            <p>The future of intelligent recruitment.</p>
+            <span>AI Hiring</span>
           </div>
           <div class="footer-links">
-            <div class="link-group">
+            <div class="footer-section">
               <h4>Product</h4>
-              <a href="#">Features</a>
-              <a href="#">Pricing</a>
-              <a href="#">Enterprise</a>
+              <a href="#features">Features</a>
+              <a href="#pricing">Pricing</a>
+              <a href="#integrations">Integrations</a>
             </div>
-            <div class="link-group">
+            <div class="footer-section">
               <h4>Company</h4>
-              <a href="#">About</a>
-              <a href="#">Careers</a>
-              <a href="#">Contact</a>
+              <a href="#about">About</a>
+              <a href="#careers">Careers</a>
+              <a href="#contact">Contact</a>
             </div>
-            <div class="link-group">
+            <div class="footer-section">
               <h4>Resources</h4>
-              <a href="#">Blog</a>
-              <a href="#">Help Center</a>
-              <a href="#">API Docs</a>
+              <a href="#blog">Blog</a>
+              <a href="#help">Help Center</a>
+              <a href="#api">API Docs</a>
             </div>
+          </div>
+          <div class="footer-social">
+            <a href="#" class="social-link">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="social-link">
+              <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="#" class="social-link">
+              <i class="fab fa-github"></i>
+            </a>
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2025 AI Hire. All rights reserved.</p>
+          <p>&copy; 2024 AI Hiring. All rights reserved.</p>
         </div>
       </footer>
     </div>
   `,
   styles: [`
     .landing-container {
-      width: 100%;
+      min-height: 100vh;
+      position: relative;
       overflow-x: hidden;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+    }
+
+    .background-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      animation: float 15s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #ff9a9e, #fecfef);
+      top: -250px;
+      left: -250px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #a8edea, #fed6e3);
+      bottom: -300px;
+      right: -300px;
+      animation-delay: 5s;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #d299c2, #fef9d7);
+      top: 30%;
+      right: 20%;
+      animation-delay: 10s;
+    }
+
+    .orb-4 {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, #89f7fe, #66a6ff);
+      bottom: 40%;
+      left: 15%;
+      animation-delay: 7s;
+    }
+
+    .floating-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      animation: particle-float 10s linear infinite;
+    }
+
+    .particle:nth-child(1) { left: 5%; }
+    .particle:nth-child(2) { left: 15%; }
+    .particle:nth-child(3) { left: 25%; }
+    .particle:nth-child(4) { left: 35%; }
+    .particle:nth-child(5) { left: 45%; }
+    .particle:nth-child(6) { left: 55%; }
+    .particle:nth-child(7) { left: 65%; }
+    .particle:nth-child(8) { left: 75%; }
+    .particle:nth-child(9) { left: 85%; }
+    .particle:nth-child(10) { left: 95%; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-50px) rotate(180deg); }
+    }
+
+    @keyframes particle-float {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 1rem 0;
+    }
+
+    .nav-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .brand-logo svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+
+    .nav-link:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.9);
+      color: #667eea;
+    }
+
+    .btn-secondary:hover {
+      background: white;
+      transform: translateY(-2px);
+    }
+
+    .btn-lg {
+      padding: 1rem 2rem;
+      font-size: 1rem;
     }
 
     .hero-section {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      background: linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-50) 100%);
-      padding: 80px 24px 24px;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+      z-index: 1;
     }
 
     .hero-content {
@@ -139,51 +536,71 @@ import { MatCardModule } from '@angular/material/card';
       margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 80px;
+      gap: 4rem;
       align-items: center;
     }
 
-    .hero-text h1 {
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .hero-title {
       font-size: 3.5rem;
       font-weight: 800;
-      line-height: 1.2;
-      margin: 0 0 24px 0;
-      color: var(--gray-800);
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
+      background: linear-gradient(135deg, #ffd89b, #19547b);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
 
-    .hero-text p {
+    .hero-description {
       font-size: 1.25rem;
+      color: rgba(255, 255, 255, 0.9);
       line-height: 1.6;
-      color: var(--gray-600);
-      margin: 0 0 32px 0;
+      margin-bottom: 2rem;
     }
 
     .hero-actions {
       display: flex;
-      gap: 16px;
-      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
     }
 
-    .cta-button {
-      height: 56px;
-      padding: 0 32px;
-      font-size: 16px;
-      font-weight: 600;
-      gap: 8px;
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
     }
 
-    .secondary-button {
-      height: 56px;
-      padding: 0 32px;
-      font-size: 16px;
-      font-weight: 600;
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.8);
     }
 
     .hero-visual {
@@ -192,273 +609,543 @@ import { MatCardModule } from '@angular/material/card';
       align-items: center;
     }
 
-    .ai-visualization {
-      position: relative;
-      width: 300px;
+    .dashboard-preview {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      width: 100%;
+      max-width: 500px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .preview-header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .preview-dots {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .preview-dots span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .preview-title {
+      font-weight: 600;
+    }
+
+    .preview-content {
+      display: flex;
       height: 300px;
     }
 
-    .ai-circle {
+    .preview-sidebar {
       width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
+      background: #f8fafc;
+      padding: 1rem;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 50px auto;
-      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
-    .ai-circle mat-icon {
-      font-size: 80px;
-      width: 80px;
-      height: 80px;
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-item.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
     }
 
-    .pulse {
-      animation: pulse 2s infinite;
+    .preview-main {
+      flex: 1;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
 
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
-      }
-      50% {
-        transform: scale(1.05);
-        box-shadow: 0 25px 50px rgba(59, 130, 246, 0.4);
-      }
-      100% {
-        transform: scale(1);
-        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
-      }
+    .preview-cards {
+      display: flex;
+      gap: 1rem;
     }
 
-    .features-section {
-      padding: 120px 24px;
+    .preview-card {
+      flex: 1;
       background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .card-number {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .card-label {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .preview-chart {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: end;
+      gap: 0.5rem;
+      height: 100px;
+    }
+
+    .chart-bar {
+      flex: 1;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 4px 4px 0 0;
+      animation: chart-grow 2s ease-out;
+    }
+
+    @keyframes chart-grow {
+      from { height: 0; }
+    }
+
+    .features-section,
+    .how-it-works-section,
+    .testimonials-section {
+      padding: 6rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-content {
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .section-header {
       text-align: center;
-      max-width: 600px;
-      margin: 0 auto 80px;
+      margin-bottom: 4rem;
     }
 
     .section-header h2 {
       font-size: 2.5rem;
-      font-weight: 700;
-      margin: 0 0 16px 0;
-      color: var(--gray-800);
+      font-weight: 800;
+      color: white;
+      margin-bottom: 1rem;
     }
 
     .section-header p {
       font-size: 1.125rem;
-      color: var(--gray-600);
-      margin: 0;
+      color: rgba(255, 255, 255, 0.9);
     }
 
     .features-grid {
-      max-width: 1200px;
-      margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 32px;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
     }
 
     .feature-card {
-      padding: 32px;
-      text-align: center;
-      border: 1px solid var(--gray-200);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
       transition: all 0.3s ease;
+      animation: fadeInUp 0.6s ease-out;
     }
 
     .feature-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      transform: translateY(-10px);
+      background: rgba(255, 255, 255, 0.15);
     }
 
     .feature-icon {
-      width: 80px;
-      height: 80px;
+      width: 60px;
+      height: 60px;
       border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 24px;
+      font-size: 1.5rem;
+      color: white;
+      margin-bottom: 1.5rem;
     }
 
-    .feature-icon.primary {
-      background: var(--primary-100);
-      color: var(--primary-600);
-    }
-
-    .feature-icon.secondary {
-      background: var(--secondary-100);
-      color: var(--secondary-600);
-    }
-
-    .feature-icon.accent {
-      background: #fef3c7;
-      color: var(--warning-500);
-    }
-
-    .feature-icon.success {
-      background: #dcfce7;
-      color: var(--success-500);
-    }
-
-    .feature-icon mat-icon {
-      font-size: 40px;
-      width: 40px;
-      height: 40px;
-    }
+    .feature-icon.ai { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .feature-icon.matching { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .feature-icon.analytics { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .feature-icon.automation { background: linear-gradient(135deg, #43e97b, #38f9d7); }
 
     .feature-card h3 {
       font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0 0 16px 0;
-      color: var(--gray-800);
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1rem;
     }
 
     .feature-card p {
-      color: var(--gray-600);
+      color: rgba(255, 255, 255, 0.9);
       line-height: 1.6;
-      margin: 0;
+      margin-bottom: 1.5rem;
     }
 
-    .stats-section {
-      padding: 80px 24px;
-      background: var(--gray-900);
+    .feature-benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .benefit {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.875rem;
+    }
+
+    .benefit i {
+      color: #43e97b;
+    }
+
+    .steps-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+      position: relative;
+    }
+
+    .step-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-number {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .step-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: white;
+      margin: 0 auto 1.5rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .step-content h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .step-content p {
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
+    }
+
+    .step-connector {
+      position: absolute;
+      top: 30px;
+      right: -50%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      z-index: -1;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .testimonial-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .quote-icon {
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.3);
+      margin-bottom: 1rem;
+    }
+
+    .testimonial-content p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.125rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+
+    .rating {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .rating i {
+      color: #ffd700;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .author-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .author-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .author-name {
+      font-weight: 600;
       color: white;
     }
 
-    .stats-grid {
-      max-width: 800px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 48px;
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-item h3 {
-      font-size: 3rem;
-      font-weight: 800;
-      margin: 0 0 8px 0;
-      color: var(--primary-400);
-    }
-
-    .stat-item p {
-      font-size: 1.125rem;
-      margin: 0;
-      color: var(--gray-300);
+    .author-role {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
     }
 
     .cta-section {
-      padding: 120px 24px;
-      background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
-      color: white;
+      padding: 6rem 2rem;
+      position: relative;
+      z-index: 1;
       text-align: center;
     }
 
-    .cta-content h2 {
+    .cta-content {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 32px;
+      padding: 4rem;
+    }
+
+    .cta-text h2 {
       font-size: 2.5rem;
-      font-weight: 700;
-      margin: 0 0 16px 0;
-    }
-
-    .cta-content p {
-      font-size: 1.25rem;
-      margin: 0 0 32px 0;
-      opacity: 0.9;
-    }
-
-    .cta-content .cta-button {
-      background: white;
-      color: var(--primary-600);
-    }
-
-    .landing-footer {
-      background: var(--gray-900);
+      font-weight: 800;
       color: white;
-      padding: 80px 24px 24px;
+      margin-bottom: 1rem;
+    }
+
+    .cta-text p {
+      font-size: 1.125rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 2rem;
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .footer {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 3rem 2rem 1rem;
+      position: relative;
+      z-index: 1;
     }
 
     .footer-content {
       max-width: 1200px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 80px;
+      grid-template-columns: 1fr 2fr 1fr;
+      gap: 3rem;
+      align-items: start;
     }
 
-    .footer-brand .logo {
+    .footer-brand {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: var(--primary-400);
-    }
-
-    .footer-brand .logo mat-icon {
-      font-size: 28px;
-      color: var(--accent-500);
-    }
-
-    .footer-brand p {
-      color: var(--gray-400);
-      margin: 0;
+      gap: 0.75rem;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 800;
     }
 
     .footer-links {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
+      gap: 2rem;
     }
 
-    .link-group h4 {
-      font-weight: 600;
-      margin: 0 0 16px 0;
+    .footer-section h4 {
       color: white;
+      font-weight: 600;
+      margin-bottom: 1rem;
     }
 
-    .link-group a {
+    .footer-section a {
       display: block;
-      color: var(--gray-400);
+      color: rgba(255, 255, 255, 0.7);
       text-decoration: none;
-      margin-bottom: 8px;
+      margin-bottom: 0.5rem;
       transition: color 0.3s ease;
     }
 
-    .link-group a:hover {
-      color: var(--primary-400);
+    .footer-section a:hover {
+      color: white;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .social-link {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
     }
 
     .footer-bottom {
       max-width: 1200px;
-      margin: 40px auto 0;
-      padding-top: 24px;
-      border-top: 1px solid var(--gray-800);
+      margin: 2rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
       text-align: center;
-      color: var(--gray-400);
+      color: rgba(255, 255, 255, 0.7);
     }
 
-    @media (max-width: 768px) {
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1024px) {
       .hero-content {
         grid-template-columns: 1fr;
-        gap: 40px;
         text-align: center;
       }
 
-      .hero-text h1 {
+      .nav-links {
+        display: none;
+      }
+
+      .steps-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .step-connector {
+        display: none;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .footer-social {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-title {
         font-size: 2.5rem;
       }
 
@@ -467,77 +1154,110 @@ import { MatCardModule } from '@angular/material/card';
         align-items: center;
       }
 
-      .hero-actions button {
-        width: 100%;
-        max-width: 280px;
+      .hero-stats {
+        justify-content: center;
       }
 
-      .features-grid {
-        grid-template-columns: 1fr;
+      .cta-actions {
+        flex-direction: column;
+        align-items: center;
       }
 
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 32px;
+      .nav-content {
+        padding: 0 1rem;
       }
 
-      .footer-content {
-        grid-template-columns: 1fr;
-        gap: 40px;
-        text-align: center;
+      .nav-actions {
+        gap: 0.5rem;
       }
 
-      .footer-links {
-        grid-template-columns: 1fr;
-        gap: 24px;
+      .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
       }
     }
   `]
 })
 export class LandingComponent {
+  particles = Array(10).fill(0);
+
   features = [
     {
-      icon: 'psychology',
+      icon: 'fas fa-brain',
+      iconClass: 'ai',
       title: 'AI-Powered Screening',
-      description: 'Automatically screen and rank candidates using advanced AI algorithms that analyze skills, experience, and job fit.',
-      iconClass: 'primary'
+      description: 'Advanced machine learning algorithms analyze resumes and match candidates with perfect job opportunities.',
+      benefits: ['Smart resume parsing', 'Skill matching', 'Automated scoring']
     },
     {
-      icon: 'speed',
-      title: 'Instant Resume Parsing',
-      description: 'Extract key information from resumes in seconds. Our AI understands context and identifies relevant skills automatically.',
-      iconClass: 'secondary'
+      icon: 'fas fa-users',
+      iconClass: 'matching',
+      title: 'Perfect Matching',
+      description: 'Our intelligent system connects the right candidates with the right opportunities based on skills and culture fit.',
+      benefits: ['Culture fit analysis', 'Skill compatibility', 'Experience matching']
     },
     {
-      icon: 'psychology',
-      title: 'Smart Matching',
-      description: 'Find the perfect candidates with our intelligent matching system that considers both hard and soft skills.',
-      iconClass: 'accent'
-    },
-    {
-      icon: 'analytics',
+      icon: 'fas fa-chart-line',
+      iconClass: 'analytics',
       title: 'Advanced Analytics',
-      description: 'Get deep insights into your hiring process with comprehensive reports and performance metrics.',
-      iconClass: 'success'
+      description: 'Get deep insights into your hiring process with comprehensive analytics and performance metrics.',
+      benefits: ['Hiring metrics', 'Performance tracking', 'ROI analysis']
     },
     {
-      icon: 'schedule',
-      title: 'Automated Workflows',
-      description: 'Streamline your recruitment process with automated interview scheduling and candidate communication.',
-      iconClass: 'primary'
-    },
-    {
-      icon: 'security',
-      title: 'Enterprise Security',
-      description: 'Your data is protected with enterprise-grade security, compliance, and privacy controls.',
-      iconClass: 'secondary'
+      icon: 'fas fa-robot',
+      iconClass: 'automation',
+      title: 'Process Automation',
+      description: 'Automate repetitive tasks and focus on what matters most - finding the perfect candidates.',
+      benefits: ['Automated workflows', 'Smart notifications', 'Bulk operations']
     }
   ];
 
-  stats = [
-    { value: '50,000+', label: 'Resumes Processed' },
-    { value: '85%', label: 'Time Saved' },
-    { value: '2,000+', label: 'Companies Trust Us' },
-    { value: '95%', label: 'Accuracy Rate' }
+  steps = [
+    {
+      icon: 'fas fa-user-plus',
+      title: 'Create Account',
+      description: 'Sign up as a recruiter or candidate and set up your profile in minutes.'
+    },
+    {
+      icon: 'fas fa-upload',
+      title: 'Upload & Post',
+      description: 'Candidates upload resumes, recruiters post job openings with detailed requirements.'
+    },
+    {
+      icon: 'fas fa-magic',
+      title: 'AI Matching',
+      description: 'Our AI analyzes and matches candidates with suitable positions automatically.'
+    },
+    {
+      icon: 'fas fa-handshake',
+      title: 'Connect & Hire',
+      description: 'Review matches, conduct interviews, and make successful hires faster than ever.'
+    }
   ];
+
+  testimonials = [
+    {
+      content: 'AI Hiring transformed our recruitment process. We reduced hiring time by 60% and found better candidates.',
+      name: 'Sarah Johnson',
+      role: 'HR Director at TechCorp',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+    },
+    {
+      content: 'The AI matching is incredible. I found my dream job within a week of signing up. Highly recommended!',
+      name: 'Michael Chen',
+      role: 'Software Engineer',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+    },
+    {
+      content: 'Best recruitment platform we have used. The analytics help us make data-driven hiring decisions.',
+      name: 'Emily Rodriguez',
+      role: 'Talent Acquisition Manager',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+    }
+  ];
+
+  playDemo() {
+    // Implement demo video functionality
+    console.log('Playing demo video...');
+  }
 }

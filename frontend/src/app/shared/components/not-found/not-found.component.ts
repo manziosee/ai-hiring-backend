@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+
 
 @Component({
   selector: 'app-not-found',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <div class="error-container">
       <div class="error-content">
@@ -15,12 +14,12 @@ import { MatIconModule } from '@angular/material/icon';
         <h1>Page Not Found</h1>
         <p>The page you're looking for doesn't exist or has been moved.</p>
         <div class="error-actions">
-          <button mat-raised-button color="primary" routerLink="/dashboard">
-            <mat-icon>dashboard</mat-icon>
+          <button class="btn btn-primary" routerLink="/dashboard">
+            <i class="fas fa-tachometer-alt"></i>
             Go to Dashboard
           </button>
-          <button mat-button routerLink="/">
-            <mat-icon>home</mat-icon>
+          <button class="btn btn-secondary" routerLink="/">
+            <i class="fas fa-home"></i>
             Back to Home
           </button>
         </div>

@@ -15,7 +15,13 @@ import { filter } from 'rxjs/operators';
       <nav class="navbar" *ngIf="currentUser">
         <div class="nav-content">
           <div class="nav-brand">
-            <i class="fas fa-robot"></i>
+            <div class="brand-logo">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </div>
             <span>AI Hiring</span>
           </div>
           
@@ -111,16 +117,28 @@ import { filter } from 'rxjs/operators';
     .nav-brand {
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
+      gap: 0.75rem;
       font-size: 1.5rem;
-      font-weight: 700;
+      font-weight: 800;
       color: white;
       text-decoration: none;
+    }
 
-      i {
-        font-size: 2rem;
-        color: var(--warning-400);
-      }
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .brand-logo svg {
+      width: 24px;
+      height: 24px;
     }
 
     .nav-links {

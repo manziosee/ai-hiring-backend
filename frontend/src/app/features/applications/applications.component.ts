@@ -101,12 +101,12 @@ import { Application } from '../../core/models';
           </div>
 
           <div class="application-body">
-            <div class="job-skills" *ngIf="application.job?.skills">
-              <span class="skill-tag" *ngFor="let skill of application.job.skills.slice(0, 4)">
+            <div class="job-skills" *ngIf="application.job?.skills?.length">
+              <span class="skill-tag" *ngFor="let skill of application.job?.skills?.slice(0, 4)">
                 {{ skill }}
               </span>
-              <span class="more-skills" *ngIf="application.job.skills.length > 4">
-                +{{ application.job.skills.length - 4 }} more
+              <span class="more-skills" *ngIf="(application.job?.skills?.length || 0) > 4">
+                +{{ (application.job?.skills?.length || 0) - 4 }} more
               </span>
             </div>
             
