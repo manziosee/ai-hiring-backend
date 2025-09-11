@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000'
+  apiUrl: 'https://ai-hiring-backend.fly.dev',
+  appName: 'AI Hiring Platform'
 };

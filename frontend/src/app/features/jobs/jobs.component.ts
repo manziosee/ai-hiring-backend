@@ -87,10 +87,10 @@ import { Job, CreateApplicationDto } from '../../core/models';
           </div>
 
           <div class="job-skills">
-            <span class="skill-tag" *ngFor="let skill of job.skills.slice(0, 5)">
+            <span class="skill-tag" *ngFor="let skill of job.skills?.slice(0, 5)">
               {{ skill }}
             </span>
-            <span class="more-skills" *ngIf="job.skills.length > 5">
+            <span class="more-skills" *ngIf="job.skills && job.skills.length > 5">
               +{{ job.skills.length - 5 }} more
             </span>
           </div>
@@ -568,12 +568,12 @@ export class JobsComponent implements OnInit {
       const matchesSearch = !this.searchTerm || 
         job.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         job.description.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        job.skills.some(skill => skill.toLowerCase().includes(this.searchTerm.toLowerCase()));
+        job.skills?.some(skill => skill.toLowerCase().includes(this.searchTerm.toLowerCase()));
 
-      const matchesExperience = !this.experienceFilter || this.matchesExperienceFilter(job.experience);
+      const matchesExperience = !this.experienceFilter || this.matchesExperienceFilter(job.experience || 0);
       
       const matchesSkills = !this.skillsFilter ||
-        job.skills.some(skill => skill.toLowerCase().includes(this.skillsFilter.toLowerCase()));
+        job.skills?.some(skill => skill.toLowerCase().includes(this.skillsFilter.toLowerCase()));
 
       return matchesSearch && matchesExperience && matchesSkills;
     });
