@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule],
-  template: `<div class="container"><h1>Profile</h1><p>Profile feature coming soon...</p></div>`,
-  styles: [`.container { padding: 24px; }`]
+  template: `<div>Profile Component</div>`
 })
 export class ProfileComponent {}

@@ -1,391 +1,683 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '@core/services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Job, CreateApplicationDto } from '../../core/models';
 
 @Component({
   selector: 'app-jobs',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
-    MatBadgeModule,
-    MatPaginatorModule
-  ],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="jobs-container">
-      <div class="header-section">
-        <div class="title-section">
-          <h1><mat-icon>work</mat-icon> Job Opportunities</h1>
-          <p>Discover your next career opportunity with AI-powered matching</p>
+      <div class="jobs-header">
+        <div class="header-content">
+          <h1>
+            <i class="fas fa-briefcase"></i>
+            {{ authService.isCandidate() ? 'Browse Jobs' : 'Manage Jobs' }}
+          </h1>
+          <p>{{ authService.isCandidate() ? 'Find your next opportunity' : 'Post and manage job openings' }}</p>
         </div>
-        <button mat-raised-button color="primary" *ngIf="canCreateJob()" class="create-job-btn">
-          <mat-icon>add</mat-icon> Post New Job
+        <div class="header-actions">
+          <button class="btn btn-primary" *ngIf="authService.isRecruiter() || authService.isAdmin()" (click)="showCreateModal = true">
+            <i class="fas fa-plus"></i>
+            Post New Job
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label>Search Jobs</label>
+            <div class="search-input">
+              <i class="fas fa-search"></i>
+              <input type="text" [(ngModel)]="searchTerm" (input)="filterJobs()" placeholder="Search by title, skills, or description...">
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>Experience Level</label>
+            <select [(ngModel)]="experienceFilter" (change)="filterJobs()">
+              <option value="">All Levels</option>
+              <option value="0-2">Entry Level (0-2 years)</option>
+              <option value="3-5">Mid Level (3-5 years)</option>
+              <option value="6-10">Senior Level (6-10 years)</option>
+              <option value="10+">Expert Level (10+ years)</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Skills</label>
+            <input type="text" [(ngModel)]="skillsFilter" (input)="filterJobs()" placeholder="e.g. JavaScript, Python, React">
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs Grid -->
+      <div class="jobs-grid" *ngIf="!isLoading">
+        <div class="job-card" *ngFor="let job of filteredJobs" [class.applied]="hasApplied(job.id)">
+          <div class="job-header">
+            <div class="job-title-section">
+              <h3>{{ job.title }}</h3>
+              <div class="job-meta">
+                <span class="experience">
+                  <i class="fas fa-clock"></i>
+                  {{ job.experience }} years experience
+                </span>
+                <span class="posted-date">
+                  <i class="fas fa-calendar"></i>
+                  Posted {{ getTimeAgo(job.createdAt) }}
+                </span>
+              </div>
+            </div>
+            <div class="job-actions">
+              <button class="btn btn-sm btn-secondary" *ngIf="authService.isRecruiter() || authService.isAdmin()" (click)="editJob(job)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-error" *ngIf="authService.isRecruiter() || authService.isAdmin()" (click)="deleteJob(job.id)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="job-description">
+            <p>{{ job.description | slice:0:200 }}{{ job.description.length > 200 ? '...' : '' }}</p>
+          </div>
+
+          <div class="job-skills">
+            <span class="skill-tag" *ngFor="let skill of job.skills.slice(0, 5)">
+              {{ skill }}
+            </span>
+            <span class="more-skills" *ngIf="job.skills.length > 5">
+              +{{ job.skills.length - 5 }} more
+            </span>
+          </div>
+
+          <div class="job-footer">
+            <div class="job-stats" *ngIf="!authService.isCandidate()">
+              <span class="applications-count">
+                <i class="fas fa-users"></i>
+                {{ job._count?.applications || 0 }} applications
+              </span>
+            </div>
+            <div class="job-actions-candidate" *ngIf="authService.isCandidate()">
+              <button class="btn btn-outline btn-sm" [routerLink]="['/jobs', job.id]">
+                <i class="fas fa-eye"></i>
+                View Details
+              </button>
+              <button 
+                class="btn btn-primary btn-sm" 
+                *ngIf="!hasApplied(job.id)"
+                (click)="applyToJob(job)"
+                [disabled]="isApplying"
+              >
+                <span class="spinner" *ngIf="isApplying"></span>
+                <i class="fas fa-paper-plane" *ngIf="!isApplying"></i>
+                {{ isApplying ? 'Applying...' : 'Apply Now' }}
+              </button>
+              <span class="applied-badge" *ngIf="hasApplied(job.id)">
+                <i class="fas fa-check"></i>
+                Applied
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading jobs...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!isLoading && filteredJobs.length === 0">
+        <i class="fas fa-briefcase"></i>
+        <h3>No jobs found</h3>
+        <p>{{ searchTerm || experienceFilter || skillsFilter ? 'Try adjusting your filters' : 'No jobs available at the moment' }}</p>
+        <button class="btn btn-primary" *ngIf="authService.isRecruiter() || authService.isAdmin()" (click)="showCreateModal = true">
+          <i class="fas fa-plus"></i>
+          Post First Job
         </button>
       </div>
+    </div>
 
-      <div class="search-filters">
-        <form [formGroup]="searchForm" class="search-form">
-          <mat-form-field class="search-field">
-            <mat-label>Search jobs...</mat-label>
-            <input matInput formControlName="search" placeholder="Job title, company, keywords">
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
+    <!-- Create Job Modal -->
+    <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeModal($event)">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>
+            <i class="fas fa-plus"></i>
+            Post New Job
+          </h2>
+          <button class="modal-close" (click)="showCreateModal = false">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form (ngSubmit)="createJob()" class="modal-body">
+          <div class="form-group">
+            <label for="title">Job Title *</label>
+            <input type="text" id="title" [(ngModel)]="newJob.title" name="title" required placeholder="e.g. Senior Frontend Developer">
+          </div>
           
-          <mat-form-field class="filter-field">
-            <mat-label>Location</mat-label>
-            <mat-select formControlName="location">
-              <mat-option value="">All Locations</mat-option>
-              <mat-option value="remote">Remote</mat-option>
-              <mat-option value="new-york">New York</mat-option>
-              <mat-option value="san-francisco">San Francisco</mat-option>
-              <mat-option value="london">London</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="form-group">
+            <label for="description">Job Description *</label>
+            <textarea id="description" [(ngModel)]="newJob.description" name="description" required rows="6" 
+              placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+          </div>
           
-          <mat-form-field class="filter-field">
-            <mat-label>Job Type</mat-label>
-            <mat-select formControlName="type">
-              <mat-option value="">All Types</mat-option>
-              <mat-option value="full-time">Full Time</mat-option>
-              <mat-option value="part-time">Part Time</mat-option>
-              <mat-option value="contract">Contract</mat-option>
-              <mat-option value="internship">Internship</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="form-group">
+            <label for="experience">Required Experience (years) *</label>
+            <input type="number" id="experience" [(ngModel)]="newJob.experience" name="experience" required min="0" max="20">
+          </div>
           
-          <mat-form-field class="filter-field">
-            <mat-label>Experience Level</mat-label>
-            <mat-select formControlName="experience">
-              <mat-option value="">All Levels</mat-option>
-              <mat-option value="entry">Entry Level</mat-option>
-              <mat-option value="mid">Mid Level</mat-option>
-              <mat-option value="senior">Senior Level</mat-option>
-              <mat-option value="lead">Lead/Principal</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="form-group">
+            <label for="skills">Required Skills *</label>
+            <input type="text" id="skills" [(ngModel)]="skillsInput" name="skills" required 
+              placeholder="Enter skills separated by commas (e.g. JavaScript, React, Node.js)">
+            <small>Separate multiple skills with commas</small>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="showCreateModal = false">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isCreating">
+              <span class="spinner" *ngIf="isCreating"></span>
+              <i class="fas fa-plus" *ngIf="!isCreating"></i>
+              {{ isCreating ? 'Creating...' : 'Create Job' }}
+            </button>
+          </div>
         </form>
       </div>
-
-      <div class="jobs-grid">
-        <mat-card class="job-card" *ngFor="let job of jobs">
-          <mat-card-header>
-            <div mat-card-avatar class="company-avatar">
-              <mat-icon>business</mat-icon>
-            </div>
-            <mat-card-title>{{job.title}}</mat-card-title>
-            <mat-card-subtitle>{{job.company}} • {{job.location}}</mat-card-subtitle>
-            <div class="job-badges">
-              <mat-chip-set>
-                <mat-chip [color]="getJobTypeColor(job.type)">{{job.type}}</mat-chip>
-                <mat-chip *ngIf="job.remote" color="accent">Remote</mat-chip>
-                <mat-chip *ngIf="job.urgent" color="warn">Urgent</mat-chip>
-              </mat-chip-set>
-            </div>
-          </mat-card-header>
-          
-          <mat-card-content>
-            <p class="job-description">{{job.description}}</p>
-            
-            <div class="job-details">
-              <div class="detail-item">
-                <mat-icon>attach_money</mat-icon>
-                <span>{{job.salary}}</span>
-              </div>
-              <div class="detail-item">
-                <mat-icon>schedule</mat-icon>
-                <span>{{job.postedDate}}</span>
-              </div>
-              <div class="detail-item">
-                <mat-icon>people</mat-icon>
-                <span>{{job.applicants}} applicants</span>
-              </div>
-            </div>
-            
-            <div class="skills-section">
-              <h4>Required Skills:</h4>
-              <mat-chip-set>
-                <mat-chip *ngFor="let skill of job.skills">{{skill}}</mat-chip>
-              </mat-chip-set>
-            </div>
-          </mat-card-content>
-          
-          <mat-card-actions>
-            <button mat-button color="primary">
-              <mat-icon>visibility</mat-icon> View Details
-            </button>
-            <button mat-raised-button color="primary" *ngIf="!canCreateJob()">
-              <mat-icon>send</mat-icon> Apply Now
-            </button>
-            <button mat-button *ngIf="canCreateJob()">
-              <mat-icon>edit</mat-icon> Edit
-            </button>
-            <button mat-button *ngIf="canCreateJob()">
-              <mat-icon>assessment</mat-icon> View Applications
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-      
-      <mat-paginator 
-        [length]="totalJobs" 
-        [pageSize]="pageSize" 
-        [pageSizeOptions]="[5, 10, 25, 100]"
-        class="jobs-paginator">
-      </mat-paginator>
     </div>
   `,
   styles: [`
     .jobs-container {
-      padding: 24px;
-      max-width: 1200px;
+      padding: var(--spacing-xl);
+      max-width: 1400px;
       margin: 0 auto;
     }
 
-    .header-section {
+    .jobs-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
+      align-items: flex-start;
+      margin-bottom: var(--spacing-2xl);
+      padding-bottom: var(--spacing-xl);
+      border-bottom: 1px solid var(--neutral-200);
     }
 
-    .title-section h1 {
+    .header-content h1 {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin: 0 0 8px 0;
-      color: #333;
-      font-size: 2rem;
+      gap: var(--spacing-sm);
+      font-size: 2.5rem;
+      color: var(--neutral-800);
+      margin-bottom: var(--spacing-sm);
+
+      i {
+        color: var(--primary-600);
+      }
     }
 
-    .title-section p {
+    .header-content p {
+      color: var(--neutral-600);
+      font-size: 1.125rem;
       margin: 0;
-      color: #666;
-      font-size: 16px;
     }
 
-    .create-job-btn {
-      height: 48px;
-      padding: 0 24px;
-    }
-
-    .search-filters {
+    .filters-section {
       background: white;
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 32px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--neutral-200);
     }
 
-    .search-form {
+    .filters-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 16px;
-      align-items: center;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: var(--spacing-lg);
     }
 
-    .search-field {
-      width: 100%;
+    .filter-group label {
+      display: block;
+      margin-bottom: var(--spacing-sm);
+      font-weight: 600;
+      color: var(--neutral-700);
     }
 
-    .filter-field {
-      width: 100%;
+    .search-input {
+      position: relative;
+
+      i {
+        position: absolute;
+        left: var(--spacing-md);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--neutral-400);
+      }
+
+      input {
+        padding-left: 2.5rem;
+      }
     }
 
     .jobs-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-      gap: 24px;
-      margin-bottom: 32px;
+      gap: var(--spacing-xl);
     }
 
     .job-card {
-      transition: transform 0.2s, box-shadow 0.2s;
-      border-radius: 12px;
-      overflow: hidden;
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--neutral-200);
+      transition: all var(--transition-fast);
+      position: relative;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      &.applied {
+        border-color: var(--success-300);
+        background: linear-gradient(135deg, white 0%, var(--success-50) 100%);
+      }
     }
 
-    .job-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    }
-
-    .company-avatar {
-      background: #3f51b5;
-      color: white;
+    .job-header {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--spacing-lg);
     }
 
-    .job-badges {
-      margin-top: 8px;
+    .job-title-section h3 {
+      font-size: 1.5rem;
+      color: var(--neutral-800);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .job-meta {
+      display: flex;
+      gap: var(--spacing-lg);
+      font-size: 0.875rem;
+      color: var(--neutral-600);
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+      }
+    }
+
+    .job-actions {
+      display: flex;
+      gap: var(--spacing-sm);
     }
 
     .job-description {
-      color: #666;
-      line-height: 1.5;
-      margin-bottom: 16px;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      margin-bottom: var(--spacing-lg);
+      
+      p {
+        color: var(--neutral-700);
+        line-height: 1.6;
+        margin: 0;
+      }
     }
 
-    .job-details {
+    .job-skills {
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
     }
 
-    .detail-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #666;
-      font-size: 14px;
-    }
-
-    .detail-item mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-
-    .skills-section h4 {
-      margin: 0 0 8px 0;
-      color: #333;
-      font-size: 14px;
+    .skill-tag {
+      background: var(--primary-100);
+      color: var(--primary-800);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
       font-weight: 500;
     }
 
-    .jobs-paginator {
+    .more-skills {
+      background: var(--neutral-100);
+      color: var(--neutral-600);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+    }
+
+    .job-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--neutral-200);
+    }
+
+    .applications-count {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      color: var(--neutral-600);
+      font-size: 0.875rem;
+    }
+
+    .job-actions-candidate {
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: center;
+    }
+
+    .applied-badge {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      color: var(--success-700);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .loading-state, .empty-state {
+      text-align: center;
+      padding: var(--spacing-3xl);
+      color: var(--neutral-500);
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: var(--spacing-lg);
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: var(--spacing-lg);
+    }
+
+    .modal-content {
       background: white;
-      border-radius: 8px;
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-2xl);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-xl);
+      border-bottom: 1px solid var(--neutral-200);
+
+      h2 {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        margin: 0;
+        color: var(--neutral-800);
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: var(--neutral-500);
+        cursor: pointer;
+        padding: var(--spacing-sm);
+        border-radius: var(--radius-md);
+
+        &:hover {
+          background: var(--neutral-100);
+          color: var(--neutral-700);
+        }
+      }
+    }
+
+    .modal-body {
+      padding: var(--spacing-xl);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: flex-end;
+      margin-top: var(--spacing-xl);
     }
 
     @media (max-width: 768px) {
       .jobs-container {
-        padding: 16px;
+        padding: var(--spacing-md);
       }
 
-      .header-section {
+      .jobs-header {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+        gap: var(--spacing-lg);
       }
 
-      .search-form {
+      .filters-grid {
         grid-template-columns: 1fr;
       }
 
       .jobs-grid {
         grid-template-columns: 1fr;
       }
+
+      .job-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .job-footer {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+      }
     }
   `]
 })
 export class JobsComponent implements OnInit {
-  searchForm: FormGroup;
-  jobs = [
-    {
-      id: 1,
-      title: 'Senior Frontend Developer',
-      company: 'TechCorp Inc.',
-      location: 'San Francisco, CA',
-      type: 'Full Time',
-      remote: true,
-      urgent: false,
-      salary: '$120k - $160k',
-      postedDate: '2 days ago',
-      applicants: 23,
-      description: 'We are looking for a skilled Frontend Developer to join our dynamic team. You will be responsible for building user-facing features using modern frameworks.',
-      skills: ['React', 'TypeScript', 'Angular', 'Vue.js', 'CSS3']
-    },
-    {
-      id: 2,
-      title: 'AI/ML Engineer',
-      company: 'DataTech Solutions',
-      location: 'Remote',
-      type: 'Full Time',
-      remote: true,
-      urgent: true,
-      salary: '$140k - $180k',
-      postedDate: '1 day ago',
-      applicants: 45,
-      description: 'Join our AI team to develop cutting-edge machine learning models and algorithms. Experience with deep learning frameworks required.',
-      skills: ['Python', 'TensorFlow', 'PyTorch', 'Scikit-learn', 'AWS']
-    },
-    {
-      id: 3,
-      title: 'Product Manager',
-      company: 'Innovation Labs',
-      location: 'New York, NY',
-      type: 'Full Time',
-      remote: false,
-      urgent: false,
-      salary: '$110k - $140k',
-      postedDate: '3 days ago',
-      applicants: 67,
-      description: 'Lead product strategy and roadmap for our flagship products. Work closely with engineering and design teams to deliver exceptional user experiences.',
-      skills: ['Product Strategy', 'Agile', 'Analytics', 'User Research', 'Roadmapping']
-    }
-  ];
+  jobs: Job[] = [];
+  filteredJobs: Job[] = [];
+  isLoading = true;
+  isApplying = false;
+  isCreating = false;
   
-  totalJobs = 150;
-  pageSize = 10;
+  // Filters
+  searchTerm = '';
+  experienceFilter = '';
+  skillsFilter = '';
+  
+  // Modal
+  showCreateModal = false;
+  newJob = {
+    title: '',
+    description: '',
+    experience: 0,
+    skills: [] as string[]
+  };
+  skillsInput = '';
+
+  // Applied jobs tracking
+  appliedJobs: Set<string> = new Set();
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService
-  ) {
-    this.searchForm = this.fb.group({
-      search: [''],
-      location: [''],
-      type: [''],
-      experience: ['']
-    });
-  }
+    private apiService: ApiService,
+    public authService: AuthService
+  ) {}
 
-  ngOnInit(): void {
-    this.searchForm.valueChanges.subscribe(values => {
-      this.filterJobs(values);
-    });
-  }
-
-  canCreateJob(): boolean {
-    return this.authService.hasRole(['ADMIN', 'RECRUITER']);
-  }
-
-  getJobTypeColor(type: string): string {
-    switch (type.toLowerCase()) {
-      case 'full time': return 'primary';
-      case 'part time': return 'accent';
-      case 'contract': return 'warn';
-      default: return '';
+  ngOnInit() {
+    this.loadJobs();
+    if (this.authService.isCandidate()) {
+      this.loadUserApplications();
     }
   }
 
-  filterJobs(filters: any): void {
-    console.log('Filtering jobs with:', filters);
+  loadJobs() {
+    this.apiService.getJobs().subscribe({
+      next: (jobs) => {
+        this.jobs = jobs;
+        this.filteredJobs = jobs;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Failed to load jobs:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  loadUserApplications() {
+    this.apiService.getApplications().subscribe({
+      next: (applications) => {
+        this.appliedJobs = new Set(applications.map(app => app.jobId));
+      },
+      error: (error) => {
+        console.error('Failed to load applications:', error);
+      }
+    });
+  }
+
+  filterJobs() {
+    this.filteredJobs = this.jobs.filter(job => {
+      const matchesSearch = !this.searchTerm || 
+        job.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        job.description.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        job.skills.some(skill => skill.toLowerCase().includes(this.searchTerm.toLowerCase()));
+
+      const matchesExperience = !this.experienceFilter || this.matchesExperienceFilter(job.experience);
+      
+      const matchesSkills = !this.skillsFilter ||
+        job.skills.some(skill => skill.toLowerCase().includes(this.skillsFilter.toLowerCase()));
+
+      return matchesSearch && matchesExperience && matchesSkills;
+    });
+  }
+
+  matchesExperienceFilter(experience: number): boolean {
+    switch (this.experienceFilter) {
+      case '0-2': return experience <= 2;
+      case '3-5': return experience >= 3 && experience <= 5;
+      case '6-10': return experience >= 6 && experience <= 10;
+      case '10+': return experience > 10;
+      default: return true;
+    }
+  }
+
+  hasApplied(jobId: string): boolean {
+    return this.appliedJobs.has(jobId);
+  }
+
+  applyToJob(job: Job) {
+    if (this.hasApplied(job.id)) return;
+
+    this.isApplying = true;
+    const application: CreateApplicationDto = {
+      jobId: job.id,
+      coverLetter: `I am interested in the ${job.title} position and believe my skills align well with your requirements.`
+    };
+
+    this.apiService.createApplication(application).subscribe({
+      next: (response) => {
+        this.appliedJobs.add(job.id);
+        this.isApplying = false;
+      },
+      error: (error) => {
+        console.error('Failed to apply:', error);
+        this.isApplying = false;
+      }
+    });
+  }
+
+  createJob() {
+    if (!this.newJob.title || !this.newJob.description) return;
+
+    this.isCreating = true;
+    this.newJob.skills = this.skillsInput.split(',').map(skill => skill.trim()).filter(skill => skill);
+
+    this.apiService.createJob(this.newJob).subscribe({
+      next: (job) => {
+        this.jobs.unshift(job);
+        this.filterJobs();
+        this.resetForm();
+        this.showCreateModal = false;
+        this.isCreating = false;
+      },
+      error: (error) => {
+        console.error('Failed to create job:', error);
+        this.isCreating = false;
+      }
+    });
+  }
+
+  editJob(job: Job) {
+    console.log('Edit job:', job);
+  }
+
+  deleteJob(jobId: string) {
+    if (confirm('Are you sure you want to delete this job?')) {
+      this.apiService.deleteJob(jobId).subscribe({
+        next: () => {
+          this.jobs = this.jobs.filter(job => job.id !== jobId);
+          this.filterJobs();
+        },
+        error: (error) => {
+          console.error('Failed to delete job:', error);
+        }
+      });
+    }
+  }
+
+  resetForm() {
+    this.newJob = {
+      title: '',
+      description: '',
+      experience: 0,
+      skills: []
+    };
+    this.skillsInput = '';
+  }
+
+  closeModal(event: Event) {
+    if (event.target === event.currentTarget) {
+      this.showCreateModal = false;
+    }
+  }
+
+  getTimeAgo(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    return date.toLocaleDateString();
   }
 }
