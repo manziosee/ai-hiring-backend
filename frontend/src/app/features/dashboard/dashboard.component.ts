@@ -103,7 +103,7 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
                 <div class="application-info">
                   <h4>{{ app.job?.title }}</h4>
                   <p *ngIf="authService.isCandidate()">Applied {{ getTimeAgo(app.createdAt) }}</p>
-                  <p *ngIf="!authService.isCandidate()">{{ app.candidate?.name }} • {{ getTimeAgo(app.createdAt) }}</p>
+                  <p *ngIf="!authService.isCandidate()">{{ app.candidate?.name || 'Unknown' }} • {{ getTimeAgo(app.createdAt) }}</p>
                 </div>
                 <div class="application-status">
                   <span class="badge" [ngClass]="getStatusClass(app.status)">
@@ -135,7 +135,7 @@ import { DashboardStats, User, Job, Application } from '../../core/models';
               <div class="job-item" *ngFor="let job of stats?.topJobs?.slice(0, 5)">
                 <div class="job-info">
                   <h4>{{ job.title }}</h4>
-                  <p>{{ job.experience }} years experience • {{ job.skills.slice(0, 3).join(', ') }}</p>
+                  <p>{{ job.experience || 0 }} years experience • {{ (job.skills?.slice(0, 3) || []).join(', ') || 'No skills listed' }}</p>
                   <small>Posted {{ getTimeAgo(job.createdAt) }}</small>
                 </div>
                 <div class="job-stats" *ngIf="!authService.isCandidate()">

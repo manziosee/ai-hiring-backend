@@ -897,9 +897,9 @@ export class LoginComponent {
 
   loginAsDemo(role: string) {
     const demoCredentials = {
-      admin: { email: 'admin@demo.com', password: 'admin123' },
-      recruiter: { email: 'recruiter@demo.com', password: 'recruiter123' },
-      candidate: { email: 'candidate@demo.com', password: 'candidate123' }
+      admin: { email: 'admin@test.com', password: 'Admin123!' },
+      recruiter: { email: 'recruiter@test.com', password: 'Recruiter123!' },
+      candidate: { email: 'candidate@test.com', password: 'Candidate123!' }
     };
 
     const credentials = demoCredentials[role as keyof typeof demoCredentials];

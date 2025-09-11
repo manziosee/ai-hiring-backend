@@ -12,511 +12,248 @@ import { Application } from '../../core/models';
   template: `
     <div class="applications-container">
       <div class="applications-header">
-        <div class="header-content">
-          <h1>
-            <i class="fas fa-file-alt"></i>
-            {{ authService.isCandidate() ? 'My Applications' : 'All Applications' }}
-          </h1>
-          <p>{{ authService.isCandidate() ? 'Track your job applications' : 'Manage candidate applications' }}</p>
-        </div>
-        <div class="header-stats">
-          <div class="stat-item">
-            <span class="stat-number">{{ applications.length }}</span>
-            <span class="stat-label">Total Applications</span>
-          </div>
-          <div class="stat-item" *ngIf="authService.isCandidate()">
-            <span class="stat-number">{{ getStatusCount('INTERVIEW') }}</span>
-            <span class="stat-label">Interviews</span>
-          </div>
-        </div>
+        <h1>
+          <i class="fas fa-file-alt"></i>
+          {{ authService.isCandidate() ? 'My Applications' : 'All Applications' }}
+        </h1>
+        <p>{{ authService.isCandidate() ? 'Track your job applications' : 'Manage candidate applications' }}</p>
       </div>
 
-      <!-- Status Filter -->
-      <div class="filters-section">
-        <div class="status-filters">
-          <button 
-            class="filter-btn" 
-            [class.active]="selectedStatus === ''"
-            (click)="filterByStatus('')"
-          >
-            All ({{ applications.length }})
-          </button>
-          <button 
-            class="filter-btn" 
-            [class.active]="selectedStatus === 'SUBMITTED'"
-            (click)="filterByStatus('SUBMITTED')"
-          >
-            Submitted ({{ getStatusCount('SUBMITTED') }})
-          </button>
-          <button 
-            class="filter-btn" 
-            [class.active]="selectedStatus === 'SCREENING'"
-            (click)="filterByStatus('SCREENING')"
-          >
-            Screening ({{ getStatusCount('SCREENING') }})
-          </button>
-          <button 
-            class="filter-btn" 
-            [class.active]="selectedStatus === 'INTERVIEW'"
-            (click)="filterByStatus('INTERVIEW')"
-          >
-            Interview ({{ getStatusCount('INTERVIEW') }})
-          </button>
-          <button 
-            class="filter-btn" 
-            [class.active]="selectedStatus === 'OFFER'"
-            (click)="filterByStatus('OFFER')"
-          >
-            Offer ({{ getStatusCount('OFFER') }})
-          </button>
-        </div>
-      </div>
-
-      <!-- Applications List -->
-      <div class="applications-list" *ngIf="!isLoading">
-        <div class="application-card" *ngFor="let application of filteredApplications">
-          <div class="application-header">
-            <div class="application-info">
-              <h3>{{ application.job?.title }}</h3>
-              <div class="application-meta">
-                <span class="candidate-name" *ngIf="!authService.isCandidate()">
-                  <i class="fas fa-user"></i>
-                  {{ application.candidate?.name }}
-                </span>
-                <span class="application-date">
-                  <i class="fas fa-calendar"></i>
-                  Applied {{ getTimeAgo(application.createdAt) }}
-                </span>
-                <span class="experience">
-                  <i class="fas fa-briefcase"></i>
-                  {{ application.job?.experience }} years required
-                </span>
+      <div class="applications-content" *ngIf="!isLoading">
+        <div class="applications-grid" *ngIf="applications.length > 0">
+          <div class="application-card" *ngFor="let app of applications">
+            <div class="card-header">
+              <div class="job-info">
+                <h3>{{ app.job?.title }}</h3>
+                <p class="company">{{ app.job?.department }}</p>
+              </div>
+              <div class="status-badge" [ngClass]="getStatusClass(app.status)">
+                {{ app.status }}
               </div>
             </div>
-            <div class="application-status">
-              <span class="status-badge" [ngClass]="getStatusClass(application.status)">
-                {{ application.status }}
-              </span>
-            </div>
-          </div>
 
-          <div class="application-body">
-            <div class="job-skills" *ngIf="application.job?.skills?.length">
-              <span class="skill-tag" *ngFor="let skill of application.job?.skills?.slice(0, 4)">
-                {{ skill }}
-              </span>
-              <span class="more-skills" *ngIf="(application.job?.skills?.length || 0) > 4">
-                +{{ (application.job?.skills?.length || 0) - 4 }} more
-              </span>
-            </div>
-            
-            <div class="cover-letter" *ngIf="application.coverLetter">
-              <h4>Cover Letter</h4>
-              <p>{{ application.coverLetter | slice:0:150 }}{{ application.coverLetter.length > 150 ? '...' : '' }}</p>
-            </div>
-          </div>
+            <div class="card-body">
+              <div class="application-details">
+                <div class="detail-item" *ngIf="!authService.isCandidate()">
+                  <i class="fas fa-user"></i>
+                  <span>{{ app.candidate?.name || 'Unknown Candidate' }}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-calendar"></i>
+                  <span>Applied {{ getTimeAgo(app.createdAt) }}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>{{ app.job?.location }}</span>
+                </div>
+              </div>
 
-          <div class="application-actions">
-            <button class="btn btn-outline btn-sm" [routerLink]="['/applications', application.id]">
-              <i class="fas fa-eye"></i>
-              View Details
-            </button>
-            
-            <div class="recruiter-actions" *ngIf="authService.isRecruiter() || authService.isAdmin()">
-              <button 
-                class="btn btn-primary btn-sm" 
-                *ngIf="application.status === 'SUBMITTED'"
-                (click)="runScreening(application.id)"
-                [disabled]="isScreening"
-              >
-                <span class="spinner" *ngIf="isScreening"></span>
-                <i class="fas fa-brain" *ngIf="!isScreening"></i>
-                {{ isScreening ? 'Screening...' : 'Run AI Screening' }}
+              <div class="cover-letter" *ngIf="app.coverLetter">
+                <h4>Cover Letter</h4>
+                <p>{{ app.coverLetter | slice:0:200 }}{{ app.coverLetter.length > 200 ? '...' : '' }}</p>
+              </div>
+            </div>
+
+            <div class="card-actions" *ngIf="!authService.isCandidate()">
+              <button class="btn btn-sm btn-primary" (click)="runScreening(app.id)" [disabled]="isProcessing">
+                <i class="fas fa-brain"></i>
+                Run AI Screening
               </button>
-              
-              <button 
-                class="btn btn-success btn-sm" 
-                *ngIf="application.status === 'SCREENING'"
-                (click)="scheduleInterview(application.id)"
-              >
-                <i class="fas fa-calendar-plus"></i>
+              <button class="btn btn-sm btn-secondary" (click)="updateStatus(app.id, 'INTERVIEW')">
+                <i class="fas fa-calendar"></i>
                 Schedule Interview
               </button>
-              
-              <div class="status-dropdown" *ngIf="application.status !== 'REJECTED'">
-                <select (change)="updateStatus(application.id, $event)" [value]="application.status">
-                  <option value="SUBMITTED">Submitted</option>
-                  <option value="SCREENING">Screening</option>
-                  <option value="INTERVIEW">Interview</option>
-                  <option value="OFFER">Offer</option>
-                  <option value="ACCEPTED">Accepted</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Progress Timeline -->
-          <div class="progress-timeline">
-            <div class="timeline-step" [class.completed]="isStepCompleted('SUBMITTED', application.status)" [class.current]="application.status === 'SUBMITTED'">
-              <div class="step-icon">
-                <i class="fas fa-paper-plane"></i>
-              </div>
-              <span>Submitted</span>
-            </div>
-            <div class="timeline-step" [class.completed]="isStepCompleted('SCREENING', application.status)" [class.current]="application.status === 'SCREENING'">
-              <div class="step-icon">
-                <i class="fas fa-search"></i>
-              </div>
-              <span>Screening</span>
-            </div>
-            <div class="timeline-step" [class.completed]="isStepCompleted('INTERVIEW', application.status)" [class.current]="application.status === 'INTERVIEW'">
-              <div class="step-icon">
-                <i class="fas fa-users"></i>
-              </div>
-              <span>Interview</span>
-            </div>
-            <div class="timeline-step" [class.completed]="isStepCompleted('OFFER', application.status)" [class.current]="application.status === 'OFFER'">
-              <div class="step-icon">
-                <i class="fas fa-handshake"></i>
-              </div>
-              <span>Offer</span>
+              <button class="btn btn-sm btn-success" (click)="updateStatus(app.id, 'ACCEPTED')">
+                <i class="fas fa-check"></i>
+                Accept
+              </button>
+              <button class="btn btn-sm btn-error" (click)="updateStatus(app.id, 'REJECTED')">
+                <i class="fas fa-times"></i>
+                Reject
+              </button>
             </div>
           </div>
         </div>
+
+        <div class="empty-state" *ngIf="applications.length === 0">
+          <i class="fas fa-inbox"></i>
+          <h3>No applications found</h3>
+          <p>{{ authService.isCandidate() ? 'You haven\'t applied to any jobs yet' : 'No applications received yet' }}</p>
+          <button class="btn btn-primary" routerLink="/jobs" *ngIf="authService.isCandidate()">
+            <i class="fas fa-search"></i>
+            Browse Jobs
+          </button>
+        </div>
       </div>
 
-      <!-- Loading State -->
       <div class="loading-state" *ngIf="isLoading">
         <div class="spinner"></div>
         <p>Loading applications...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="!isLoading && filteredApplications.length === 0">
-        <i class="fas fa-inbox"></i>
-        <h3>No applications found</h3>
-        <p>{{ selectedStatus ? 'No applications with this status' : 'No applications yet' }}</p>
-        <button class="btn btn-primary" routerLink="/jobs" *ngIf="authService.isCandidate()">
-          <i class="fas fa-search"></i>
-          Browse Jobs
-        </button>
       </div>
     </div>
   `,
   styles: [`
     .applications-container {
-      padding: var(--spacing-xl);
+      padding: 2rem;
       max-width: 1400px;
       margin: 0 auto;
     }
 
     .applications-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--spacing-2xl);
-      padding-bottom: var(--spacing-xl);
-      border-bottom: 1px solid var(--neutral-200);
+      margin-bottom: 2rem;
+      text-align: center;
     }
 
-    .header-content h1 {
+    .applications-header h1 {
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
+      justify-content: center;
+      gap: 0.75rem;
       font-size: 2.5rem;
-      color: var(--neutral-800);
-      margin-bottom: var(--spacing-sm);
-
-      i {
-        color: var(--primary-600);
-      }
+      color: #1a202c;
+      margin-bottom: 0.5rem;
     }
 
-    .header-content p {
-      color: var(--neutral-600);
+    .applications-header p {
+      color: #718096;
       font-size: 1.125rem;
-      margin: 0;
     }
 
-    .header-stats {
-      display: flex;
-      gap: var(--spacing-xl);
-    }
-
-    .stat-item {
-      text-align: center;
-
-      .stat-number {
-        display: block;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--primary-600);
-      }
-
-      .stat-label {
-        font-size: 0.875rem;
-        color: var(--neutral-600);
-      }
-    }
-
-    .filters-section {
-      background: white;
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-lg);
-      margin-bottom: var(--spacing-xl);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--neutral-200);
-    }
-
-    .status-filters {
-      display: flex;
-      gap: var(--spacing-sm);
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      padding: var(--spacing-sm) var(--spacing-md);
-      border: 1px solid var(--neutral-300);
-      background: white;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      font-size: 0.875rem;
-
-      &:hover {
-        background: var(--neutral-50);
-        border-color: var(--primary-300);
-      }
-
-      &.active {
-        background: var(--primary-600);
-        color: white;
-        border-color: var(--primary-600);
-      }
-    }
-
-    .applications-list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xl);
+    .applications-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 1.5rem;
     }
 
     .application-card {
       background: white;
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-xl);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--neutral-200);
-      transition: all var(--transition-fast);
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-      }
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
     }
 
-    .application-header {
+    .application-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: var(--spacing-lg);
+      margin-bottom: 1rem;
     }
 
-    .application-info h3 {
-      font-size: 1.5rem;
-      color: var(--neutral-800);
-      margin-bottom: var(--spacing-sm);
+    .job-info h3 {
+      font-size: 1.25rem;
+      color: #1a202c;
+      margin-bottom: 0.25rem;
     }
 
-    .application-meta {
-      display: flex;
-      gap: var(--spacing-lg);
+    .company {
+      color: #718096;
       font-size: 0.875rem;
-      color: var(--neutral-600);
-      flex-wrap: wrap;
-
-      span {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-      }
     }
 
     .status-badge {
-      padding: var(--spacing-xs) var(--spacing-md);
-      border-radius: var(--radius-full);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
     }
 
-    .application-body {
-      margin-bottom: var(--spacing-lg);
-    }
+    .status-pending { background: #fef5e7; color: #d69e2e; }
+    .status-screening { background: #e6fffa; color: #319795; }
+    .status-interview { background: #ebf8ff; color: #3182ce; }
+    .status-accepted { background: #f0fff4; color: #38a169; }
+    .status-rejected { background: #fed7d7; color: #e53e3e; }
 
-    .job-skills {
+    .application-details {
       display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing-sm);
-      margin-bottom: var(--spacing-lg);
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
-    .skill-tag {
-      background: var(--primary-100);
-      color: var(--primary-800);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--radius-full);
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-
-    .more-skills {
-      background: var(--neutral-100);
-      color: var(--neutral-600);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--radius-full);
-      font-size: 0.75rem;
-    }
-
-    .cover-letter {
-      h4 {
-        font-size: 1rem;
-        margin-bottom: var(--spacing-sm);
-        color: var(--neutral-700);
-      }
-
-      p {
-        color: var(--neutral-600);
-        line-height: 1.6;
-        margin: 0;
-      }
-    }
-
-    .application-actions {
+    .detail-item {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: var(--spacing-lg);
-      padding-top: var(--spacing-lg);
-      border-top: 1px solid var(--neutral-200);
-    }
-
-    .recruiter-actions {
-      display: flex;
-      gap: var(--spacing-sm);
-      align-items: center;
-    }
-
-    .status-dropdown select {
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border: 1px solid var(--neutral-300);
-      border-radius: var(--radius-sm);
+      gap: 0.5rem;
+      color: #4a5568;
       font-size: 0.875rem;
     }
 
-    .progress-timeline {
-      display: flex;
-      justify-content: space-between;
-      position: relative;
-      margin-top: var(--spacing-lg);
-      padding-top: var(--spacing-lg);
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: calc(var(--spacing-lg) + 20px);
-        left: 10%;
-        right: 10%;
-        height: 2px;
-        background: var(--neutral-200);
-      }
+    .detail-item i {
+      color: #a0aec0;
+      width: 16px;
     }
 
-    .timeline-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--spacing-sm);
-      position: relative;
-      z-index: 1;
-
-      .step-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--neutral-200);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--neutral-500);
-        transition: all var(--transition-fast);
-      }
-
-      span {
-        font-size: 0.75rem;
-        color: var(--neutral-600);
-        font-weight: 500;
-      }
-
-      &.completed .step-icon {
-        background: var(--success-500);
-        color: white;
-      }
-
-      &.current .step-icon {
-        background: var(--primary-500);
-        color: white;
-        animation: pulse 2s infinite;
-      }
+    .cover-letter {
+      margin-bottom: 1rem;
     }
 
-    .loading-state, .empty-state {
+    .cover-letter h4 {
+      font-size: 0.875rem;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cover-letter p {
+      color: #4a5568;
+      line-height: 1.6;
+      font-size: 0.875rem;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .empty-state, .loading-state {
       text-align: center;
-      padding: var(--spacing-3xl);
-      color: var(--neutral-500);
+      padding: 3rem;
+      color: #718096;
     }
 
-    .empty-state i {
+    .empty-state i, .loading-state i {
       font-size: 4rem;
-      margin-bottom: var(--spacing-lg);
+      margin-bottom: 1rem;
       opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #2d3748;
     }
 
     @media (max-width: 768px) {
       .applications-container {
-        padding: var(--spacing-md);
+        padding: 1rem;
       }
 
-      .applications-header {
+      .applications-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card-actions {
         flex-direction: column;
-        gap: var(--spacing-lg);
-      }
-
-      .application-header {
-        flex-direction: column;
-        gap: var(--spacing-md);
-      }
-
-      .application-actions {
-        flex-direction: column;
-        gap: var(--spacing-md);
-        align-items: stretch;
-      }
-
-      .progress-timeline {
-        flex-wrap: wrap;
-        gap: var(--spacing-md);
       }
     }
   `]
 })
 export class ApplicationsComponent implements OnInit {
   applications: Application[] = [];
-  filteredApplications: Application[] = [];
   isLoading = true;
-  isScreening = false;
-  selectedStatus = '';
+  isProcessing = false;
 
   constructor(
     private apiService: ApiService,
@@ -531,7 +268,6 @@ export class ApplicationsComponent implements OnInit {
     this.apiService.getApplications().subscribe({
       next: (applications) => {
         this.applications = applications;
-        this.filteredApplications = applications;
         this.isLoading = false;
       },
       error: (error) => {
@@ -541,67 +277,33 @@ export class ApplicationsComponent implements OnInit {
     });
   }
 
-  filterByStatus(status: string) {
-    this.selectedStatus = status;
-    if (status) {
-      this.filteredApplications = this.applications.filter(app => app.status === status);
-    } else {
-      this.filteredApplications = this.applications;
-    }
-  }
-
-  getStatusCount(status: string): number {
-    return this.applications.filter(app => app.status === status).length;
-  }
-
-  getStatusClass(status: string): string {
-    const statusClasses: { [key: string]: string } = {
-      'PENDING': 'badge-warning',
-      'SUBMITTED': 'badge-primary',
-      'SCREENING': 'badge-secondary',
-      'INTERVIEW': 'badge-primary',
-      'OFFER': 'badge-success',
-      'ACCEPTED': 'badge-success',
-      'REJECTED': 'badge-error'
-    };
-    return statusClasses[status] || 'badge-secondary';
-  }
-
-  isStepCompleted(step: string, currentStatus: string): boolean {
-    const steps = ['SUBMITTED', 'SCREENING', 'INTERVIEW', 'OFFER', 'ACCEPTED'];
-    const stepIndex = steps.indexOf(step);
-    const currentIndex = steps.indexOf(currentStatus);
-    return currentIndex > stepIndex || (currentStatus === 'ACCEPTED' && step !== 'REJECTED');
-  }
-
   runScreening(applicationId: string) {
-    this.isScreening = true;
+    this.isProcessing = true;
     this.apiService.runScreening(applicationId).subscribe({
-      next: (result) => {
-        this.isScreening = false;
-        this.loadApplications(); // Refresh to show updated status
+      next: (result: any) => {
+        console.log('Screening completed:', result);
+        this.isProcessing = false;
       },
-      error: (error) => {
-        console.error('Failed to run screening:', error);
-        this.isScreening = false;
+      error: (error: any) => {
+        console.error('Screening failed:', error);
+        this.isProcessing = false;
       }
     });
   }
 
-  scheduleInterview(applicationId: string) {
-    console.log('Schedule interview for:', applicationId);
-  }
-
-  updateStatus(applicationId: string, event: any) {
-    const newStatus = event.target.value;
+  updateStatus(applicationId: string, newStatus: string) {
     this.apiService.updateApplicationStatus(applicationId, newStatus).subscribe({
       next: () => {
         this.loadApplications();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Failed to update status:', error);
       }
     });
+  }
+
+  getStatusClass(status: string): string {
+    return `status-${status.toLowerCase()}`;
   }
 
   getTimeAgo(dateString: string): string {
