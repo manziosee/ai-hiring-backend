@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
-import { User, LoginRequest, RegisterRequest, AuthResponse } from '../models/auth.models';
+import { User, AuthResponse, LoginDto, RegisterDto } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -14,28 +14,52 @@ export class AuthService {
     this.loadUserFromStorage();
   }
 
-  login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/login', credentials)
-      .pipe(
-        tap(response => {
-          this.setCurrentUser(response.user, response.token);
-        })
-      );
+  private loadUserFromStorage(): void {
+    const token = localStorage.getItem('access_token');
+    const user = localStorage.getItem('current_user');
+    if (token && user) {
+      this.currentUserSubject.next(JSON.parse(user));
+    }
   }
 
-  register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/register', userData)
-      .pipe(
-        tap(response => {
-          this.setCurrentUser(response.user, response.token);
-        })
-      );
+  login(credentials: LoginDto): Observable<AuthResponse> {
+    return this.apiService.login(credentials).pipe(
+      tap(response => {
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('current_user', JSON.stringify(response.user));
+        this.currentUserSubject.next(response.user);
+      })
+    );
+  }
+
+  register(userData: RegisterDto): Observable<AuthResponse> {
+    return this.apiService.register(userData).pipe(
+      tap(response => {
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('current_user', JSON.stringify(response.user));
+        this.currentUserSubject.next(response.user);
+      })
+    );
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    this.currentUserSubject.next(null);
+    this.apiService.logout().subscribe({
+      complete: () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('current_user');
+        this.currentUserSubject.next(null);
+      }
+    });
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    return this.apiService.refreshToken().pipe(
+      tap(response => {
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('current_user', JSON.stringify(response.user));
+        this.currentUserSubject.next(response.user);
+      })
+    );
   }
 
   getCurrentUser(): User | null {
@@ -43,44 +67,23 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return !!localStorage.getItem('access_token');
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-  hasRole(roles: string[]): boolean {
+  hasRole(role: string): boolean {
     const user = this.getCurrentUser();
-    return user ? roles.includes(user.role) : false;
+    return user?.role === role;
   }
 
-  refreshToken(): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/refresh', {})
-      .pipe(
-        tap(response => {
-          this.setCurrentUser(response.user, response.token);
-        })
-      );
+  isAdmin(): boolean {
+    return this.hasRole('ADMIN');
   }
 
-  private setCurrentUser(user: User, token: string): void {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    this.currentUserSubject.next(user);
+  isRecruiter(): boolean {
+    return this.hasRole('RECRUITER');
   }
 
-  private loadUserFromStorage(): void {
-    const token = this.getToken();
-    const userStr = localStorage.getItem('user');
-    
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        this.currentUserSubject.next(user);
-      } catch (error) {
-        this.logout();
-      }
-    }
+  isCandidate(): boolean {
+    return this.hasRole('CANDIDATE');
   }
 }
