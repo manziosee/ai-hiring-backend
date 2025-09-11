@@ -7,13 +7,24 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Fly.io](https://img.shields.io/badge/Fly.io-8B5CF6?style=for-the-badge&logo=fly.io&logoColor=white)
 
 **Full-stack AI-powered recruitment platform with intelligent candidate screening and automated interview scheduling.**
 
 [![CI/CD Pipeline](https://github.com/manziosee/ai-hiring-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/manziosee/ai-hiring-backend/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/manziosee/ai-hiring-backend/pulls)
+
+### 🌐 **Live Demo**
+
+[![Frontend](https://img.shields.io/badge/Frontend-Live-success?style=for-the-badge)](https://ai-hiring-frontend.fly.dev/)
+[![Backend API](https://img.shields.io/badge/Backend%20API-Live-success?style=for-the-badge)](https://ai-hiring-backend.fly.dev/)
+[![Swagger Docs](https://img.shields.io/badge/API%20Docs-Live-blue?style=for-the-badge)](https://ai-hiring-backend.fly.dev/api)
+
+**🔗 Quick Access:**
+- **Frontend App**: [ai-hiring-frontend.fly.dev](https://ai-hiring-frontend.fly.dev/)
+- **Backend API**: [ai-hiring-backend.fly.dev](https://ai-hiring-backend.fly.dev/)
+- **API Documentation**: [ai-hiring-backend.fly.dev/api](https://ai-hiring-backend.fly.dev/api)
 
 </div>
 
@@ -133,11 +144,16 @@ cd ..
 npm run dev
 ```
 
-**Services will be available at:**
+**Local Development URLs:**
 - Frontend: `http://localhost:3001`
 - Backend API: `http://localhost:3000`
 - Swagger Docs: `http://localhost:3000/api`
 - ML Service: `http://localhost:8000`
+
+**Production URLs:**
+- Frontend: [https://ai-hiring-frontend.fly.dev](https://ai-hiring-frontend.fly.dev)
+- Backend API: [https://ai-hiring-backend.fly.dev](https://ai-hiring-backend.fly.dev)
+- API Documentation: [https://ai-hiring-backend.fly.dev/api](https://ai-hiring-backend.fly.dev/api)
 
 ### 🐳 Docker Development
 
@@ -236,8 +252,13 @@ npm run health             # Check API health
 
 ## 📚 API Documentation
 
-* **Swagger UI**: [http://localhost:3000/api](http://localhost:3000/api)
-* **OpenAPI JSON**: [http://localhost:3000/api-json](http://localhost:3000/api-json)
+### 🌐 Live API Documentation
+* **Production Swagger**: [https://ai-hiring-backend.fly.dev/api](https://ai-hiring-backend.fly.dev/api)
+* **Production OpenAPI**: [https://ai-hiring-backend.fly.dev/api-json](https://ai-hiring-backend.fly.dev/api-json)
+
+### 💻 Local Development
+* **Local Swagger**: [http://localhost:3000/api](http://localhost:3000/api)
+* **Local OpenAPI**: [http://localhost:3000/api-json](http://localhost:3000/api-json)
 
 ### 🔑 Key API Endpoints
 
@@ -255,19 +276,28 @@ npm run health             # Check API health
 
 ## 🎨 Frontend Features
 
+### 🌐 **Live Demo Access**
+Experience the platform live at [ai-hiring-frontend.fly.dev](https://ai-hiring-frontend.fly.dev)
+
 ### **Role-Based Interfaces**
 - **Admin Dashboard**: User management, system analytics, platform overview
-- **Recruiter Portal**: Job posting, candidate screening, interview scheduling
+- **Recruiter Portal**: Job posting, candidate screening, interview scheduling  
 - **Candidate Portal**: Job search, application tracking, profile management
 
+### **Modern UI/UX Design**
+- 🌈 **Glassmorphism Design** — Modern glass-like effects and animations
+- 🎨 **Custom Branding** — Professional logo and consistent visual identity
+- 📱 **Responsive Layout** — Optimized for desktop, tablet, and mobile
+- ✨ **Smooth Animations** — Engaging transitions and micro-interactions
+
 ### **Key Components**
-- 🔐 Authentication & authorization
-- 📋 Job listing & advanced search
-- 📄 Resume upload & management
-- 📊 Real-time dashboard analytics
-- 💬 Application status tracking
+- 🔐 Authentication & authorization with demo accounts
+- 📋 Job listing & advanced search with filters
+- 📄 Resume upload & management (PDF/DOCX support)
+- 📊 Real-time dashboard analytics with charts
+- 💬 Application status tracking with notifications
 - 📅 Interview scheduling interface
-- 🔔 Real-time notifications
+- 🔔 Real-time notifications and updates
 
 ---
 
@@ -291,25 +321,40 @@ node backend/test-integrations.js
 
 ---
 
-## 🐳 Deployment
+## 🚀 Deployment
 
-### **Docker Compose**
+### 🌐 **Live Production (Fly.io)**
+The application is currently deployed and running on Fly.io:
+
+- **Frontend**: [https://ai-hiring-frontend.fly.dev](https://ai-hiring-frontend.fly.dev)
+- **Backend**: [https://ai-hiring-backend.fly.dev](https://ai-hiring-backend.fly.dev)
+- **Database**: PostgreSQL on Fly.io
+- **Status**: 🟢 Live and operational
+
+### 🛠️ **Deploy Your Own Instance**
+
+#### **Fly.io Deployment**
 ```bash
-docker-compose up -d       # Production deployment
+# Backend deployment
+cd backend
+flyctl launch --no-deploy
+flyctl secrets set RESEND_API_KEY="your-resend-key"
+flyctl deploy
+
+# Frontend deployment
+cd frontend
+flyctl launch --no-deploy
+flyctl deploy
 ```
 
-### **Kubernetes**
+#### **Docker Compose**
+```bash
+docker-compose up -d       # Local production deployment
+```
+
+#### **Kubernetes**
 ```bash
 kubectl apply -f kubernetes/
-```
-
-### **Fly.io**
-```bash
-# Backend
-cd backend && flyctl deploy
-
-# Frontend
-cd frontend && flyctl deploy
 ```
 
 ---
@@ -344,11 +389,22 @@ MAX_FILE_SIZE=5242880
 UPLOAD_DEST="./uploads"
 ```
 
-### Frontend (src/environments/environment.ts)
+### Frontend Environment Configuration
+
+#### Development (src/environments/environment.ts)
 ```typescript
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000',
+  appName: 'AI Hiring Platform'
+};
+```
+
+#### Production (src/environments/environment.prod.ts)
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: 'https://ai-hiring-backend.fly.dev',
   appName: 'AI Hiring Platform'
 };
 ```
