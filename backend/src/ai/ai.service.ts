@@ -9,11 +9,15 @@ export class AiService {
   private hf: HfInference;
 
   constructor(private configService: ConfigService) {
-    this.openai = new OpenAI({
-      apiKey: this.configService.get('OPENAI_API_KEY'),
-    });
-
-    this.hf = new HfInference(this.configService.get('HUGGINGFACE_API_KEY'));
+    const openaiKey = this.configService.get('OPENAI_API_KEY');
+    const hfKey = this.configService.get('HUGGINGFACE_API_KEY');
+    
+    if (openaiKey) {
+      this.openai = new OpenAI({ apiKey: openaiKey });
+    }
+    if (hfKey) {
+      this.hf = new HfInference(hfKey);
+    }
   }
 
   async generateInterviewQuestions(
@@ -22,6 +26,10 @@ export class AiService {
     candidateSkills: string[],
   ): Promise<string[]> {
     try {
+      if (!this.openai) {
+        return this.getFallbackQuestions(jobTitle);
+      }
+      
       const prompt = `Generate 5 interview questions for a ${jobTitle} position. 
       Job Description: ${jobDescription}
       Candidate Skills: ${candidateSkills.join(', ')}
@@ -59,6 +67,14 @@ export class AiService {
     keyPoints: string[];
   }> {
     try {
+      if (!this.openai) {
+        return {
+          score: 5,
+          feedback: 'OpenAI service not available',
+          keyPoints: [],
+        };
+      }
+      
       const prompt = `Analyze this interview response:
       Question: ${question}
       Response: ${response}
@@ -98,28 +114,33 @@ export class AiService {
 
   async extractSkillsFromText(text: string): Promise<string[]> {
     try {
-      // Use Hugging Face for skill extraction
+      if (!this.hf) {
+        return this.extractSkillsWithPatterns(text);
+      }
+      
+      // Use skill-specific model for better accuracy
       const response = await this.hf.tokenClassification({
-        model: 'dbmdz/bert-large-cased-finetuned-conll03-english',
+        model: 'jjzha/jobbert-base-cased',
         inputs: text,
       });
 
-      // Extract skills from NER results
+      // Extract skills from job-specific NER results
       const skills = response
-        .filter(
-          (entity) =>
-            entity.entity_group === 'MISC' || entity.entity_group === 'ORG',
-        )
+        .filter((entity) => entity.entity_group === 'SKILL')
         .map((entity) => entity.word)
         .filter(
           (skill): skill is string =>
             typeof skill === 'string' && skill.length > 2,
         );
 
+      // Fallback to pattern matching if no skills found
+      if (skills.length === 0) {
+        return this.extractSkillsWithPatterns(text);
+      }
+
       return [...new Set(skills)];
     } catch (error) {
-      // Log error without exposing sensitive details
-      console.error('Error extracting skills with Hugging Face');
+      console.error('Error extracting skills with JobBERT, falling back to patterns');
       return this.extractSkillsWithPatterns(text);
     }
   }
@@ -129,6 +150,10 @@ export class AiService {
     requirements: string[],
   ): Promise<string> {
     try {
+      if (!this.openai) {
+        return `Job description for ${title} position with requirements: ${requirements.join(', ')}.`;
+      }
+      
       const prompt = `Generate a professional job description for: ${title}
       
       Requirements: ${requirements.join(', ')}
@@ -171,51 +196,23 @@ export class AiService {
   }
 
   private extractSkillsWithPatterns(text: string): string[] {
-    const skillPatterns = [
-      'javascript',
-      'typescript',
-      'python',
-      'java',
-      'react',
-      'angular',
-      'vue',
-      'node.js',
-      'express',
-      'nestjs',
-      'django',
-      'flask',
-      'spring',
-      'laravel',
-      'sql',
-      'postgresql',
-      'mysql',
-      'mongodb',
-      'redis',
-      'elasticsearch',
-      'aws',
-      'azure',
-      'gcp',
-      'docker',
-      'kubernetes',
-      'jenkins',
-      'git',
-      'html',
-      'css',
-      'sass',
-      'webpack',
-      'babel',
-      'jest',
-      'cypress',
-      'machine learning',
-      'ai',
-      'data science',
-      'tensorflow',
-      'pytorch',
-    ];
+    const skillPatterns = new Set([
+      'javascript', 'typescript', 'python', 'java', 'c#', 'c++', 'go', 'rust',
+      'react', 'angular', 'vue', 'svelte', 'node.js', 'express', 'nestjs',
+      'django', 'flask', 'spring', 'laravel', 'rails', 'asp.net',
+      'sql', 'postgresql', 'mysql', 'mongodb', 'redis', 'elasticsearch',
+      'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'jenkins', 'git',
+      'html', 'css', 'sass', 'less', 'webpack', 'babel', 'vite',
+      'jest', 'cypress', 'selenium', 'junit', 'pytest',
+      'machine learning', 'ai', 'data science', 'tensorflow', 'pytorch',
+      'graphql', 'rest api', 'microservices', 'devops', 'ci/cd'
+    ]);
 
-    const foundSkills = skillPatterns.filter((skill) =>
-      text.toLowerCase().includes(skill.toLowerCase()),
-    );
+    const textLower = text.toLowerCase();
+    const foundSkills = Array.from(skillPatterns).filter(skill => {
+      const regex = new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      return regex.test(textLower);
+    });
 
     return [...new Set(foundSkills)];
   }

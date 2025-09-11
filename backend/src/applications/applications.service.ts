@@ -65,17 +65,13 @@ export class ApplicationsService {
       },
     });
 
-    // Send email notification
-    const job = await this.prisma.job.findUnique({
-      where: { id: createApplicationDto.jobId },
-    });
-
-    if (candidate && job) {
+    // Send email notification using job data from application
+    if (candidate && application.job) {
       this.emailService
         .sendApplicationSubmitted(
           candidate.user.email,
           candidate.name,
-          job.title,
+          application.job.title,
           'Company Name', // Placeholder for company name
         )
         .catch(console.error);
@@ -85,22 +81,14 @@ export class ApplicationsService {
   }
 
   async findByJobId(jobId: string, userId: string) {
-    const job = await this.prisma.job.findUnique({
-      where: { id: jobId },
-    });
-
-    if (!job) {
-      throw new NotFoundException('Job not found');
-    }
-
-    if (job.createdBy !== userId) {
-      throw new ForbiddenException(
-        'You can only view applications for your own jobs',
-      );
-    }
-
-    return this.prisma.application.findMany({
-      where: { jobId },
+    // Combined query to check job ownership and get applications
+    const applications = await this.prisma.application.findMany({
+      where: { 
+        jobId,
+        job: {
+          createdBy: userId
+        }
+      },
       include: {
         candidate: {
           include: {
@@ -113,6 +101,13 @@ export class ApplicationsService {
             },
           },
         },
+        job: {
+          select: {
+            id: true,
+            title: true,
+            createdBy: true
+          }
+        },
         screeningResults: {
           orderBy: {
             createdAt: 'desc',
@@ -121,6 +116,26 @@ export class ApplicationsService {
         },
       },
     });
+
+    // If no applications found, check if job exists
+    if (applications.length === 0) {
+      const job = await this.prisma.job.findUnique({
+        where: { id: jobId },
+        select: { id: true, createdBy: true }
+      });
+      
+      if (!job) {
+        throw new NotFoundException('Job not found');
+      }
+      
+      if (job.createdBy !== userId) {
+        throw new ForbiddenException(
+          'You can only view applications for your own jobs',
+        );
+      }
+    }
+
+    return applications;
   }
 
   async findOne(id: string, userId: string) {
@@ -225,17 +240,12 @@ export class ApplicationsService {
       },
     });
 
-    // Send status update email
-    const candidate = await this.prisma.candidate.findUnique({
-      where: { id: application.candidateId },
-      include: { user: true },
-    });
-
-    if (candidate) {
+    // Send status update email using candidate data from updatedApplication
+    if (updatedApplication.candidate) {
       this.emailService
         .sendStatusUpdate(
-          candidate.user.email,
-          candidate.name,
+          updatedApplication.candidate.user.email,
+          updatedApplication.candidate.name,
           updatedApplication.job.title,
           status,
         )

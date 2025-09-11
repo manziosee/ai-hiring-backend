@@ -6,7 +6,7 @@ export interface AuditLogData {
   userId: string;
   action: string;
   resource: string;
-  resourceId?: string;
+  resourceId: string;
   metadata?: any;
   ipAddress?: string;
   userAgent?: string;
@@ -19,32 +19,34 @@ export class AuditService {
     private logger: LoggerService,
   ) {}
 
-  async log(data: AuditLogData): Promise<void> {
+  async log(data: AuditLogData) {
     try {
-      // For now, log to console since AuditLog table doesn't exist
-      // TODO: Add AuditLog table to Prisma schema
+      const auditLog = await this.prisma.auditLog.create({
+        data: {
+          userId: data.userId,
+          action: data.action,
+          resource: data.resource,
+          resourceId: data.resourceId,
+          metadata: data.metadata || {},
+          ipAddress: data.ipAddress,
+          userAgent: data.userAgent,
+          timestamp: new Date(),
+        },
+      });
+
       this.logger.log(
-        `AUDIT: User ${data.userId} performed ${data.action} on ${data.resource}${data.resourceId ? ` (${data.resourceId})` : ''}`,
+        `Audit: ${data.action} on ${data.resource}:${data.resourceId} by user:${data.userId}`,
         'AuditService'
       );
-      
-      // Store in a simple log format until database table is created
-      const auditEntry = {
-        timestamp: new Date().toISOString(),
-        userId: data.userId,
-        action: data.action,
-        resource: data.resource,
-        resourceId: data.resourceId,
-        metadata: data.metadata,
-        ipAddress: data.ipAddress,
-        userAgent: data.userAgent,
-      };
-      
-      // In production, this should go to a proper audit database or service
-      console.log('AUDIT_LOG:', JSON.stringify(auditEntry));
-      
+
+      return auditLog;
     } catch (error) {
-      this.logger.error('Audit logging failed', error.stack, 'AuditService');
+      this.logger.error(
+        'Failed to create audit log',
+        error instanceof Error ? error.stack : String(error),
+        'AuditService'
+      );
+      throw error;
     }
   }
 
@@ -54,9 +56,59 @@ export class AuditService {
     resource?: string;
     startDate?: Date;
     endDate?: Date;
+    limit?: number;
+    offset?: number;
   }) {
-    // TODO: Implement when AuditLog table is added to schema
-    this.logger.warn('Audit log retrieval not implemented - requires database schema update', 'AuditService');
-    return [];
+    const where: any = {};
+
+    if (filters.userId) where.userId = filters.userId;
+    if (filters.action) where.action = filters.action;
+    if (filters.resource) where.resource = filters.resource;
+    if (filters.startDate || filters.endDate) {
+      where.timestamp = {};
+      if (filters.startDate) where.timestamp.gte = filters.startDate;
+      if (filters.endDate) where.timestamp.lte = filters.endDate;
+    }
+
+    return this.prisma.auditLog.findMany({
+      where,
+      orderBy: { timestamp: 'desc' },
+      take: filters.limit || 100,
+      skip: filters.offset || 0,
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+      },
+    });
+  }
+
+  async getUserActivity(userId: string, limit = 50) {
+    return this.prisma.auditLog.findMany({
+      where: { userId },
+      orderBy: { timestamp: 'desc' },
+      take: limit,
+    });
+  }
+
+  async getResourceActivity(resource: string, resourceId: string, limit = 50) {
+    return this.prisma.auditLog.findMany({
+      where: { resource, resourceId },
+      orderBy: { timestamp: 'desc' },
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+      },
+    });
   }
 }

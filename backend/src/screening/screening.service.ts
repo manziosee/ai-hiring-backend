@@ -131,12 +131,27 @@ export class ScreeningService {
     });
   }
 
+  // Scoring constants for maintainability
+  private static readonly SCORING_WEIGHTS = {
+    BASE_SCORE: 0.5,
+    EXPERIENCE_WEIGHT: 0.3,
+    SKILL_WEIGHT: 0.5,
+    MAX_SCORE: 1.0
+  };
+
   private calculateFitScore(job: any, candidate: any): number {
-    // Basic scoring logic
-    let score = 0.5;
-    if (candidate.yearsExp >= job.experience) score += 0.3;
-    score += this.calculateSkillMatch(job.skills, candidate.skills) * 0.5;
-    return Math.min(score, 1.0);
+    let score = ScreeningService.SCORING_WEIGHTS.BASE_SCORE;
+    
+    // Experience match bonus
+    if (candidate.yearsExp >= job.experience) {
+      score += ScreeningService.SCORING_WEIGHTS.EXPERIENCE_WEIGHT;
+    }
+    
+    // Skill match contribution
+    const skillMatch = this.calculateSkillMatch(job.skills, candidate.skills);
+    score += skillMatch * ScreeningService.SCORING_WEIGHTS.SKILL_WEIGHT;
+    
+    return Math.min(score, ScreeningService.SCORING_WEIGHTS.MAX_SCORE);
   }
 
   private calculateSkillMatch(
