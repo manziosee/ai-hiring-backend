@@ -82,9 +82,10 @@ import { User, UserRole } from '../../../core/models/user.model';
               <div class="user-avatar">
                 <mat-icon>account_circle</mat-icon>
               </div>
-              <span class="user-name" *ngIf="currentUser$ | async as user">
-                {{ user.firstName }} {{ user.lastName }}
-              </span>
+              <div class="user-info" *ngIf="currentUser$ | async as user">
+                <span class="user-name">{{ user.fullName }}</span>
+                <span class="user-role">{{ user.role }}</span>
+              </div>
             </button>
           </ng-container>
 
@@ -226,8 +227,23 @@ import { User, UserRole } from '../../../core/models/user.model';
       align-items: center;
     }
 
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      line-height: 1.2;
+    }
+
     .user-name {
-      font-weight: 500;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .user-role {
+      font-size: 11px;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .notifications-menu {
