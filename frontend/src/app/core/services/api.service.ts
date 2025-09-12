@@ -55,6 +55,9 @@ export class ApiService {
 
   // Auth endpoints
   register(userData: any): Observable<AuthResponse> {
+    console.log('ApiService.register called');
+    console.log('API URL:', `${this.baseUrl}/auth/register`);
+    console.log('User data:', userData);
     return this.http.post<AuthResponse>(`${this.baseUrl}/auth/register`, userData);
   }
 
@@ -100,6 +103,125 @@ export class ApiService {
   // Screening
   runScreening(applicationId: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/screening/run/${applicationId}`, {}, { headers: this.getHeaders() });
+  }
+
+  getScreeningResults(applicationId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/screening/${applicationId}`, { headers: this.getHeaders() });
+  }
+
+  getJobScreeningResults(jobId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/screening/job/${jobId}`, { headers: this.getHeaders() });
+  }
+
+  // Analytics
+  getDashboardAnalytics(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/analytics/dashboard`, { headers: this.getHeaders() });
+  }
+
+  getHiringFunnelReport(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/analytics/reports/hiring-funnel`, { headers: this.getHeaders() });
+  }
+
+  // Candidates
+  getCandidates(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/candidates`, { headers: this.getHeaders() });
+  }
+
+  getCandidate(id: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/candidates/${id}`, { headers: this.getHeaders() });
+  }
+
+  createCandidate(candidateData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/candidates`, candidateData, { headers: this.getHeaders() });
+  }
+
+  // Interviews
+  scheduleInterview(interviewData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/interviews`, interviewData, { headers: this.getHeaders() });
+  }
+
+  getInterviews(applicationId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/interviews/${applicationId}`, { headers: this.getHeaders() });
+  }
+
+  updateInterview(id: string, interviewData: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/interviews/${id}`, interviewData, { headers: this.getHeaders() });
+  }
+
+  cancelInterview(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/interviews/${id}`, { headers: this.getHeaders() });
+  }
+
+  // File Uploads
+  uploadResume(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.baseUrl}/uploads/resume`, formData, { headers: this.getHeaders() });
+  }
+
+  uploadJobDescription(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.baseUrl}/uploads/job-description`, formData, { headers: this.getHeaders() });
+  }
+
+  downloadResume(filename: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/uploads/resume/${filename}`, { 
+      headers: this.getHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  // Audit
+  getAuditLogs(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/audit/logs`, { headers: this.getHeaders() });
+  }
+
+  getUserActivity(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/audit/my-activity`, { headers: this.getHeaders() });
+  }
+
+  getUserAuditLogs(userId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/audit/user/${userId}`, { headers: this.getHeaders() });
+  }
+
+  getResourceAuditLogs(resource: string, resourceId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/audit/resource/${resource}/${resourceId}`, { headers: this.getHeaders() });
+  }
+
+  // Users
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/users`, { headers: this.getHeaders() });
+  }
+
+  getUser(id: string): Observable<User> {
+    return this.http.get<User>(`${this.baseUrl}/users/${id}`, { headers: this.getHeaders() });
+  }
+
+  updateUser(id: string, userData: any): Observable<User> {
+    return this.http.patch<User>(`${this.baseUrl}/users/${id}`, userData, { headers: this.getHeaders() });
+  }
+
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/users/${id}`, { headers: this.getHeaders() });
+  }
+
+  // Health
+  getHealth(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/health`);
+  }
+
+  getHealthMetrics(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/health/metrics`);
+  }
+
+  // Auth additional endpoints
+  logout(): Observable<any> {
+    return this.http.post(`${this.baseUrl}/auth/logout`, {}, { headers: this.getHeaders() });
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/refresh`, {}, { headers: this.getHeaders() });
   }
 
   // Dashboard endpoints
