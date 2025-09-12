@@ -30,11 +30,15 @@ import { User, UserRole } from '../../../core/models/user.model';
           <span matListItemTitle>Dashboard</span>
         </a>
 
+        <div class="nav-spacer"></div>
+
         <!-- Jobs -->
         <a mat-list-item routerLink="/jobs" routerLinkActive="active" class="nav-item">
           <mat-icon matListItemIcon>work</mat-icon>
           <span matListItemTitle>Jobs</span>
         </a>
+
+        <div class="nav-spacer"></div>
 
         <!-- Applications (Recruiters & Admins) -->
         <div *ngIf="user.role === UserRole.RECRUITER || user.role === UserRole.ADMIN">
@@ -44,10 +48,7 @@ import { User, UserRole } from '../../../core/models/user.model';
             <span class="badge">12</span>
           </a>
           
-          <a mat-list-item routerLink="/screening" routerLinkActive="active" class="nav-item">
-            <mat-icon matListItemIcon>psychology</mat-icon>
-            <span matListItemTitle>AI Screening</span>
-          </a>
+          <div class="nav-spacer"></div>
         </div>
 
         <!-- Candidates (Recruiters & Admins) -->
@@ -57,11 +58,24 @@ import { User, UserRole } from '../../../core/models/user.model';
           <span matListItemTitle>Candidates</span>
         </a>
 
+        <div class="nav-spacer" *ngIf="user.role === UserRole.RECRUITER || user.role === UserRole.ADMIN"></div>
+
+        <!-- AI Screening -->
+        <a mat-list-item routerLink="/screening" routerLinkActive="active" class="nav-item"
+           *ngIf="user.role === UserRole.RECRUITER || user.role === UserRole.ADMIN">
+          <mat-icon matListItemIcon>psychology</mat-icon>
+          <span matListItemTitle>Screening</span>
+        </a>
+
+        <div class="nav-spacer" *ngIf="user.role === UserRole.RECRUITER || user.role === UserRole.ADMIN"></div>
+
         <!-- Interviews -->
         <a mat-list-item routerLink="/interviews" routerLinkActive="active" class="nav-item">
           <mat-icon matListItemIcon>event</mat-icon>
           <span matListItemTitle>Interviews</span>
         </a>
+
+        <div class="nav-spacer"></div>
 
         <!-- Communication -->
         <a mat-list-item routerLink="/messages" routerLinkActive="active" class="nav-item">
@@ -179,6 +193,10 @@ import { User, UserRole } from '../../../core/models/user.model';
 
     :host ::ng-deep .mat-mdc-list-item {
       height: 48px !important;
+    }
+
+    .nav-spacer {
+      height: 8px;
     }
   `]
 })

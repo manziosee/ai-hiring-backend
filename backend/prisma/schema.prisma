@@ -24,13 +24,16 @@ enum ApplicationStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  fullName  String
-  role      UserRole
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(cuid())
+  email             String   @unique
+  password          String?
+  fullName          String
+  role              UserRole
+  emailVerified     Boolean  @default(false)
+  verificationToken String?
+  linkedinId        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   // Relations
   jobs             Job[]         @relation("JobCreator")

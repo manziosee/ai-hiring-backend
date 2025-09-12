@@ -1,10 +1,11 @@
-import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -70,5 +71,31 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized - Invalid token' })
   logout(@Request() req) {
     return this.authService.logout(req.user.id);
+  }
+
+  @Get('verify-email')
+  @ApiOperation({ summary: 'Verify email address' })
+  @ApiQuery({ name: 'token', description: 'Verification token' })
+  @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  verifyEmail(@Query('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
+
+  @Post('linkedin')
+  @ApiOperation({ summary: 'LinkedIn OAuth login' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        code: { type: 'string', description: 'LinkedIn authorization code' },
+        redirectUri: { type: 'string', description: 'Redirect URI' },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'LinkedIn login successful' })
+  @ApiResponse({ status: 400, description: 'Invalid LinkedIn code' })
+  linkedinAuth(@Body() body: { code: string; redirectUri: string }) {
+    return this.authService.linkedinAuth(body.code, body.redirectUri);
   }
 }
