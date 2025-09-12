@@ -1025,20 +1025,34 @@ export class RegisterComponent {
   }
 
   onSubmit() {
+    console.log('Form submitted', this.registerForm.value);
+    console.log('Form valid:', this.registerForm.valid);
+    
     if (this.registerForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
 
       const { confirmPassword, acceptTerms, ...userData } = this.registerForm.value;
+      console.log('Sending registration data:', userData);
 
       this.authService.register(userData).subscribe({
         next: (response) => {
+          console.log('Registration successful:', response);
           this.isLoading = false;
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
+          console.error('Registration error:', error);
           this.isLoading = false;
-          this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
+          this.errorMessage = error.error?.message || error.message || 'Registration failed. Please try again.';
+        }
+      });
+    } else {
+      console.log('Form is invalid:', this.registerForm.errors);
+      Object.keys(this.registerForm.controls).forEach(key => {
+        const control = this.registerForm.get(key);
+        if (control && control.invalid) {
+          console.log(`${key} errors:`, control.errors);
         }
       });
     }

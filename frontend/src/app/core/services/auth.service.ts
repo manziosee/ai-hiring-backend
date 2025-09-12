@@ -22,8 +22,12 @@ export class AuthService {
   }
 
   register(userData: any): Observable<AuthResponse> {
+    console.log('AuthService.register called with:', userData);
     return this.apiService.register(userData).pipe(
-      tap(response => this.handleAuthSuccess(response))
+      tap(response => {
+        console.log('AuthService.register response:', response);
+        this.handleAuthSuccess(response);
+      })
     );
   }
 
@@ -34,6 +38,7 @@ export class AuthService {
   }
 
   private handleAuthSuccess(response: AuthResponse): void {
+    console.log('Handling auth success:', response);
     localStorage.setItem('access_token', response.access_token);
     localStorage.setItem('user', JSON.stringify(response.user));
     this.currentUserSubject.next(response.user);
