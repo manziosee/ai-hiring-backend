@@ -1,10 +1,20 @@
-import { Injectable } from '@nestjs/common';
+const { execSync } = require('child_process');
+const fs = require('fs');
+
+console.log('🚀 Deploying email service fix...');
+
+try {
+  // Update the email service file directly
+  const emailServiceContent = `import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
 import { HtmlSanitizerUtil } from '../common/utils/html-sanitizer.util';
 import { LoggerService } from '../common/services/logger.service';
 
 @Injectable()
 export class EmailService {
+  private transporter: nodemailer.Transporter;
+
   constructor(
     private configService: ConfigService,
     private logger: LoggerService,
@@ -12,10 +22,22 @@ export class EmailService {
     const username = this.configService.get('MAIL_USERNAME');
     const password = this.configService.get('MAIL_PASSWORD');
     
-    if (username && password) {
-      this.logger.log('Gmail SMTP credentials configured successfully', 'EmailService');
+    if (!username || !password) {
+      this.logger.warn('Email credentials not configured, using fallback');
+      // Create a test transporter that logs instead of sending
+      this.transporter = nodemailer.createTransporter({
+        streamTransport: true,
+        newline: 'unix',
+        buffer: true
+      });
     } else {
-      this.logger.warn('Gmail SMTP credentials not configured, emails will be logged only', 'EmailService');
+      this.transporter = nodemailer.createTransporter({
+        service: 'gmail',
+        auth: {
+          user: username,
+          pass: password,
+        },
+      });
     }
   }
 
@@ -105,48 +127,19 @@ export class EmailService {
 
   private async sendEmail(to: string, subject: string, html: string) {
     try {
-      const username = this.configService.get('MAIL_USERNAME');
-      const password = this.configService.get('MAIL_PASSWORD');
-      
-      if (!username || !password) {
-        // Log email instead of sending when credentials not configured
-        this.logger.log(`📧 [DEMO MODE] Email would be sent to: ${to}`, 'EmailService');
-        this.logger.log(`📧 [DEMO MODE] Subject: ${subject}`, 'EmailService');
-        this.logger.log(`📧 [DEMO MODE] Content preview: ${html.substring(0, 200)}...`, 'EmailService');
-        return { success: true, messageId: 'demo-' + Date.now() };
-      }
+      const result = await this.transporter.sendMail({
+        from: this.configService.get('MAIL_USERNAME') || 'manziosee3@gmail.com',
+        to,
+        subject,
+        html,
+      });
 
-      // Try to dynamically import and use nodemailer if available
-      try {
-        const nodemailer = await eval('import("nodemailer")');
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: username,
-            pass: password,
-          },
-        });
-
-        const result = await transporter.sendMail({
-          from: username,
-          to,
-          subject,
-          html,
-        });
-
-        this.logger.log(`✅ Email sent successfully via Gmail SMTP: ${result.messageId}`, 'EmailService');
-        return { success: true, messageId: result.messageId };
-      } catch (nodemailerError) {
-        this.logger.error('❌ Nodemailer not available or failed', nodemailerError instanceof Error ? nodemailerError.message : String(nodemailerError), 'EmailService');
-        
-        // Fallback to logging
-        this.logger.log(`📧 [FALLBACK] Email would be sent to: ${to}`, 'EmailService');
-        this.logger.log(`📧 [FALLBACK] Subject: ${subject}`, 'EmailService');
-        return { success: true, messageId: 'fallback-' + Date.now(), fallback: true };
-      }
+      this.logger.log(\`Email sent successfully: \${result.messageId}\`, 'EmailService');
+      return { success: true, messageId: result.messageId };
     } catch (error: unknown) {
-      this.logger.error('❌ Email service error', error instanceof Error ? error.stack : String(error), 'EmailService');
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('Failed to send email', error instanceof Error ? error.stack : String(error), 'EmailService');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       return { success: false, error: errorMessage };
     }
   }
@@ -161,22 +154,22 @@ export class EmailService {
     const safeCompany = HtmlSanitizerUtil.escapeHtml(company?.substring(0, 100) || '');
     
     return {
-      subject: `Application Submitted: ${safeTitle}`,
-      html: `
+      subject: \`Application Submitted: \${safeTitle}\`,
+      html: \`
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2563eb;">Application Submitted Successfully! 🎉</h2>
-          <p>Dear <strong>${safeName}</strong>,</p>
-          <p>Your application for <strong style="color: #2563eb;">${safeTitle}</strong> has been received successfully.</p>
+          <p>Dear <strong>\${safeName}</strong>,</p>
+          <p>Your application for <strong style="color: #2563eb;">\${safeTitle}</strong> has been received successfully.</p>
           <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p><strong>Application Details:</strong></p>
-            <p>Job Title: ${safeTitle}</p>
-            <p>Company: ${safeCompany}</p>
-            <p>Applied On: ${new Date().toLocaleDateString()}</p>
+            <p>Job Title: \${safeTitle}</p>
+            <p>Company: \${safeCompany}</p>
+            <p>Applied On: \${new Date().toLocaleDateString()}</p>
           </div>
           <p>We will review your application and contact you within 3-5 business days.</p>
           <p>Best regards,<br><strong>AI Hiring Team</strong></p>
         </div>
-      `
+      \`
     };
   }
 
@@ -187,20 +180,20 @@ export class EmailService {
     notes?: string,
   ) {
     return {
-      subject: `Application Update: ${HtmlSanitizerUtil.escapeHtml(jobTitle)} - ${HtmlSanitizerUtil.escapeHtml(status)}`,
-      html: `
+      subject: \`Application Update: \${HtmlSanitizerUtil.escapeHtml(jobTitle)} - \${HtmlSanitizerUtil.escapeHtml(status)}\`,
+      html: \`
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: ${this.getStatusColor(status)};">Application Status Updated</h2>
-          <p>Dear <strong>${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>,</p>
-          <p>Your application for <strong style="color: #2563eb;">${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong> has been updated.</p>
+          <h2 style="color: \${this.getStatusColor(status)};">Application Status Updated</h2>
+          <p>Dear <strong>\${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>,</p>
+          <p>Your application for <strong style="color: #2563eb;">\${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong> has been updated.</p>
           <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p><strong>New Status:</strong> <span style="color: ${this.getStatusColor(status)}; font-weight: bold;">${HtmlSanitizerUtil.escapeHtml(status)}</span></p>
-            <p><strong>Updated On:</strong> ${new Date().toLocaleDateString()}</p>
-            ${notes ? `<p><strong>Notes:</strong> ${HtmlSanitizerUtil.escapeHtml(notes)}</p>` : ''}
+            <p><strong>New Status:</strong> <span style="color: \${this.getStatusColor(status)}; font-weight: bold;">\${HtmlSanitizerUtil.escapeHtml(status)}</span></p>
+            <p><strong>Updated On:</strong> \${new Date().toLocaleDateString()}</p>
+            \${notes ? \`<p><strong>Notes:</strong> \${HtmlSanitizerUtil.escapeHtml(notes)}</p>\` : ''}
           </div>
           <p>Best regards,<br><strong>AI Hiring Team</strong></p>
         </div>
-      `,
+      \`,
     };
   }
 
@@ -212,23 +205,23 @@ export class EmailService {
     notes?: string,
   ) {
     return {
-      subject: `Interview Scheduled: ${HtmlSanitizerUtil.escapeHtml(jobTitle)}`,
-      html: `
+      subject: \`Interview Scheduled: \${HtmlSanitizerUtil.escapeHtml(jobTitle)}\`,
+      html: \`
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #059669;">Interview Scheduled 📅</h2>
-          <p>Dear <strong>${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>,</p>
-          <p>We're pleased to invite you for an interview for the position of <strong style="color: #2563eb;">${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong>.</p>
+          <p>Dear <strong>\${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>,</p>
+          <p>We're pleased to invite you for an interview for the position of <strong style="color: #2563eb;">\${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong>.</p>
           <div style="background-color: #ecfdf5; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p><strong>Interview Details:</strong></p>
-            <p>Date & Time: <strong>${scheduledAt.toLocaleString()}</strong></p>
-            <p>Mode: <strong>${HtmlSanitizerUtil.escapeHtml(mode)}</strong></p>
+            <p>Date & Time: <strong>\${scheduledAt.toLocaleString()}</strong></p>
+            <p>Mode: <strong>\${HtmlSanitizerUtil.escapeHtml(mode)}</strong></p>
             <p>Duration: Approximately 45-60 minutes</p>
-            ${notes ? `<p><strong>Additional Notes:</strong> ${HtmlSanitizerUtil.escapeHtml(notes)}</p>` : ''}
+            \${notes ? \`<p><strong>Additional Notes:</strong> \${HtmlSanitizerUtil.escapeHtml(notes)}</p>\` : ''}
           </div>
           <p>Please ensure you have a stable internet connection if it's a virtual interview.</p>
           <p>Best regards,<br><strong>AI Hiring Team</strong></p>
         </div>
-      `,
+      \`,
     };
   }
 
@@ -241,21 +234,21 @@ export class EmailService {
     experienceMatch: boolean,
   ) {
     return {
-      subject: `Screening Results: ${HtmlSanitizerUtil.escapeHtml(jobTitle)}`,
-      html: `
+      subject: \`Screening Results: \${HtmlSanitizerUtil.escapeHtml(jobTitle)}\`,
+      html: \`
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #7c3aed;">Screening Results Available</h2>
-          <p>Dear <strong>${HtmlSanitizerUtil.escapeHtml(recruiterName)}</strong>,</p>
-          <p>The AI screening results for <strong>${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>'s application to <strong>${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong> are ready.</p>
+          <p>Dear <strong>\${HtmlSanitizerUtil.escapeHtml(recruiterName)}</strong>,</p>
+          <p>The AI screening results for <strong>\${HtmlSanitizerUtil.escapeHtml(candidateName)}</strong>'s application to <strong>\${HtmlSanitizerUtil.escapeHtml(jobTitle)}</strong> are ready.</p>
           <div style="background-color: #faf5ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p><strong>Fit Score:</strong> ${(fitScore * 100).toFixed(1)}%</p>
-            <p><strong>Skills Match:</strong> ${(skillMatch * 100).toFixed(1)}%</p>
-            <p><strong>Experience Match:</strong> ${experienceMatch ? '✅' : '❌'}</p>
+            <p><strong>Fit Score:</strong> \${(fitScore * 100).toFixed(1)}%</p>
+            <p><strong>Skills Match:</strong> \${(skillMatch * 100).toFixed(1)}%</p>
+            <p><strong>Experience Match:</strong> \${experienceMatch ? '✅' : '❌'}</p>
           </div>
           <p>You can review the detailed results in your dashboard.</p>
           <p>Best regards,<br><strong>AI Hiring System</strong></p>
         </div>
-      `,
+      \`,
     };
   }
 
@@ -269,4 +262,22 @@ export class EmailService {
     };
     return colors[status as keyof typeof colors] || '#6b7280';
   }
+}
+`;
+
+  // Write the updated service
+  fs.writeFileSync('./src/email/email.service.ts', emailServiceContent);
+  console.log('✅ Updated email service');
+
+  // Deploy to Fly.io
+  console.log('🚀 Deploying to Fly.io...');
+  execSync('flyctl deploy --no-cache', { stdio: 'inherit' });
+  
+  console.log('✅ Deployment complete!');
+  console.log('🌐 Backend: https://ai-hiring-backend.fly.dev');
+  console.log('📧 Email service now uses Gmail SMTP');
+
+} catch (error) {
+  console.error('❌ Deployment failed:', error.message);
+  process.exit(1);
 }
