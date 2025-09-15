@@ -74,4 +74,9 @@ export class AuthService {
   isCandidate(): boolean {
     return this.hasRole('CANDIDATE');
   }
+
+  getUserRole(): string | null {
+    const user = this.getCurrentUser();
+    return user?.role || null;
+  }
 }

@@ -206,7 +206,7 @@ import { AuthService } from '../../../core/services/auth.service';
       min-height: 100vh;
       position: relative;
       overflow: hidden;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -234,7 +234,7 @@ import { AuthService } from '../../../core/services/auth.service';
     .orb-1 {
       width: 300px;
       height: 300px;
-      background: radial-gradient(circle, #ff6b6b, #ee5a24);
+      background: radial-gradient(circle, #34d399, #10b981);
       top: -150px;
       left: -150px;
       animation-delay: 0s;
@@ -243,7 +243,7 @@ import { AuthService } from '../../../core/services/auth.service';
     .orb-2 {
       width: 400px;
       height: 400px;
-      background: radial-gradient(circle, #4ecdc4, #44a08d);
+      background: radial-gradient(circle, #6ee7b7, #059669);
       bottom: -200px;
       right: -200px;
       animation-delay: 4s;
@@ -252,7 +252,7 @@ import { AuthService } from '../../../core/services/auth.service';
     .orb-3 {
       width: 250px;
       height: 250px;
-      background: radial-gradient(circle, #a8edea, #fed6e3);
+      background: radial-gradient(circle, #86efac, #d1fae5);
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -341,13 +341,13 @@ import { AuthService } from '../../../core/services/auth.service';
     .logo-icon {
       width: 60px;
       height: 60px;
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      background: linear-gradient(135deg, #10b981, #059669);
       border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
       animation: glow 2s ease-in-out infinite alternate;
     }
 
@@ -357,8 +357,8 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     @keyframes glow {
-      from { box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3); }
-      to { box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6); }
+      from { box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); }
+      to { box-shadow: 0 15px 40px rgba(16, 185, 129, 0.6); }
     }
 
     .brand-logo h1 {
@@ -409,7 +409,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
     .feature-item i {
       font-size: 1.25rem;
-      color: #ff6b6b;
+      color: #34d399;
     }
 
     .feature-item span {
@@ -491,12 +491,12 @@ import { AuthService } from '../../../core/services/auth.service';
 
     .input-container input:focus {
       outline: none;
-      border-color: #667eea;
-      background: #f7fafc;
+      border-color: #10b981;
+      background: #f0fdf4;
     }
 
     .input-container input:focus + .input-icon {
-      color: #667eea;
+      color: #10b981;
     }
 
     .input-focus-border {
@@ -505,7 +505,7 @@ import { AuthService } from '../../../core/services/auth.service';
       left: 50%;
       width: 0;
       height: 2px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #10b981, #059669);
       transition: all 0.3s ease;
       transform: translateX(-50%);
       border-radius: 2px;
@@ -531,8 +531,8 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     .password-toggle:hover {
-      color: #667eea;
-      background: rgba(102, 126, 234, 0.1);
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
     }
 
     .error-text {
@@ -574,8 +574,8 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     .checkbox-container input:checked ~ .checkmark {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      border-color: #667eea;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-color: #10b981;
     }
 
     .checkbox-container input:checked ~ .checkmark::after {
@@ -590,7 +590,7 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     .forgot-password {
-      color: #667eea;
+      color: #10b981;
       text-decoration: none;
       font-size: 0.875rem;
       font-weight: 500;
@@ -598,7 +598,7 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     .forgot-password:hover {
-      color: #764ba2;
+      color: #059669;
     }
 
     .error-message {
@@ -616,7 +616,7 @@ import { AuthService } from '../../../core/services/auth.service';
     .submit-btn {
       position: relative;
       height: 56px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       border: none;
       border-radius: 16px;
       color: white;
@@ -630,7 +630,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
     .submit-btn:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
     }
 
     .submit-btn:disabled {
@@ -763,15 +763,15 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     .demo-card.admin .demo-icon {
-      background: linear-gradient(135deg, #f093fb, #f5576c);
+      background: linear-gradient(135deg, #065f46, #047857);
     }
 
     .demo-card.recruiter .demo-icon {
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      background: linear-gradient(135deg, #10b981, #059669);
     }
 
     .demo-card.candidate .demo-icon {
-      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      background: linear-gradient(135deg, #34d399, #10b981);
     }
 
     .demo-info {
@@ -798,7 +798,7 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     .demo-card:hover .demo-arrow {
-      color: #667eea;
+      color: #10b981;
       transform: translateX(5px);
     }
 
@@ -815,14 +815,14 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     .signup-link a {
-      color: #667eea;
+      color: #10b981;
       text-decoration: none;
       font-weight: 600;
       transition: color 0.3s ease;
     }
 
     .signup-link a:hover {
-      color: #764ba2;
+      color: #059669;
     }
 
     @media (max-width: 1024px) {
