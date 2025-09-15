@@ -18,7 +18,7 @@ export class DashboardController {
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Get admin dashboard data' })
-  async getAdminDashboard(@GetUser() user: User) {
+  async getAdminDashboard() {
     return this.dashboardService.getAdminDashboard();
   }
 

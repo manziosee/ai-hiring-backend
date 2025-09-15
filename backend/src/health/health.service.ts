@@ -69,8 +69,15 @@ export class HealthService {
       await this.prisma.$queryRaw`SELECT 1`;
       return { healthy: true, responseTime: Date.now() - startTime };
     } catch (error) {
-      this.logger.error('Database health check failed', error instanceof Error ? error.stack : String(error), 'HealthService');
-      return { healthy: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      this.logger.error(
+        'Database health check failed',
+        error instanceof Error ? error.stack : String(error),
+        'HealthService',
+      );
+      return {
+        healthy: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
     }
   }
 
@@ -78,7 +85,8 @@ export class HealthService {
     try {
       const mlHost = this.configService.get('ML_SERVICE_HOST', 'localhost');
       const mlPort = this.configService.get('ML_SERVICE_PORT', '8000');
-      const protocol = this.configService.get('NODE_ENV') === 'production' ? 'https' : 'http';
+      const protocol =
+        this.configService.get('NODE_ENV') === 'production' ? 'https' : 'http';
       const startTime = Date.now();
 
       const controller = new AbortController();
@@ -97,7 +105,11 @@ export class HealthService {
         status: response.status,
       };
     } catch (error: any) {
-      this.logger.error('ML service health check failed', error.stack || String(error), 'HealthService');
+      this.logger.error(
+        'ML service health check failed',
+        error.stack || String(error),
+        'HealthService',
+      );
       return { healthy: false, error: error.message || 'Connection failed' };
     }
   }
@@ -109,16 +121,20 @@ export class HealthService {
         'localhost',
       );
       const emailPort = this.configService.get('EMAIL_SERVICE_PORT', '3002');
-      const protocol = this.configService.get('NODE_ENV') === 'production' ? 'https' : 'http';
+      const protocol =
+        this.configService.get('NODE_ENV') === 'production' ? 'https' : 'http';
       const startTime = Date.now();
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const response = await fetch(`${protocol}://${emailHost}:${emailPort}/health`, {
-        method: 'GET',
-        signal: controller.signal,
-      });
+      const response = await fetch(
+        `${protocol}://${emailHost}:${emailPort}/health`,
+        {
+          method: 'GET',
+          signal: controller.signal,
+        },
+      );
 
       clearTimeout(timeoutId);
 
@@ -128,7 +144,11 @@ export class HealthService {
         status: response.status,
       };
     } catch (error: any) {
-      this.logger.error('Email service health check failed', error.stack || String(error), 'HealthService');
+      this.logger.error(
+        'Email service health check failed',
+        error.stack || String(error),
+        'HealthService',
+      );
       return { healthy: false, error: error.message || 'Connection failed' };
     }
   }

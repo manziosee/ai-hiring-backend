@@ -6,20 +6,27 @@ export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
   async getAdminDashboard() {
-    const [totalUsers, totalJobs, totalApplications, recentUsers] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.job.count(),
-      this.prisma.application.count(),
-      this.prisma.user.findMany({
-        take: 5,
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, email: true, fullName: true, role: true, createdAt: true }
-      })
-    ]);
+    const [totalUsers, totalJobs, totalApplications, recentUsers] =
+      await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.job.count(),
+        this.prisma.application.count(),
+        this.prisma.user.findMany({
+          take: 5,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            role: true,
+            createdAt: true,
+          },
+        }),
+      ]);
 
     const usersByRole = await this.prisma.user.groupBy({
       by: ['role'],
-      _count: { role: true }
+      _count: { role: true },
     });
 
     return {
@@ -30,9 +37,9 @@ export class DashboardService {
         usersByRole: usersByRole.reduce((acc, curr) => {
           acc[curr.role] = curr._count.role;
           return acc;
-        }, {})
+        }, {}),
       },
-      recentUsers
+      recentUsers,
     };
   }
 
@@ -41,10 +48,10 @@ export class DashboardService {
       this.prisma.job.findMany({
         where: { createdBy: userId },
         include: { _count: { select: { applications: true } } },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.application.count({
-        where: { job: { createdBy: userId } }
+        where: { job: { createdBy: userId } },
       }),
       this.prisma.application.findMany({
         where: { job: { createdBy: userId } },
@@ -52,19 +59,20 @@ export class DashboardService {
         orderBy: { createdAt: 'desc' },
         include: {
           job: { select: { title: true } },
-          candidate: { select: { name: true, email: true } }
-        }
-      })
+          candidate: { select: { name: true, email: true } },
+        },
+      }),
     ]);
 
     return {
       stats: {
         totalJobs: myJobs.length,
         totalApplications,
-        avgApplicationsPerJob: myJobs.length > 0 ? Math.round(totalApplications / myJobs.length) : 0
+        avgApplicationsPerJob:
+          myJobs.length > 0 ? Math.round(totalApplications / myJobs.length) : 0,
       },
       myJobs,
-      recentApplications
+      recentApplications,
     };
   }
 
@@ -74,24 +82,24 @@ export class DashboardService {
         where: { userId: userId },
         include: {
           job: { select: { title: true, description: true } },
-          screeningResults: { select: { fitScore: true } }
+          screeningResults: { select: { fitScore: true } },
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.application.count({
-        where: { userId: userId }
+        where: { userId: userId },
       }),
       this.prisma.job.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
-        select: { id: true, title: true, description: true }
-      })
+        select: { id: true, title: true, description: true },
+      }),
     ]);
 
     const applicationsByStatus = await this.prisma.application.groupBy({
       where: { userId: userId },
       by: ['status'],
-      _count: { _all: true }
+      _count: { _all: true },
     });
 
     return {
@@ -100,10 +108,10 @@ export class DashboardService {
         applicationsByStatus: applicationsByStatus.reduce((acc, curr) => {
           acc[curr.status] = curr._count._all;
           return acc;
-        }, {})
+        }, {}),
       },
       myApplications,
-      recentJobs
+      recentJobs,
     };
   }
 }

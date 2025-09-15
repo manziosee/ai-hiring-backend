@@ -42,7 +42,10 @@ export class AuditController {
   @ApiQuery({ name: 'endDate', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'offset', required: false })
-  @ApiResponse({ status: 200, description: 'Audit logs retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Audit logs retrieved successfully',
+  })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
   async getAuditLogs(
     @Query('userId') userId?: string,
@@ -69,7 +72,7 @@ export class AuditController {
       this.logger.error(
         'Failed to retrieve audit logs',
         error instanceof Error ? error.stack : String(error),
-        'AuditController'
+        'AuditController',
       );
       throw new HttpException(
         'Failed to retrieve audit logs',
@@ -81,7 +84,10 @@ export class AuditController {
   @Get('user/:userId')
   @Roles(UserRole.ADMIN, UserRole.RECRUITER)
   @ApiOperation({ summary: 'Get user activity logs' })
-  @ApiResponse({ status: 200, description: 'User activity retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User activity retrieved successfully',
+  })
   async getUserActivity(
     @Param('userId') userId: string,
     @Request() req: { user: { id: string; role: string } },
@@ -102,7 +108,7 @@ export class AuditController {
       this.logger.error(
         `Failed to retrieve user activity for ${userId}`,
         error instanceof Error ? error.stack : String(error),
-        'AuditController'
+        'AuditController',
       );
       throw new HttpException(
         'Failed to retrieve user activity',
@@ -114,7 +120,10 @@ export class AuditController {
   @Get('resource/:resource/:resourceId')
   @Roles(UserRole.ADMIN, UserRole.RECRUITER)
   @ApiOperation({ summary: 'Get resource activity logs' })
-  @ApiResponse({ status: 200, description: 'Resource activity retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Resource activity retrieved successfully',
+  })
   async getResourceActivity(
     @Param('resource') resource: string,
     @Param('resourceId') resourceId: string,
@@ -122,12 +131,16 @@ export class AuditController {
   ) {
     try {
       const limitNum = limit ? parseInt(limit, 10) : 50;
-      return await this.auditService.getResourceActivity(resource, resourceId, limitNum);
+      return await this.auditService.getResourceActivity(
+        resource,
+        resourceId,
+        limitNum,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to retrieve resource activity for ${resource}:${resourceId}`,
         error instanceof Error ? error.stack : String(error),
-        'AuditController'
+        'AuditController',
       );
       throw new HttpException(
         'Failed to retrieve resource activity',
@@ -138,7 +151,10 @@ export class AuditController {
 
   @Get('my-activity')
   @ApiOperation({ summary: 'Get current user activity logs' })
-  @ApiResponse({ status: 200, description: 'User activity retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User activity retrieved successfully',
+  })
   async getMyActivity(
     @Request() req: { user: { id: string } },
     @Query('limit') limit?: string,
@@ -150,7 +166,7 @@ export class AuditController {
       this.logger.error(
         `Failed to retrieve activity for user ${req.user.id}`,
         error instanceof Error ? error.stack : String(error),
-        'AuditController'
+        'AuditController',
       );
       throw new HttpException(
         'Failed to retrieve your activity',

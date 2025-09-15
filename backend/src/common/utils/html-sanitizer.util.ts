@@ -1,6 +1,9 @@
 export class HtmlSanitizerUtil {
   static sanitize(html: string): string {
-    return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    return html.replace(
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      '',
+    );
   }
 
   static escapeHtml(text: string): string {
@@ -9,7 +12,7 @@ export class HtmlSanitizerUtil {
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#39;'
+      "'": '&#39;',
     };
     return text.replace(/[&<>"']/g, (m) => map[m]);
   }

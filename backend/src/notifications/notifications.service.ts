@@ -14,10 +14,10 @@ export class NotificationsService {
     const sanitizedUserId = userId.replace(/[\r\n\t]/g, '_');
     const sanitizedMessage = message.replace(/[\r\n\t]/g, '_');
     const sanitizedType = type.replace(/[\r\n\t]/g, '_');
-    
+
     this.logger.log(
       `Notification sent - User: ${sanitizedUserId}, Type: ${sanitizedType}, Message: ${sanitizedMessage}`,
-      'NotificationsService'
+      'NotificationsService',
     );
   }
 

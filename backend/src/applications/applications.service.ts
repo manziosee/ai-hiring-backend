@@ -83,11 +83,11 @@ export class ApplicationsService {
   async findByJobId(jobId: string, userId: string) {
     // Combined query to check job ownership and get applications
     const applications = await this.prisma.application.findMany({
-      where: { 
+      where: {
         jobId,
         job: {
-          createdBy: userId
-        }
+          createdBy: userId,
+        },
       },
       include: {
         candidate: {
@@ -105,8 +105,8 @@ export class ApplicationsService {
           select: {
             id: true,
             title: true,
-            createdBy: true
-          }
+            createdBy: true,
+          },
         },
         screeningResults: {
           orderBy: {
@@ -121,13 +121,13 @@ export class ApplicationsService {
     if (applications.length === 0) {
       const job = await this.prisma.job.findUnique({
         where: { id: jobId },
-        select: { id: true, createdBy: true }
+        select: { id: true, createdBy: true },
       });
-      
+
       if (!job) {
         throw new NotFoundException('Job not found');
       }
-      
+
       if (job.createdBy !== userId) {
         throw new ForbiddenException(
           'You can only view applications for your own jobs',
