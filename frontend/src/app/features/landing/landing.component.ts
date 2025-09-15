@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -49,41 +49,42 @@ import { RouterModule } from '@angular/router';
       <section class="hero-section">
         <div class="hero-content">
           <div class="hero-text">
-            <div class="hero-badge">
+            <div class="hero-badge" [class.animate]="isVisible">
               <i class="fas fa-sparkles"></i>
               <span>AI-Powered Recruitment Platform</span>
+              <div class="badge-glow"></div>
             </div>
-            <h1 class="hero-title">
+            <h1 class="hero-title" [class.animate]="isVisible">
               Find Your Perfect
-              <span class="gradient-text">Career Match</span>
+              <span class="gradient-text typing-effect">{{ typedText }}</span>
+              <span class="cursor" [class.blink]="showCursor">|</span>
               with AI Intelligence
             </h1>
-            <p class="hero-description">
+            <p class="hero-description" [class.animate]="isVisible">
               Revolutionary recruitment platform that uses artificial intelligence to match candidates 
               with their dream jobs and help recruiters find the perfect talent faster than ever.
             </p>
-            <div class="hero-actions">
-              <a routerLink="/auth/register" class="btn btn-primary btn-lg">
+            <div class="hero-actions" [class.animate]="isVisible">
+              <a routerLink="/auth/register" class="btn btn-primary btn-lg btn-pulse">
                 <i class="fas fa-rocket"></i>
-                Start Your Journey
+                <span>Start Your Journey</span>
+                <div class="btn-particles">
+                  <div class="particle" *ngFor="let p of buttonParticles; let i = index" [style.animation-delay.ms]="i * 100"></div>
+                </div>
               </a>
-              <button class="btn btn-secondary btn-lg" (click)="playDemo()">
+              <button class="btn btn-secondary btn-lg btn-glow" (click)="playDemo()">
                 <i class="fas fa-play"></i>
-                Watch Demo
+                <span>Watch Demo</span>
+                <div class="btn-ripple"></div>
               </button>
             </div>
-            <div class="hero-stats">
-              <div class="stat-item">
-                <div class="stat-number">10K+</div>
-                <div class="stat-label">Jobs Posted</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">5K+</div>
-                <div class="stat-label">Candidates Hired</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">98%</div>
-                <div class="stat-label">Success Rate</div>
+            <div class="hero-stats" [class.animate]="isVisible">
+              <div class="stat-item" *ngFor="let stat of stats; let i = index" [style.animation-delay.ms]="i * 200">
+                <div class="stat-number" [attr.data-target]="stat.number">{{ animatedStats[i] || '0' }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+                <div class="stat-icon">
+                  <i [class]="stat.icon"></i>
+                </div>
               </div>
             </div>
           </div>
@@ -159,20 +160,35 @@ import { RouterModule } from '@angular/router';
           <div class="section-header">
             <h2>Powerful Features for Modern Recruitment</h2>
             <p>Everything you need to revolutionize your hiring process</p>
+            <div class="section-decoration">
+              <div class="decoration-line"></div>
+              <div class="decoration-icon">
+                <i class="fas fa-gem"></i>
+              </div>
+              <div class="decoration-line"></div>
+            </div>
           </div>
           <div class="features-grid">
-            <div class="feature-card" *ngFor="let feature of features; let i = index" [style.animation-delay.ms]="i * 200">
+            <div class="feature-card" *ngFor="let feature of features; let i = index" 
+                 [style.animation-delay.ms]="i * 200"
+                 (mouseenter)="onFeatureHover(i)"
+                 (mouseleave)="onFeatureLeave(i)"
+                 [class.hovered]="hoveredFeature === i">
               <div class="feature-icon" [ngClass]="feature.iconClass">
                 <i [class]="feature.icon"></i>
+                <div class="icon-bg-animation"></div>
               </div>
               <h3>{{ feature.title }}</h3>
               <p>{{ feature.description }}</p>
               <div class="feature-benefits">
-                <div class="benefit" *ngFor="let benefit of feature.benefits">
+                <div class="benefit" *ngFor="let benefit of feature.benefits; let j = index" 
+                     [style.animation-delay.ms]="j * 100">
                   <i class="fas fa-check"></i>
                   <span>{{ benefit }}</span>
                 </div>
               </div>
+              <div class="feature-overlay"></div>
+              <div class="feature-number">{{ (i + 1).toString().padStart(2, '0') }}</div>
             </div>
           </div>
         </div>
@@ -207,27 +223,57 @@ import { RouterModule } from '@angular/router';
           <div class="section-header">
             <h2>What Our Users Say</h2>
             <p>Join thousands of satisfied recruiters and candidates</p>
+            <div class="testimonial-stats">
+              <div class="stat-badge">
+                <i class="fas fa-users"></i>
+                <span>10,000+ Happy Users</span>
+              </div>
+              <div class="stat-badge">
+                <i class="fas fa-star"></i>
+                <span>4.9/5 Rating</span>
+              </div>
+            </div>
           </div>
-          <div class="testimonials-grid">
-            <div class="testimonial-card" *ngFor="let testimonial of testimonials">
-              <div class="testimonial-content">
-                <div class="quote-icon">
-                  <i class="fas fa-quote-left"></i>
-                </div>
-                <p>{{ testimonial.content }}</p>
-                <div class="rating">
-                  <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]"></i>
+          <div class="testimonials-carousel">
+            <div class="testimonials-track" [style.transform]="'translateX(' + (-currentTestimonial * 100) + '%)'">
+              <div class="testimonial-slide" *ngFor="let testimonial of testimonials; let i = index">
+                <div class="testimonial-card" [class.active]="i === currentTestimonial">
+                  <div class="testimonial-content">
+                    <div class="quote-icon">
+                      <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>{{ testimonial.content }}</p>
+                    <div class="rating">
+                      <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
+                         [style.animation-delay.ms]="star * 100"></i>
+                    </div>
+                  </div>
+                  <div class="testimonial-author">
+                    <div class="author-avatar">
+                      <img [src]="testimonial.avatar" [alt]="testimonial.name">
+                      <div class="avatar-ring"></div>
+                    </div>
+                    <div class="author-info">
+                      <div class="author-name">{{ testimonial.name }}</div>
+                      <div class="author-role">{{ testimonial.role }}</div>
+                    </div>
+                  </div>
+                  <div class="testimonial-bg-pattern"></div>
                 </div>
               </div>
-              <div class="testimonial-author">
-                <div class="author-avatar">
-                  <img [src]="testimonial.avatar" [alt]="testimonial.name">
-                </div>
-                <div class="author-info">
-                  <div class="author-name">{{ testimonial.name }}</div>
-                  <div class="author-role">{{ testimonial.role }}</div>
-                </div>
+            </div>
+            <div class="carousel-controls">
+              <button class="carousel-btn prev" (click)="previousTestimonial()">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <div class="carousel-dots">
+                <button class="dot" *ngFor="let t of testimonials; let i = index" 
+                        [class.active]="i === currentTestimonial"
+                        (click)="goToTestimonial(i)"></button>
               </div>
+              <button class="carousel-btn next" (click)="nextTestimonial()">
+                <i class="fas fa-chevron-right"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -1176,10 +1222,323 @@ import { RouterModule } from '@angular/router';
         font-size: 0.75rem;
       }
     }
+    
+    /* Enhanced Animation Styles */
+    .hero-badge.animate {
+      animation: badgeGlow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes badgeGlow {
+      0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
+      100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(102, 126, 234, 0.4); }
+    }
+    
+    .typing-effect {
+      position: relative;
+    }
+    
+    .cursor {
+      display: inline-block;
+      margin-left: 2px;
+      opacity: 1;
+      transition: opacity 0.1s;
+    }
+    
+    .cursor.blink {
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    
+    .btn-pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .btn-glow:hover {
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    }
+    
+    .btn-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: inherit;
+    }
+    
+    .btn-particles .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      animation: buttonParticle 3s linear infinite;
+    }
+    
+    @keyframes buttonParticle {
+      0% {
+        transform: translateY(100%) rotate(0deg);
+        opacity: 0;
+      }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% {
+        transform: translateY(-100%) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    
+    .stat-item {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: statFadeIn 0.8s ease-out forwards;
+    }
+    
+    @keyframes statFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .stat-icon {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+    
+    .feature-card {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card.hovered .icon-bg-animation {
+      animation: iconPulse 0.6s ease-out;
+    }
+    
+    @keyframes iconPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    .feature-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    
+    .feature-card:hover .feature-overlay {
+      transform: translateX(100%);
+    }
+    
+    .feature-number {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 3rem;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.1);
+      line-height: 1;
+    }
+    
+    .section-decoration {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .decoration-line {
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    }
+    
+    .decoration-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .testimonials-carousel {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+    }
+    
+    .testimonials-track {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+    
+    .testimonial-slide {
+      min-width: 100%;
+      padding: 0 1rem;
+    }
+    
+    .testimonial-card {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .testimonial-card.active {
+      transform: scale(1.02);
+    }
+    
+    .testimonial-bg-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1), transparent);
+      pointer-events: none;
+    }
+    
+    .avatar-ring {
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: avatarGlow 3s ease-in-out infinite alternate;
+    }
+    
+    @keyframes avatarGlow {
+      0% { border-color: rgba(255, 255, 255, 0.3); }
+      100% { border-color: rgba(102, 126, 234, 0.6); }
+    }
+    
+    .carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .carousel-btn {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .carousel-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+    }
+    
+    .carousel-dots {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .dot.active {
+      background: rgba(255, 255, 255, 0.8);
+      transform: scale(1.2);
+    }
+    
+    .testimonial-stats {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.875rem;
+    }
   `]
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit, OnDestroy {
   particles = Array(10).fill(0);
+
+  // Animation and UI state properties
+  isVisible = false;
+  typedText = '';
+  showCursor = true;
+  buttonParticles = Array(6).fill(0);
+  hoveredFeature: number | null = null;
+  currentTestimonial = 0;
+
+  // Stats data and animation
+  stats = [
+    { number: 10000, label: 'Active Users', icon: 'fas fa-users' },
+    { number: 500, label: 'Companies', icon: 'fas fa-building' },
+    { number: 25000, label: 'Jobs Posted', icon: 'fas fa-briefcase' },
+    { number: 98, label: 'Success Rate', icon: 'fas fa-chart-line' }
+  ];
+  animatedStats: number[] = [0, 0, 0, 0];
+
+  // Typing effect properties
+  private typingTexts = ['Candidates', 'Jobs', 'Opportunities', 'Matches'];
+  private currentTextIndex = 0;
+  private currentCharIndex = 0;
+  private typingInterval: any;
+  private cursorInterval: any;
+  private testimonialInterval: any;
+
+  // Animation intervals
+  private statsAnimationTimeout: any;
 
   features = [
     {
@@ -1255,6 +1614,111 @@ export class LandingComponent {
       avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
     }
   ];
+
+  ngOnInit() {
+    // Initialize animations after component loads
+    setTimeout(() => {
+      this.isVisible = true;
+      this.startTypingEffect();
+      this.animateStats();
+      this.startTestimonialCarousel();
+    }, 500);
+  }
+
+  ngOnDestroy() {
+    // Clean up intervals
+    if (this.typingInterval) clearInterval(this.typingInterval);
+    if (this.cursorInterval) clearInterval(this.cursorInterval);
+    if (this.testimonialInterval) clearInterval(this.testimonialInterval);
+    if (this.statsAnimationTimeout) clearTimeout(this.statsAnimationTimeout);
+  }
+
+  private startTypingEffect() {
+    this.cursorInterval = setInterval(() => {
+      this.showCursor = !this.showCursor;
+    }, 500);
+
+    this.typeCurrentText();
+  }
+
+  private typeCurrentText() {
+    const currentText = this.typingTexts[this.currentTextIndex];
+
+    if (this.currentCharIndex < currentText.length) {
+      this.typedText += currentText[this.currentCharIndex];
+      this.currentCharIndex++;
+      this.typingInterval = setTimeout(() => this.typeCurrentText(), 100);
+    } else {
+      // Wait before starting to delete
+      this.typingInterval = setTimeout(() => this.deleteCurrentText(), 2000);
+    }
+  }
+
+  private deleteCurrentText() {
+    if (this.currentCharIndex > 0) {
+      this.typedText = this.typedText.slice(0, -1);
+      this.currentCharIndex--;
+      this.typingInterval = setTimeout(() => this.deleteCurrentText(), 50);
+    } else {
+      // Move to next text
+      this.currentTextIndex = (this.currentTextIndex + 1) % this.typingTexts.length;
+      this.typingInterval = setTimeout(() => this.typeCurrentText(), 500);
+    }
+  }
+
+  private animateStats() {
+    this.stats.forEach((stat, index) => {
+      this.animateNumber(index, stat.number);
+    });
+  }
+
+  private animateNumber(index: number, target: number) {
+    const duration = 2000;
+    const steps = 60;
+    const increment = target / steps;
+    let current = 0;
+    let step = 0;
+
+    const timer = setInterval(() => {
+      current += increment;
+      step++;
+
+      if (step >= steps) {
+        this.animatedStats[index] = target;
+        clearInterval(timer);
+      } else {
+        this.animatedStats[index] = Math.floor(current);
+      }
+    }, duration / steps);
+  }
+
+  onFeatureHover(index: number) {
+    this.hoveredFeature = index;
+  }
+
+  onFeatureLeave(index: number) {
+    this.hoveredFeature = null;
+  }
+
+  previousTestimonial() {
+    this.currentTestimonial = this.currentTestimonial === 0
+      ? this.testimonials.length - 1
+      : this.currentTestimonial - 1;
+  }
+
+  nextTestimonial() {
+    this.currentTestimonial = (this.currentTestimonial + 1) % this.testimonials.length;
+  }
+
+  goToTestimonial(index: number) {
+    this.currentTestimonial = index;
+  }
+
+  private startTestimonialCarousel() {
+    this.testimonialInterval = setInterval(() => {
+      this.nextTestimonial();
+    }, 5000);
+  }
 
   playDemo() {
     // Implement demo video functionality

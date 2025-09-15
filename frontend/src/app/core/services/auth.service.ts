@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { ApiService, User, AuthResponse } from './api.service';
+import { ApiService, ApiUser, AuthResponse } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private currentUserSubject = new BehaviorSubject<ApiUser | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private apiService: ApiService) {
@@ -54,7 +54,7 @@ export class AuthService {
     return !!localStorage.getItem('access_token');
   }
 
-  getCurrentUser(): User | null {
+  getCurrentUser(): ApiUser | null {
     return this.currentUserSubject.value;
   }
 

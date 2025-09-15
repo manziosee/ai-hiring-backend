@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, UseGuards, Query, Param } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -30,5 +30,27 @@ export class AnalyticsController {
   @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
   getHiringFunnelReport() {
     return this.analyticsService.getHiringFunnelReport();
+  }
+
+  @Get('jobs/:jobId')
+  @Roles(UserRole.ADMIN, UserRole.RECRUITER)
+  @ApiOperation({ summary: 'Get analytics for a specific job' })
+  @ApiResponse({ status: 200, description: 'Job analytics retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
+  @ApiResponse({ status: 404, description: 'Job not found' })
+  getJobAnalytics(@Param('jobId') jobId: string) {
+    return this.analyticsService.getJobAnalytics(jobId);
+  }
+
+  @Get('users/:userId')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Get analytics for a specific user' })
+  @ApiResponse({ status: 200, description: 'User analytics retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  getUserAnalytics(@Param('userId') userId: string) {
+    return this.analyticsService.getUserActivityAnalytics(userId);
   }
 }
