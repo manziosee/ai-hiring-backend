@@ -21,16 +21,19 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS
+  // Enable CORS with more permissive settings
   app.enableCors({
     origin: [
       'http://localhost:3001',
       'http://localhost:4200',
-      'https://ai-hiring-frontend.fly.dev'
+      'https://ai-hiring-frontend.fly.dev',
+      /\.fly\.dev$/
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   });
 
   // Swagger configuration

@@ -26,6 +26,12 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'jobs/create',
+    loadComponent: () => import('./features/jobs/job-create/job-create.component').then(m => m.JobCreateComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN', 'RECRUITER'] }
+  },
+  {
     path: 'applications',
     loadComponent: () => import('./features/applications/applications.component').then(m => m.ApplicationsComponent),
     canActivate: [AuthGuard]
@@ -51,6 +57,12 @@ export const routes: Routes = [
     path: 'profile',
     loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'analytics',
+    loadComponent: () => import('./features/analytics/analytics.component').then(m => m.AnalyticsComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN', 'RECRUITER'] }
   },
   {
     path: '**',
