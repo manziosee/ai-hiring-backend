@@ -106,8 +106,15 @@ export class ScreeningController {
     try {
       return await this.screeningService.getJobScreeningResults(jobId);
     } catch (error) {
-      this.logger.error(`Failed to get screening results for job ${jobId}:`, (error as Error).message, 'ScreeningController');
-      throw new HttpException('Failed to retrieve job screening results', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.logger.error(
+        `Failed to get screening results for job ${jobId}:`,
+        (error as Error).message,
+        'ScreeningController',
+      );
+      throw new HttpException(
+        'Failed to retrieve job screening results',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

@@ -94,13 +94,21 @@ export class ScreeningService {
             mlResult.details.experienceMatch,
           )
           .catch((error) => {
-            this.logger.error('Failed to send screening results email', error.stack, 'ScreeningService');
+            this.logger.error(
+              'Failed to send screening results email',
+              error.stack,
+              'ScreeningService',
+            );
           });
       }
 
       return screeningResult;
     } catch (error) {
-      this.logger.error('ML service screening failed, falling back to basic screening', error.stack, 'ScreeningService');
+      this.logger.error(
+        'ML service screening failed, falling back to basic screening',
+        error.stack,
+        'ScreeningService',
+      );
       return this.runBasicScreening(application);
     }
   }
@@ -136,21 +144,21 @@ export class ScreeningService {
     BASE_SCORE: 0.5,
     EXPERIENCE_WEIGHT: 0.3,
     SKILL_WEIGHT: 0.5,
-    MAX_SCORE: 1.0
+    MAX_SCORE: 1.0,
   };
 
   private calculateFitScore(job: any, candidate: any): number {
     let score = ScreeningService.SCORING_WEIGHTS.BASE_SCORE;
-    
+
     // Experience match bonus
     if (candidate.yearsExp >= job.experience) {
       score += ScreeningService.SCORING_WEIGHTS.EXPERIENCE_WEIGHT;
     }
-    
+
     // Skill match contribution
     const skillMatch = this.calculateSkillMatch(job.skills, candidate.skills);
     score += skillMatch * ScreeningService.SCORING_WEIGHTS.SKILL_WEIGHT;
-    
+
     return Math.min(score, ScreeningService.SCORING_WEIGHTS.MAX_SCORE);
   }
 
@@ -159,17 +167,20 @@ export class ScreeningService {
     candidateSkills: string[],
   ): number {
     if (!jobSkills.length) return 1; // No requirements = perfect match
-    
+
     // Pre-process skills to lowercase for efficient comparison
-    const jobSkillsLower = jobSkills.map(skill => skill.toLowerCase());
-    const candidateSkillsLower = candidateSkills.map(skill => skill.toLowerCase());
-    
+    const jobSkillsLower = jobSkills.map((skill) => skill.toLowerCase());
+    const candidateSkillsLower = candidateSkills.map((skill) =>
+      skill.toLowerCase(),
+    );
+
     const matchedSkills = jobSkillsLower.filter((skill) =>
-      candidateSkillsLower.some((candidateSkill) =>
-        candidateSkill.includes(skill) || skill.includes(candidateSkill)
+      candidateSkillsLower.some(
+        (candidateSkill) =>
+          candidateSkill.includes(skill) || skill.includes(candidateSkill),
       ),
     );
-    
+
     return matchedSkills.length / jobSkills.length;
   }
 
@@ -184,8 +195,8 @@ export class ScreeningService {
     return this.prisma.screeningResult.findMany({
       where: {
         application: {
-          jobId
-        }
+          jobId,
+        },
       },
       include: {
         application: {
@@ -194,11 +205,11 @@ export class ScreeningService {
               select: {
                 id: true,
                 name: true,
-                email: true
-              }
-            }
-          }
-        }
+                email: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });

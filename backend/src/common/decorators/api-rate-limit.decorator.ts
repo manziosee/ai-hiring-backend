@@ -7,5 +7,5 @@ export interface RateLimitOptions {
 
 export const API_RATE_LIMIT_KEY = 'api_rate_limit';
 
-export const ApiRateLimit = (options: RateLimitOptions) => 
+export const ApiRateLimit = (options: RateLimitOptions) =>
   SetMetadata(API_RATE_LIMIT_KEY, options);

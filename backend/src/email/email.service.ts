@@ -11,11 +11,17 @@ export class EmailService {
   ) {
     const username = this.configService.get('MAIL_USERNAME');
     const password = this.configService.get('MAIL_PASSWORD');
-    
+
     if (username && password) {
-      this.logger.log('Gmail SMTP credentials configured successfully', 'EmailService');
+      this.logger.log(
+        'Gmail SMTP credentials configured successfully',
+        'EmailService',
+      );
     } else {
-      this.logger.warn('Gmail SMTP credentials not configured, emails will be logged only', 'EmailService');
+      this.logger.warn(
+        'Gmail SMTP credentials not configured, emails will be logged only',
+        'EmailService',
+      );
     }
   }
 
@@ -103,29 +109,27 @@ export class EmailService {
     );
   }
 
-  async sendVerificationEmail(
-    email: string,
-    name: string,
-    token: string,
-  ) {
+  async sendVerificationEmail(email: string, name: string, token: string) {
     const emailContent = this.getVerificationEmailTemplate(name, token);
-    return this.sendEmail(
-      email,
-      emailContent.subject,
-      emailContent.html,
-    );
+    return this.sendEmail(email, emailContent.subject, emailContent.html);
   }
 
   private async sendEmail(to: string, subject: string, html: string) {
     try {
       const username = this.configService.get('MAIL_USERNAME');
       const password = this.configService.get('MAIL_PASSWORD');
-      
+
       if (!username || !password) {
         // Log email instead of sending when credentials not configured
-        this.logger.log(`📧 [DEMO MODE] Email would be sent to: ${to}`, 'EmailService');
+        this.logger.log(
+          `📧 [DEMO MODE] Email would be sent to: ${to}`,
+          'EmailService',
+        );
         this.logger.log(`📧 [DEMO MODE] Subject: ${subject}`, 'EmailService');
-        this.logger.log(`📧 [DEMO MODE] Content preview: ${html.substring(0, 200)}...`, 'EmailService');
+        this.logger.log(
+          `📧 [DEMO MODE] Content preview: ${html.substring(0, 200)}...`,
+          'EmailService',
+        );
         return { success: true, messageId: 'demo-' + Date.now() };
       }
 
@@ -147,19 +151,40 @@ export class EmailService {
           html,
         });
 
-        this.logger.log(`✅ Email sent successfully via Gmail SMTP: ${result.messageId}`, 'EmailService');
+        this.logger.log(
+          `✅ Email sent successfully via Gmail SMTP: ${result.messageId}`,
+          'EmailService',
+        );
         return { success: true, messageId: result.messageId };
       } catch (nodemailerError) {
-        this.logger.error('❌ Nodemailer not available or failed', nodemailerError instanceof Error ? nodemailerError.message : String(nodemailerError), 'EmailService');
-        
+        this.logger.error(
+          '❌ Nodemailer not available or failed',
+          nodemailerError instanceof Error
+            ? nodemailerError.message
+            : String(nodemailerError),
+          'EmailService',
+        );
+
         // Fallback to logging
-        this.logger.log(`📧 [FALLBACK] Email would be sent to: ${to}`, 'EmailService');
+        this.logger.log(
+          `📧 [FALLBACK] Email would be sent to: ${to}`,
+          'EmailService',
+        );
         this.logger.log(`📧 [FALLBACK] Subject: ${subject}`, 'EmailService');
-        return { success: true, messageId: 'fallback-' + Date.now(), fallback: true };
+        return {
+          success: true,
+          messageId: 'fallback-' + Date.now(),
+          fallback: true,
+        };
       }
     } catch (error: unknown) {
-      this.logger.error('❌ Email service error', error instanceof Error ? error.stack : String(error), 'EmailService');
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(
+        '❌ Email service error',
+        error instanceof Error ? error.stack : String(error),
+        'EmailService',
+      );
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       return { success: false, error: errorMessage };
     }
   }
@@ -169,10 +194,16 @@ export class EmailService {
     jobTitle: string,
     company: string,
   ) {
-    const safeName = HtmlSanitizerUtil.escapeHtml(candidateName?.substring(0, 100) || '');
-    const safeTitle = HtmlSanitizerUtil.escapeHtml(jobTitle?.substring(0, 200) || '');
-    const safeCompany = HtmlSanitizerUtil.escapeHtml(company?.substring(0, 100) || '');
-    
+    const safeName = HtmlSanitizerUtil.escapeHtml(
+      candidateName?.substring(0, 100) || '',
+    );
+    const safeTitle = HtmlSanitizerUtil.escapeHtml(
+      jobTitle?.substring(0, 200) || '',
+    );
+    const safeCompany = HtmlSanitizerUtil.escapeHtml(
+      company?.substring(0, 100) || '',
+    );
+
     return {
       subject: `Application Submitted: ${safeTitle}`,
       html: `
@@ -189,7 +220,7 @@ export class EmailService {
           <p>We will review your application and contact you within 3-5 business days.</p>
           <p>Best regards,<br><strong>AI Hiring Team</strong></p>
         </div>
-      `
+      `,
     };
   }
 
@@ -273,10 +304,12 @@ export class EmailService {
   }
 
   private getVerificationEmailTemplate(name: string, token: string) {
-    const safeName = HtmlSanitizerUtil.escapeHtml(name?.substring(0, 100) || '');
+    const safeName = HtmlSanitizerUtil.escapeHtml(
+      name?.substring(0, 100) || '',
+    );
     const safeToken = HtmlSanitizerUtil.escapeHtml(token);
     const verificationUrl = `https://ai-hiring-frontend.fly.dev/verify-email?token=${safeToken}`;
-    
+
     return {
       subject: 'Verify Your Email - AI Hiring Platform',
       html: `
@@ -294,7 +327,7 @@ export class EmailService {
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 12px; text-align: center;">This verification link will expire in 24 hours. If you didn't create an account, please ignore this email.</p>
         </div>
-      `
+      `,
     };
   }
 

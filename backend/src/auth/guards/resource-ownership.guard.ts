@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -18,14 +23,22 @@ export class ResourceOwnershipGuard implements CanActivate {
       return false;
     }
 
-    const resource = this.reflector.get<string>('resource', context.getHandler());
-    
+    const resource = this.reflector.get<string>(
+      'resource',
+      context.getHandler(),
+    );
+
     if (!resource) {
       return true;
     }
 
-    const hasAccess = await this.checkResourceAccess(resource, resourceId, user.id, user.role);
-    
+    const hasAccess = await this.checkResourceAccess(
+      resource,
+      resourceId,
+      user.id,
+      user.role,
+    );
+
     if (!hasAccess) {
       throw new ForbiddenException('Access denied to this resource');
     }
@@ -33,21 +46,30 @@ export class ResourceOwnershipGuard implements CanActivate {
     return true;
   }
 
-  private async checkResourceAccess(resource: string, resourceId: string, userId: string, userRole: string): Promise<boolean> {
+  private async checkResourceAccess(
+    resource: string,
+    resourceId: string,
+    userId: string,
+    userRole: string,
+  ): Promise<boolean> {
     switch (resource) {
       case 'application':
         const application = await this.prisma.application.findUnique({
           where: { id: resourceId },
-          include: { job: true }
+          include: { job: true },
         });
-        return application?.userId === userId || application?.job.createdBy === userId || userRole === 'ADMIN';
-      
+        return (
+          application?.userId === userId ||
+          application?.job.createdBy === userId ||
+          userRole === 'ADMIN'
+        );
+
       case 'job':
         const job = await this.prisma.job.findUnique({
-          where: { id: resourceId }
+          where: { id: resourceId },
         });
         return job?.createdBy === userId || userRole === 'ADMIN';
-      
+
       default:
         return true;
     }

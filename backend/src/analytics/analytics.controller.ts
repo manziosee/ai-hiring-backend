@@ -1,5 +1,10 @@
 import { Controller, Get, UseGuards, Query, Param } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -13,9 +18,12 @@ import { AnalyticsService } from './analytics.service';
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
   @Get('dashboard')
-  @Roles(UserRole.ADMIN, UserRole.RECRUITER)
+  @Roles('ADMIN', 'RECRUITER')
   @ApiOperation({ summary: 'Get dashboard analytics metrics' })
-  @ApiResponse({ status: 200, description: 'Dashboard metrics retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard metrics retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
   getDashboardMetrics(@Query('period') period: string = '30d') {
@@ -23,9 +31,12 @@ export class AnalyticsController {
   }
 
   @Get('reports/hiring-funnel')
-  @Roles(UserRole.ADMIN)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Get hiring funnel analytics report' })
-  @ApiResponse({ status: 200, description: 'Hiring funnel report retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Hiring funnel report retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
   getHiringFunnelReport() {
@@ -33,9 +44,12 @@ export class AnalyticsController {
   }
 
   @Get('jobs/:jobId')
-  @Roles(UserRole.ADMIN, UserRole.RECRUITER)
+  @Roles('ADMIN', 'RECRUITER')
   @ApiOperation({ summary: 'Get analytics for a specific job' })
-  @ApiResponse({ status: 200, description: 'Job analytics retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Job analytics retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin/Recruiter only' })
   @ApiResponse({ status: 404, description: 'Job not found' })
@@ -44,9 +58,12 @@ export class AnalyticsController {
   }
 
   @Get('users/:userId')
-  @Roles(UserRole.ADMIN)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Get analytics for a specific user' })
-  @ApiResponse({ status: 200, description: 'User analytics retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User analytics retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
   @ApiResponse({ status: 404, description: 'User not found' })

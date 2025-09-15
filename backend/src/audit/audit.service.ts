@@ -36,7 +36,7 @@ export class AuditService {
 
       this.logger.log(
         `Audit: ${data.action} on ${data.resource}:${data.resourceId} by user:${data.userId}`,
-        'AuditService'
+        'AuditService',
       );
 
       return auditLog;
@@ -44,7 +44,7 @@ export class AuditService {
       this.logger.error(
         'Failed to create audit log',
         error instanceof Error ? error.stack : String(error),
-        'AuditService'
+        'AuditService',
       );
       throw error;
     }

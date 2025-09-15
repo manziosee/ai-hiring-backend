@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
@@ -19,7 +23,7 @@ export class AuthService {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email },
     });
-    
+
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
@@ -57,11 +61,12 @@ export class AuthService {
     await this.emailService.sendVerificationEmail(
       user.email,
       user.fullName,
-      verificationToken
+      verificationToken,
     );
 
     return {
-      message: 'Registration successful! Please check your email to verify your account.',
+      message:
+        'Registration successful! Please check your email to verify your account.',
       user: {
         id: user.id,
         email: user.email,
@@ -77,12 +82,18 @@ export class AuthService {
       where: { email: loginDto.email },
     });
 
-    if (!user || !user.password || !(await bcrypt.compare(loginDto.password, user.password))) {
+    if (
+      !user ||
+      !user.password ||
+      !(await bcrypt.compare(loginDto.password, user.password))
+    ) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (!user.emailVerified) {
-      throw new UnauthorizedException('Please verify your email before logging in');
+      throw new UnauthorizedException(
+        'Please verify your email before logging in',
+      );
     }
 
     const payload = { sub: user.id, email: user.email, role: user.role };
@@ -139,35 +150,41 @@ export class AuthService {
   async linkedinAuth(code: string, redirectUri: string) {
     try {
       // Exchange code for access token
-      const tokenResponse = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+      const tokenResponse = await fetch(
+        'https://www.linkedin.com/oauth/v2/accessToken',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            code,
+            redirect_uri: redirectUri,
+            client_id: process.env.LINKEDIN_CLIENT_ID || '',
+            client_secret: process.env.LINKEDIN_CLIENT_SECRET || '',
+          } as Record<string, string>),
         },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: redirectUri,
-          client_id: process.env.LINKEDIN_CLIENT_ID || '',
-          client_secret: process.env.LINKEDIN_CLIENT_SECRET || '',
-        } as Record<string, string>),
-      });
+      );
 
       const tokenData = await tokenResponse.json();
-      
+
       if (!tokenData.access_token) {
         throw new UnauthorizedException('Failed to get LinkedIn access token');
       }
 
       // Get user profile
-      const profileResponse = await fetch('https://api.linkedin.com/v2/people/~:(id,firstName,lastName,emailAddress)', {
-        headers: {
-          'Authorization': `Bearer ${tokenData.access_token}`,
+      const profileResponse = await fetch(
+        'https://api.linkedin.com/v2/people/~:(id,firstName,lastName,emailAddress)',
+        {
+          headers: {
+            Authorization: `Bearer ${tokenData.access_token}`,
+          },
         },
-      });
+      );
 
       const profile = await profileResponse.json();
-      
+
       if (!profile.emailAddress) {
         throw new UnauthorizedException('Failed to get LinkedIn profile');
       }

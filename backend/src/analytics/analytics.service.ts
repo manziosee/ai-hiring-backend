@@ -12,37 +12,38 @@ export class AnalyticsService {
     startDate.setDate(startDate.getDate() - periodDays);
 
     // Get basic counts
-    const [totalJobs, totalApplications, totalCandidates, totalInterviews] = await Promise.all([
-      this.prisma.job.count({
-        where: {
-          createdAt: {
-            gte: startDate,
+    const [totalJobs, totalApplications, totalCandidates, totalInterviews] =
+      await Promise.all([
+        this.prisma.job.count({
+          where: {
+            createdAt: {
+              gte: startDate,
+            },
           },
-        },
-      }),
-      this.prisma.application.count({
-        where: {
-          createdAt: {
-            gte: startDate,
+        }),
+        this.prisma.application.count({
+          where: {
+            createdAt: {
+              gte: startDate,
+            },
           },
-        },
-      }),
-      this.prisma.user.count({
-        where: {
-          role: UserRole.CANDIDATE,
-          createdAt: {
-            gte: startDate,
+        }),
+        this.prisma.user.count({
+          where: {
+            role: UserRole.CANDIDATE,
+            createdAt: {
+              gte: startDate,
+            },
           },
-        },
-      }),
-      this.prisma.interview.count({
-        where: {
-          createdAt: {
-            gte: startDate,
+        }),
+        this.prisma.interview.count({
+          where: {
+            createdAt: {
+              gte: startDate,
+            },
           },
-        },
-      }),
-    ]);
+        }),
+      ]);
 
     // Get application status breakdown
     const applicationsByStatus = await this.prisma.application.groupBy({
@@ -78,7 +79,10 @@ export class AnalyticsService {
       },
     });
 
-    const screeningSuccessRate = screenedApplications > 0 ? (acceptedApplications / screenedApplications) * 100 : 0;
+    const screeningSuccessRate =
+      screenedApplications > 0
+        ? (acceptedApplications / screenedApplications) * 100
+        : 0;
 
     // Get average fit score from screening results
     const avgFitScore = await this.prisma.screeningResult.aggregate({
@@ -111,12 +115,17 @@ export class AnalyticsService {
       totalApplications,
       totalCandidates,
       totalInterviews,
-      applicationsByStatus: applicationsByStatus.reduce((acc, item) => {
-        acc[item.status] = item._count.status;
-        return acc;
-      }, {} as Record<string, number>),
+      applicationsByStatus: applicationsByStatus.reduce(
+        (acc, item) => {
+          acc[item.status] = item._count.status;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
       screeningSuccessRate: Math.round(screeningSuccessRate * 100) / 100,
-      averageFitScore: avgFitScore._avg.fitScore ? Math.round(avgFitScore._avg.fitScore * 100) / 100 : 0,
+      averageFitScore: avgFitScore._avg.fitScore
+        ? Math.round(avgFitScore._avg.fitScore * 100) / 100
+        : 0,
       topSkills: skillCounts.slice(0, 10),
       period,
     };
@@ -130,12 +139,18 @@ export class AnalyticsService {
       },
     });
 
-    const totalApplications = funnelData.reduce((sum, item) => sum + item._count.status, 0);
+    const totalApplications = funnelData.reduce(
+      (sum, item) => sum + item._count.status,
+      0,
+    );
 
-    const funnel = funnelData.map(item => ({
+    const funnel = funnelData.map((item) => ({
       stage: item.status,
       count: item._count.status,
-      percentage: totalApplications > 0 ? Math.round((item._count.status / totalApplications) * 100) : 0,
+      percentage:
+        totalApplications > 0
+          ? Math.round((item._count.status / totalApplications) * 100)
+          : 0,
     }));
 
     return {
@@ -162,13 +177,17 @@ export class AnalyticsService {
     }
 
     const totalApplications = job.applications.length;
-    const screenedApplications = job.applications.filter(app => app.screeningResults.length > 0);
-    const avgFitScore = screenedApplications.length > 0 
-      ? screenedApplications.reduce((sum, app) => {
-          const latestResult = app.screeningResults[app.screeningResults.length - 1];
-          return sum + (latestResult?.fitScore || 0);
-        }, 0) / screenedApplications.length
-      : 0;
+    const screenedApplications = job.applications.filter(
+      (app) => app.screeningResults.length > 0,
+    );
+    const avgFitScore =
+      screenedApplications.length > 0
+        ? screenedApplications.reduce((sum, app) => {
+            const latestResult =
+              app.screeningResults[app.screeningResults.length - 1];
+            return sum + (latestResult?.fitScore || 0);
+          }, 0) / screenedApplications.length
+        : 0;
 
     return {
       jobId,
@@ -176,10 +195,13 @@ export class AnalyticsService {
       totalApplications,
       screenedApplications: screenedApplications.length,
       averageFitScore: Math.round(avgFitScore * 100) / 100,
-      applicationsByStatus: job.applications.reduce((acc, app) => {
-        acc[app.status] = (acc[app.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>),
+      applicationsByStatus: job.applications.reduce(
+        (acc, app) => {
+          acc[app.status] = (acc[app.status] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
     };
   }
 
@@ -202,10 +224,14 @@ export class AnalyticsService {
       role: user.role,
       totalApplications: user.applications?.length || 0,
       totalInterviews: user.interviews?.length || 0,
-      applicationsByStatus: user.applications?.reduce((acc, app) => {
-        acc[app.status] = (acc[app.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>) || {},
+      applicationsByStatus:
+        user.applications?.reduce(
+          (acc, app) => {
+            acc[app.status] = (acc[app.status] || 0) + 1;
+            return acc;
+          },
+          {} as Record<string, number>,
+        ) || {},
       joinedAt: user.createdAt,
     };
   }
@@ -218,19 +244,26 @@ export class AnalyticsService {
     const value = parseInt(num);
 
     switch (unit) {
-      case 'd': return value;
-      case 'w': return value * 7;
-      case 'm': return value * 30;
-      case 'y': return value * 365;
-      default: return 30;
+      case 'd':
+        return value;
+      case 'w':
+        return value * 7;
+      case 'm':
+        return value * 30;
+      case 'y':
+        return value * 365;
+      default:
+        return 30;
     }
   }
 
-  private aggregateSkills(jobs: { skills: string[] }[]): { skill: string; count: number }[] {
+  private aggregateSkills(
+    jobs: { skills: string[] }[],
+  ): { skill: string; count: number }[] {
     const skillMap = new Map<string, number>();
 
-    jobs.forEach(job => {
-      job.skills.forEach(skill => {
+    jobs.forEach((job) => {
+      job.skills.forEach((skill) => {
         const normalizedSkill = skill.toLowerCase().trim();
         skillMap.set(normalizedSkill, (skillMap.get(normalizedSkill) || 0) + 1);
       });
@@ -241,16 +274,19 @@ export class AnalyticsService {
       .sort((a, b) => b.count - a.count);
   }
 
-  private calculateConversionRates(funnel: { stage: string; count: number }[]): Record<string, number> {
+  private calculateConversionRates(
+    funnel: { stage: string; count: number }[],
+  ): Record<string, number> {
     const rates: Record<string, number> = {};
-    
+
     for (let i = 1; i < funnel.length; i++) {
       const current = funnel[i];
       const previous = funnel[i - 1];
-      
+
       if (previous.count > 0) {
-        rates[`${previous.stage}_to_${current.stage}`] = 
-          Math.round((current.count / previous.count) * 100);
+        rates[`${previous.stage}_to_${current.stage}`] = Math.round(
+          (current.count / previous.count) * 100,
+        );
       }
     }
 

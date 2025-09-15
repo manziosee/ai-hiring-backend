@@ -37,7 +37,9 @@ export const SecurityConfig = {
 
   // CORS Configuration
   CORS: {
-    ORIGIN: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+    ORIGIN: process.env.ALLOWED_ORIGINS?.split(',') || [
+      'http://localhost:3000',
+    ],
     CREDENTIALS: true,
     METHODS: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     ALLOWED_HEADERS: ['Content-Type', 'Authorization', 'X-Requested-With'],

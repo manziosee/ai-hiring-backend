@@ -135,7 +135,9 @@ export class InterviewsService {
     }
 
     if (interview.application.job.createdBy !== userId) {
-      throw new ForbiddenException('You can only update interviews for your own jobs');
+      throw new ForbiddenException(
+        'You can only update interviews for your own jobs',
+      );
     }
 
     return this.prisma.interview.update({
@@ -176,7 +178,9 @@ export class InterviewsService {
     }
 
     if (interview.application.job.createdBy !== userId) {
-      throw new ForbiddenException('You can only cancel interviews for your own jobs');
+      throw new ForbiddenException(
+        'You can only cancel interviews for your own jobs',
+      );
     }
 
     return this.prisma.interview.delete({
