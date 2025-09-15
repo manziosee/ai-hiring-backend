@@ -103,6 +103,19 @@ export class EmailService {
     );
   }
 
+  async sendVerificationEmail(
+    email: string,
+    name: string,
+    token: string,
+  ) {
+    const emailContent = this.getVerificationEmailTemplate(name, token);
+    return this.sendEmail(
+      email,
+      emailContent.subject,
+      emailContent.html,
+    );
+  }
+
   private async sendEmail(to: string, subject: string, html: string) {
     try {
       const username = this.configService.get('MAIL_USERNAME');
@@ -256,6 +269,32 @@ export class EmailService {
           <p>Best regards,<br><strong>AI Hiring System</strong></p>
         </div>
       `,
+    };
+  }
+
+  private getVerificationEmailTemplate(name: string, token: string) {
+    const safeName = HtmlSanitizerUtil.escapeHtml(name?.substring(0, 100) || '');
+    const safeToken = HtmlSanitizerUtil.escapeHtml(token);
+    const verificationUrl = `https://ai-hiring-frontend.fly.dev/verify-email?token=${safeToken}`;
+    
+    return {
+      subject: 'Verify Your Email - AI Hiring Platform',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #2563eb; margin: 0;">🚀 AI Hiring Platform</h1>
+          </div>
+          <h2 style="color: #1f2937;">Welcome ${safeName}! 🎉</h2>
+          <p>Thank you for registering with AI Hiring Platform. To complete your registration, please verify your email address.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationUrl}" style="background-color: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Verify Email Address</a>
+          </div>
+          <p style="color: #6b7280; font-size: 14px;">If the button doesn't work, copy and paste this link into your browser:</p>
+          <p style="color: #2563eb; word-break: break-all; font-size: 14px;">${verificationUrl}</p>
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+          <p style="color: #6b7280; font-size: 12px; text-align: center;">This verification link will expire in 24 hours. If you didn't create an account, please ignore this email.</p>
+        </div>
+      `
     };
   }
 
