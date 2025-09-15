@@ -355,7 +355,7 @@ import { RouterModule } from '@angular/router';
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+      background: linear-gradient(135deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #064e3b 100%);
     }
 
     .background-animation {
@@ -380,7 +380,7 @@ import { RouterModule } from '@angular/router';
     .orb-1 {
       width: 500px;
       height: 500px;
-      background: radial-gradient(circle, #ff9a9e, #fecfef);
+      background: radial-gradient(circle, #34d399, #a7f3d0);
       top: -250px;
       left: -250px;
       animation-delay: 0s;
@@ -389,7 +389,7 @@ import { RouterModule } from '@angular/router';
     .orb-2 {
       width: 600px;
       height: 600px;
-      background: radial-gradient(circle, #a8edea, #fed6e3);
+      background: radial-gradient(circle, #6ee7b7, #d1fae5);
       bottom: -300px;
       right: -300px;
       animation-delay: 5s;
@@ -398,7 +398,7 @@ import { RouterModule } from '@angular/router';
     .orb-3 {
       width: 400px;
       height: 400px;
-      background: radial-gradient(circle, #d299c2, #fef9d7);
+      background: radial-gradient(circle, #10b981, #ecfdf5);
       top: 30%;
       right: 20%;
       animation-delay: 10s;
@@ -407,7 +407,7 @@ import { RouterModule } from '@angular/router';
     .orb-4 {
       width: 450px;
       height: 450px;
-      background: radial-gradient(circle, #89f7fe, #66a6ff);
+      background: radial-gradient(circle, #059669, #86efac);
       bottom: 40%;
       left: 15%;
       animation-delay: 7s;
@@ -484,7 +484,7 @@ import { RouterModule } from '@angular/router';
     .brand-logo {
       width: 40px;
       height: 40px;
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      background: linear-gradient(135deg, #10b981, #059669);
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -536,14 +536,14 @@ import { RouterModule } from '@angular/router';
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #10b981, #059669);
       color: white;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
     }
 
     .btn-outline {
@@ -558,7 +558,7 @@ import { RouterModule } from '@angular/router';
 
     .btn-secondary {
       background: rgba(255, 255, 255, 0.9);
-      color: #667eea;
+      color: #10b981;
     }
 
     .btn-secondary:hover {
@@ -610,7 +610,7 @@ import { RouterModule } from '@angular/router';
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #ffd89b, #19547b);
+      background: linear-gradient(135deg, #34d399, #065f46);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -666,7 +666,7 @@ import { RouterModule } from '@angular/router';
     }
 
     .preview-header {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #10b981, #059669);
       color: white;
       padding: 1rem;
       display: flex;
@@ -716,7 +716,7 @@ import { RouterModule } from '@angular/router';
     }
 
     .sidebar-item.active {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #10b981, #059669);
       color: white;
     }
 
@@ -747,7 +747,7 @@ import { RouterModule } from '@angular/router';
     .card-icon {
       width: 40px;
       height: 40px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #10b981, #059669);
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -783,7 +783,7 @@ import { RouterModule } from '@angular/router';
 
     .chart-bar {
       flex: 1;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #10b981, #059669);
       border-radius: 4px 4px 0 0;
       animation: chart-grow 2s ease-out;
     }
@@ -855,10 +855,10 @@ import { RouterModule } from '@angular/router';
       margin-bottom: 1.5rem;
     }
 
-    .feature-icon.ai { background: linear-gradient(135deg, #667eea, #764ba2); }
-    .feature-icon.matching { background: linear-gradient(135deg, #f093fb, #f5576c); }
-    .feature-icon.analytics { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-    .feature-icon.automation { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+    .feature-icon.ai { background: linear-gradient(135deg, #10b981, #059669); }
+    .feature-icon.matching { background: linear-gradient(135deg, #34d399, #10b981); }
+    .feature-icon.analytics { background: linear-gradient(135deg, #6ee7b7, #047857); }
+    .feature-icon.automation { background: linear-gradient(135deg, #86efac, #065f46); }
 
     .feature-card h3 {
       font-size: 1.5rem;
@@ -888,7 +888,7 @@ import { RouterModule } from '@angular/router';
     }
 
     .benefit i {
-      color: #43e97b;
+      color: #34d399;
     }
 
     .steps-container {
@@ -908,7 +908,7 @@ import { RouterModule } from '@angular/router';
     .step-number {
       width: 60px;
       height: 60px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #10b981, #059669);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -917,7 +917,7 @@ import { RouterModule } from '@angular/router';
       font-weight: 700;
       color: white;
       margin: 0 auto 1.5rem;
-      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
     }
 
     .step-icon {
@@ -953,7 +953,7 @@ import { RouterModule } from '@angular/router';
       right: -50%;
       width: 100%;
       height: 2px;
-      background: linear-gradient(90deg, #667eea, #764ba2);
+      background: linear-gradient(90deg, #10b981, #059669);
       z-index: -1;
     }
 
@@ -1230,7 +1230,7 @@ import { RouterModule } from '@angular/router';
     
     @keyframes badgeGlow {
       0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
-      100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(102, 126, 234, 0.4); }
+      100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(16, 185, 129, 0.4); }
     }
     
     .typing-effect {
@@ -1440,7 +1440,7 @@ import { RouterModule } from '@angular/router';
     
     @keyframes avatarGlow {
       0% { border-color: rgba(255, 255, 255, 0.3); }
-      100% { border-color: rgba(102, 126, 234, 0.6); }
+      100% { border-color: rgba(16, 185, 129, 0.6); }
     }
     
     .carousel-controls {

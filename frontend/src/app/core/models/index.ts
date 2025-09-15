@@ -14,6 +14,7 @@ export interface Job {
   salaryRange: string;
   employmentType: string;
   department: string;
+  company?: string;
   createdAt: string;
   experience?: number;
   skills?: string[];
