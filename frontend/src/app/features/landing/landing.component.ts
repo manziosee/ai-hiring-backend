@@ -8,14 +8,15 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="landing-container">
-      <!-- Animated Background -->
+      <!-- Background Animation -->
       <div class="background-animation">
         <div class="gradient-orb orb-1"></div>
         <div class="gradient-orb orb-2"></div>
         <div class="gradient-orb orb-3"></div>
         <div class="gradient-orb orb-4"></div>
         <div class="floating-particles">
-          <div class="particle" *ngFor="let p of particles; let i = index" [style.animation-delay.s]="i * 0.3"></div>
+          <div class="particle" *ngFor="let particle of particles; let i = index" 
+               [style.animation-delay.ms]="i * 1000"></div>
         </div>
       </div>
 
@@ -36,7 +37,7 @@ import { RouterModule } from '@angular/router';
             <a href="#features" class="nav-link">Features</a>
             <a href="#how-it-works" class="nav-link">How It Works</a>
             <a href="#pricing" class="nav-link">Pricing</a>
-            <a href="#contact" class="nav-link">Contact</a>
+            <a href="#testimonials" class="nav-link">Testimonials</a>
           </div>
           <div class="nav-actions">
             <a routerLink="/auth/login" class="btn btn-outline">Sign In</a>
@@ -49,42 +50,34 @@ import { RouterModule } from '@angular/router';
       <section class="hero-section">
         <div class="hero-content">
           <div class="hero-text">
-            <div class="hero-badge" [class.animate]="isVisible">
-              <i class="fas fa-sparkles"></i>
+            <div class="hero-badge animate">
+              <i class="fas fa-bolt"></i>
               <span>AI-Powered Recruitment Platform</span>
-              <div class="badge-glow"></div>
             </div>
-            <h1 class="hero-title" [class.animate]="isVisible">
-              Find Your Perfect
-              <span class="gradient-text typing-effect">{{ typedText }}</span>
-              <span class="cursor" [class.blink]="showCursor">|</span>
-              with AI Intelligence
+            <h1 class="hero-title">
+              Find the Perfect 
+              <span class="gradient-text typing-effect">
+                {{typedText}}<span class="cursor" [class.blink]="showCursor">|</span>
+              </span>
             </h1>
-            <p class="hero-description" [class.animate]="isVisible">
-              Revolutionary recruitment platform that uses artificial intelligence to match candidates 
-              with their dream jobs and help recruiters find the perfect talent faster than ever.
+            <p class="hero-description">
+              AI Hiring connects top talent with amazing opportunities using advanced 
+              artificial intelligence and machine learning algorithms.
             </p>
-            <div class="hero-actions" [class.animate]="isVisible">
+            <div class="hero-actions">
               <a routerLink="/auth/register" class="btn btn-primary btn-lg btn-pulse">
                 <i class="fas fa-rocket"></i>
-                <span>Start Your Journey</span>
-                <div class="btn-particles">
-                  <div class="particle" *ngFor="let p of buttonParticles; let i = index" [style.animation-delay.ms]="i * 100"></div>
-                </div>
+                Get Started Free
               </a>
-              <button class="btn btn-secondary btn-lg btn-glow" (click)="playDemo()">
-                <i class="fas fa-play"></i>
-                <span>Watch Demo</span>
-                <div class="btn-ripple"></div>
-              </button>
+              <a href="#demo" class="btn btn-outline btn-lg" (click)="playDemo()">
+                <i class="fas fa-play-circle"></i>
+                Watch Demo
+              </a>
             </div>
-            <div class="hero-stats" [class.animate]="isVisible">
-              <div class="stat-item" *ngFor="let stat of stats; let i = index" [style.animation-delay.ms]="i * 200">
-                <div class="stat-number" [attr.data-target]="stat.number">{{ animatedStats[i] || '0' }}</div>
-                <div class="stat-label">{{ stat.label }}</div>
-                <div class="stat-icon">
-                  <i [class]="stat.icon"></i>
-                </div>
+            <div class="hero-stats">
+              <div class="stat-item" *ngFor="let stat of stats; let i = index">
+                <span class="stat-number">{{animatedStats[i]}}+</span>
+                <span class="stat-label">{{stat.label}}</span>
               </div>
             </div>
           </div>
@@ -101,40 +94,40 @@ import { RouterModule } from '@angular/router';
               <div class="preview-content">
                 <div class="preview-sidebar">
                   <div class="sidebar-item active">
-                    <i class="fas fa-tachometer-alt"></i>
+                    <i class="fas fa-home"></i>
                     <span>Dashboard</span>
-                  </div>
-                  <div class="sidebar-item">
-                    <i class="fas fa-briefcase"></i>
-                    <span>Jobs</span>
                   </div>
                   <div class="sidebar-item">
                     <i class="fas fa-users"></i>
                     <span>Candidates</span>
                   </div>
                   <div class="sidebar-item">
-                    <i class="fas fa-brain"></i>
-                    <span>AI Screening</span>
+                    <i class="fas fa-briefcase"></i>
+                    <span>Jobs</span>
+                  </div>
+                  <div class="sidebar-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
                   </div>
                 </div>
                 <div class="preview-main">
                   <div class="preview-cards">
                     <div class="preview-card">
                       <div class="card-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-user-plus"></i>
                       </div>
-                      <div class="card-content">
-                        <div class="card-number">2,847</div>
-                        <div class="card-label">Applications</div>
+                      <div>
+                        <div class="card-number">245</div>
+                        <div class="card-label">New Candidates</div>
                       </div>
                     </div>
                     <div class="preview-card">
                       <div class="card-icon">
-                        <i class="fas fa-user-check"></i>
+                        <i class="fas fa-check-circle"></i>
                       </div>
-                      <div class="card-content">
-                        <div class="card-number">1,234</div>
-                        <div class="card-label">Matches</div>
+                      <div>
+                        <div class="card-number">89</div>
+                        <div class="card-label">Matches Made</div>
                       </div>
                     </div>
                   </div>
@@ -143,8 +136,8 @@ import { RouterModule } from '@angular/router';
                       <div class="chart-bar" style="height: 60%"></div>
                       <div class="chart-bar" style="height: 80%"></div>
                       <div class="chart-bar" style="height: 45%"></div>
-                      <div class="chart-bar" style="height: 90%"></div>
-                      <div class="chart-bar" style="height: 70%"></div>
+                      <div class="chart-bar" style="height: 75%"></div>
+                      <div class="chart-bar" style="height: 55%"></div>
                     </div>
                   </div>
                 </div>
@@ -158,37 +151,34 @@ import { RouterModule } from '@angular/router';
       <section id="features" class="features-section">
         <div class="section-content">
           <div class="section-header">
-            <h2>Powerful Features for Modern Recruitment</h2>
+            <h2>Powerful Features</h2>
             <p>Everything you need to revolutionize your hiring process</p>
             <div class="section-decoration">
               <div class="decoration-line"></div>
               <div class="decoration-icon">
-                <i class="fas fa-gem"></i>
+                <i class="fas fa-star"></i>
               </div>
               <div class="decoration-line"></div>
             </div>
           </div>
           <div class="features-grid">
-            <div class="feature-card" *ngFor="let feature of features; let i = index" 
-                 [style.animation-delay.ms]="i * 200"
+            <div class="feature-card" *ngFor="let feature of features; let i = index"
+                 [class.hovered]="hoveredFeature === i"
                  (mouseenter)="onFeatureHover(i)"
-                 (mouseleave)="onFeatureLeave(i)"
-                 [class.hovered]="hoveredFeature === i">
-              <div class="feature-icon" [ngClass]="feature.iconClass">
+                 (mouseleave)="onFeatureLeave(i)">
+              <div class="feature-number">0{{i + 1}}</div>
+              <div class="feature-icon {{feature.iconClass}}">
                 <i [class]="feature.icon"></i>
-                <div class="icon-bg-animation"></div>
               </div>
-              <h3>{{ feature.title }}</h3>
-              <p>{{ feature.description }}</p>
+              <h3>{{feature.title}}</h3>
+              <p>{{feature.description}}</p>
               <div class="feature-benefits">
-                <div class="benefit" *ngFor="let benefit of feature.benefits; let j = index" 
-                     [style.animation-delay.ms]="j * 100">
+                <div class="benefit" *ngFor="let benefit of feature.benefits">
                   <i class="fas fa-check"></i>
-                  <span>{{ benefit }}</span>
+                  <span>{{benefit}}</span>
                 </div>
               </div>
               <div class="feature-overlay"></div>
-              <div class="feature-number">{{ (i + 1).toString().padStart(2, '0') }}</div>
             </div>
           </div>
         </div>
@@ -198,18 +188,18 @@ import { RouterModule } from '@angular/router';
       <section id="how-it-works" class="how-it-works-section">
         <div class="section-content">
           <div class="section-header">
-            <h2>How AI Hiring Works</h2>
-            <p>Simple steps to transform your recruitment process</p>
+            <h2>How It Works</h2>
+            <p>Simple steps to transform your hiring process</p>
           </div>
           <div class="steps-container">
             <div class="step-item" *ngFor="let step of steps; let i = index">
-              <div class="step-number">{{ i + 1 }}</div>
+              <div class="step-number">0{{i + 1}}</div>
+              <div class="step-icon">
+                <i [class]="step.icon"></i>
+              </div>
               <div class="step-content">
-                <div class="step-icon">
-                  <i [class]="step.icon"></i>
-                </div>
-                <h3>{{ step.title }}</h3>
-                <p>{{ step.description }}</p>
+                <h3>{{step.title}}</h3>
+                <p>{{step.description}}</p>
               </div>
               <div class="step-connector" *ngIf="i < steps.length - 1"></div>
             </div>
@@ -218,44 +208,32 @@ import { RouterModule } from '@angular/router';
       </section>
 
       <!-- Testimonials Section -->
-      <section class="testimonials-section">
+      <section id="testimonials" class="testimonials-section">
         <div class="section-content">
           <div class="section-header">
             <h2>What Our Users Say</h2>
-            <p>Join thousands of satisfied recruiters and candidates</p>
-            <div class="testimonial-stats">
-              <div class="stat-badge">
-                <i class="fas fa-users"></i>
-                <span>10,000+ Happy Users</span>
-              </div>
-              <div class="stat-badge">
-                <i class="fas fa-star"></i>
-                <span>4.9/5 Rating</span>
-              </div>
-            </div>
+            <p>Join thousands of satisfied companies and candidates</p>
           </div>
           <div class="testimonials-carousel">
-            <div class="testimonials-track" [style.transform]="'translateX(' + (-currentTestimonial * 100) + '%)'">
-              <div class="testimonial-slide" *ngFor="let testimonial of testimonials; let i = index">
-                <div class="testimonial-card" [class.active]="i === currentTestimonial">
+            <div class="testimonials-track">
+              <div class="testimonial-slide">
+                <div class="testimonial-card" [class.active]="true">
+                  <div class="quote-icon">"</div>
                   <div class="testimonial-content">
-                    <div class="quote-icon">
-                      <i class="fas fa-quote-left"></i>
-                    </div>
-                    <p>{{ testimonial.content }}</p>
-                    <div class="rating">
-                      <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
-                         [style.animation-delay.ms]="star * 100"></i>
-                    </div>
+                    <p>{{testimonials[currentTestimonial].content}}</p>
+                  </div>
+                  <div class="rating">
+                    <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
+                       [style.animation-delay.ms]="star * 100"></i>
                   </div>
                   <div class="testimonial-author">
                     <div class="author-avatar">
-                      <img [src]="testimonial.avatar" [alt]="testimonial.name">
+                      <img [src]="testimonials[currentTestimonial].avatar" [alt]="testimonials[currentTestimonial].name">
                       <div class="avatar-ring"></div>
                     </div>
                     <div class="author-info">
-                      <div class="author-name">{{ testimonial.name }}</div>
-                      <div class="author-role">{{ testimonial.role }}</div>
+                      <div class="author-name">{{testimonials[currentTestimonial].name}}</div>
+                      <div class="author-role">{{testimonials[currentTestimonial].role}}</div>
                     </div>
                   </div>
                   <div class="testimonial-bg-pattern"></div>
@@ -758,7 +736,7 @@ import { RouterModule } from '@angular/router';
     .card-number {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #1e293b;
+      color: 1e293b;
     }
 
     .card-label {
@@ -1351,6 +1329,7 @@ import { RouterModule } from '@angular/router';
       background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
       transform: translateX(-100%);
       transition: transform 0.6s ease;
+      pointer-events: none;
     }
     
     .feature-card:hover .feature-overlay {
@@ -1539,6 +1518,15 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   // Animation intervals
   private statsAnimationTimeout: any;
+
+  // Pipeline stages for mockup
+  pipelineStages = [
+    { name: 'Applied', count: 45 },
+    { name: 'Screening', count: 28 },
+    { name: 'Interview', count: 12 },
+    { name: 'Offer', count: 5 },
+    { name: 'Hired', count: 3 }
+  ];
 
   features = [
     {
