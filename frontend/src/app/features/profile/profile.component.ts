@@ -57,7 +57,7 @@ import { User } from '../../core/models';
                 </div>
                 <div class="form-group">
                   <label for="joinDate">Member Since</label>
-                  <input type="text" id="joinDate" value="January 2024" readonly>
+                  <input type="text" id="joinDate" value="January 2025" readonly>
                 </div>
               </div>
             </div>

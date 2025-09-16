@@ -345,7 +345,7 @@ import { RouterModule } from '@angular/router';
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2024 AI Hiring. All rights reserved.</p>
+          <p>&copy; 2025 AI Hiring. All rights reserved.</p>
         </div>
       </footer>
     </div>
@@ -610,7 +610,7 @@ import { RouterModule } from '@angular/router';
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #34d399, #065f46);
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }

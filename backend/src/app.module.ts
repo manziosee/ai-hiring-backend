@@ -24,6 +24,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { HealthModule } from './health/health.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { AiAnalysisModule } from './ai-analysis/ai-analysis.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     AnalyticsModule,
     HealthModule,
     DashboardModule,
+    AiAnalysisModule,
   ],
   providers: [
     {

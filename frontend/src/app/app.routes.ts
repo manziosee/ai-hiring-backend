@@ -65,6 +65,12 @@ export const routes: Routes = [
     data: { roles: ['ADMIN', 'RECRUITER'] }
   },
   {
+    path: 'ai-insights',
+    loadComponent: () => import('./features/ai-insights/ai-insights.component').then(m => m.AiInsightsComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN', 'RECRUITER'] }
+  },
+  {
     path: '**',
     loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent)
   }
