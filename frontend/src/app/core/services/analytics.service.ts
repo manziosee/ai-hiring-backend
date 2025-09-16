@@ -79,9 +79,12 @@ export class AnalyticsService {
     period: string = '30d',
   ): Observable<HiringFunnelReport> {
     const params = new HttpParams().set('period', period);
-    return this.http.get<HiringFunnelReport>(`${this.apiUrl}/hiring-funnel`, {
-      params,
-    });
+    return this.http.get<HiringFunnelReport>(
+      `${this.apiUrl}/reports/hiring-funnel`,
+      {
+        params,
+      },
+    );
   }
 
   getJobAnalytics(
@@ -89,9 +92,12 @@ export class AnalyticsService {
     period: string = '30d',
   ): Observable<JobAnalytics> {
     const params = new HttpParams().set('period', period);
-    return this.http.get<JobAnalytics>(`${this.apiUrl}/jobs/${jobId}`, {
-      params,
-    });
+    return this.http.get<JobAnalytics>(
+      `${this.apiUrl}/reports/jobs/${jobId}`,
+      {
+        params,
+      },
+    );
   }
 
   getUserAnalytics(
@@ -99,8 +105,11 @@ export class AnalyticsService {
     period: string = '30d',
   ): Observable<UserAnalytics> {
     const params = new HttpParams().set('period', period);
-    return this.http.get<UserAnalytics>(`${this.apiUrl}/users/${userId}`, {
-      params,
-    });
+    return this.http.get<UserAnalytics>(
+      `${this.apiUrl}/reports/users/${userId}`,
+      {
+        params,
+      },
+    );
   }
 }

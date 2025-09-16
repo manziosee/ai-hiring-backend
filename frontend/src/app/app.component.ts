@@ -95,13 +95,14 @@ import { filter } from 'rxjs/operators';
     }
 
     .navbar {
-      background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
-      color: white;
+      background: #ffffff;
+      color: #374151;
       padding: 0;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
       position: sticky;
       top: 0;
       z-index: 1000;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     .nav-content {
@@ -110,30 +111,30 @@ import { filter } from 'rxjs/operators';
       justify-content: space-between;
       max-width: 1400px;
       margin: 0 auto;
-      padding: 0 var(--spacing-lg);
-      height: 70px;
+      padding: 0 2rem;
+      height: 64px;
     }
 
     .nav-brand {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: white;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
       text-decoration: none;
+      cursor: pointer;
     }
 
     .brand-logo {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      border-radius: 12px;
+      width: 32px;
+      height: 32px;
+      background: #10b981;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
     }
 
     .brand-logo svg {
@@ -143,7 +144,7 @@ import { filter } from 'rxjs/operators';
 
     .nav-links {
       display: flex;
-      gap: var(--spacing-md);
+      gap: 2rem;
       flex: 1;
       justify-content: center;
     }
@@ -151,18 +152,36 @@ import { filter } from 'rxjs/operators';
     .nav-link {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      padding: var(--spacing-sm) var(--spacing-md);
-      color: rgba(255, 255, 255, 0.8);
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      color: #6b7280;
       text-decoration: none;
-      border-radius: var(--radius-md);
-      transition: all var(--transition-fast);
+      border-radius: 6px;
+      transition: all 0.2s ease;
       font-weight: 500;
+      font-size: 0.875rem;
+      position: relative;
 
-      &:hover, &.active {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-        transform: translateY(-1px);
+      &:hover {
+        color: #374151;
+        background-color: #f9fafb;
+      }
+
+      &.active {
+        color: #10b981;
+        background-color: #ecfdf5;
+      }
+
+      &.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 2px;
+        background-color: #10b981;
+        border-radius: 1px;
       }
 
       i {
@@ -173,39 +192,44 @@ import { filter } from 'rxjs/operators';
     .nav-user {
       display: flex;
       align-items: center;
-      gap: var(--spacing-md);
+      gap: 1rem;
     }
 
     .user-info {
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
+      gap: 0.75rem;
     }
 
     .user-avatar {
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: var(--radius-full);
+      width: 36px;
+      height: 36px;
+      background: #f3f4f6;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      color: #6b7280;
+      border: 2px solid #e5e7eb;
     }
 
     .user-details {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xs);
+      gap: 0.125rem;
     }
 
     .user-name {
       font-weight: 600;
       font-size: 0.875rem;
+      color: #111827;
     }
 
     .user-role {
       font-size: 0.75rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 12px;
+      font-weight: 500;
     }
 
     .main-content {
@@ -269,8 +293,8 @@ export class AppComponent implements OnInit {
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.currentRoute = event.url;
+    ).subscribe((event) => {
+      this.currentRoute = (event as NavigationEnd).url;
     });
   }
 
